@@ -17,6 +17,8 @@
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "apexcharts": "^6.8.0",
     "jspdf": "^4.2.1",
     "nuxt": "^3.21.11",
