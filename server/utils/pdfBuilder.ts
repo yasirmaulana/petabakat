@@ -48,6 +48,8 @@ export function buildPdfBuffer(result: any): Buffer {
   stroke(doc, AMBER); doc.line(M, y + 2, M + 38, y + 2)
   y += 8
 
+  // set font dulu sebelum splitTextToSize agar lebar diukur dengan font yang benar
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal')
   const descLines = doc.splitTextToSize(result.personaDescription || '', CW - 10)
   const boxH = 14 + descLines.length * 5
   fill(doc, CREAM); stroke(doc, AMBER); doc.setLineWidth(0.5)
@@ -86,15 +88,15 @@ export function buildPdfBuffer(result: any): Buffer {
   })
   y += 34
 
-  const narrLines = doc.splitTextToSize(result.scoreNarrative || '', CW - 5)
   color(doc, DARK); doc.setFontSize(9); doc.setFont('helvetica', 'normal')
+  const narrLines = doc.splitTextToSize(result.scoreNarrative || '', CW - 5)
   doc.text(narrLines, M, y)
   y += narrLines.length * 5 + 12
 
   // ── Micro-Dosing ─────────────────────────────────────────
   if (y > 230) { doc.addPage(); y = 20 }
-  const planTitle = doc.splitTextToSize(result.microdosingPlan?.title || 'Rencana Stimulasi Mingguan', CW)
   color(doc, GREEN); doc.setFontSize(13); doc.setFont('helvetica', 'bold')
+  const planTitle = doc.splitTextToSize(result.microdosingPlan?.title || 'Rencana Stimulasi Mingguan', CW)
   doc.text(planTitle, M, y)
   stroke(doc, AMBER); doc.setLineWidth(0.8)
   doc.line(M, y + 2, M + 55, y + 2)
@@ -102,6 +104,8 @@ export function buildPdfBuffer(result: any): Buffer {
   y += 9
 
   for (const item of result.microdosingPlan?.schedule || []) {
+    // set font dulu sebelum splitTextToSize agar wrapping akurat
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold')
     const actLines = doc.splitTextToSize(item.activity || '', CW - 5)
     const rowH = 20 + (actLines.length - 1) * 5
     if (y + rowH > 272) { doc.addPage(); y = 20 }
@@ -131,8 +135,8 @@ export function buildPdfBuffer(result: any): Buffer {
   doc.text('Catatan untuk Orang Tua', M, y)
   stroke(doc, AMBER); doc.line(M, y + 2, M + 52, y + 2)
   y += 9
-  const notesLines = doc.splitTextToSize(result.parentNotes || '', CW)
   color(doc, DARK); doc.setFontSize(9); doc.setFont('helvetica', 'normal')
+  const notesLines = doc.splitTextToSize(result.parentNotes || '', CW - 5)
   doc.text(notesLines, M, y)
 
   // ── Footer semua halaman ─────────────────────────────────
