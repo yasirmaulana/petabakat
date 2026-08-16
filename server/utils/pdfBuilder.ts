@@ -93,23 +93,29 @@ export function buildPdfBuffer(result: any): Buffer {
 
   // ── Micro-Dosing ─────────────────────────────────────────
   if (y > 230) { doc.addPage(); y = 20 }
+  const planTitle = doc.splitTextToSize(result.microdosingPlan?.title || 'Rencana Stimulasi Mingguan', CW)
   color(doc, GREEN); doc.setFontSize(13); doc.setFont('helvetica', 'bold')
-  doc.text(result.microdosingPlan?.title || 'Rencana Stimulasi Mingguan', M, y)
+  doc.text(planTitle, M, y)
   stroke(doc, AMBER); doc.setLineWidth(0.8)
   doc.line(M, y + 2, M + 55, y + 2)
+  y += (planTitle.length - 1) * 6
   y += 9
 
   for (const item of result.microdosingPlan?.schedule || []) {
-    if (y > 262) { doc.addPage(); y = 20 }
+    const actLines = doc.splitTextToSize(item.activity || '', CW)
+    const rowH = 12 + (actLines.length - 1) * 5
+    if (y + rowH > 272) { doc.addPage(); y = 20 }
     fill(doc, GREEN)
-    doc.roundedRect(M, y - 4, 30, 9, 2, 2, 'F')
+    doc.roundedRect(M, y - 1, 30, 8, 2, 2, 'F')
     doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold')
-    doc.text(item.day, M + 15, y + 1, { align: 'center' })
+    doc.text(item.day, M + 15, y + 4.5, { align: 'center' })
+    y += 12
     color(doc, DARK); doc.setFontSize(9); doc.setFont('helvetica', 'bold')
-    doc.text(item.activity, M + 34, y)
+    doc.text(actLines, M, y)
+    y += actLines.length * 5
     color(doc, GRAY); doc.setFontSize(8); doc.setFont('helvetica', 'normal')
-    doc.text(`${item.durationMinutes} menit`, M + 34, y + 5)
-    y += 13
+    doc.text(`${item.durationMinutes} menit`, M, y)
+    y += 10
   }
 
   // ── Catatan Orang Tua ────────────────────────────────────
