@@ -192,13 +192,11 @@
             <div
               v-for="(item, idx) in result.microdosingPlan?.schedule || []"
               :key="idx"
-              class="flex items-start gap-4 rounded-xl border border-gray-100 bg-gray-25 px-4 py-3.5"
+              class="rounded-xl border border-gray-100 bg-gray-25 px-4 py-3.5"
             >
-              <span class="mt-0.5 shrink-0 rounded-lg bg-brand-400 px-2.5 py-1 text-xs font-semibold text-black">{{ item.day }}</span>
-              <div class="min-w-0">
-                <p class="text-sm font-medium text-gray-800">{{ item.activity }}</p>
-                <p class="mt-0.5 text-xs text-gray-400">{{ item.durationMinutes }} menit</p>
-              </div>
+              <span class="inline-block rounded-lg bg-brand-400 px-2.5 py-1 text-xs font-semibold text-black">{{ item.day }}</span>
+              <p class="mt-2 text-sm font-medium text-gray-800">{{ item.activity }}</p>
+              <p class="mt-0.5 text-xs text-gray-400">{{ item.durationMinutes }} menit</p>
             </div>
           </div>
         </div>

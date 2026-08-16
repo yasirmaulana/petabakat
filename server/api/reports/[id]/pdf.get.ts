@@ -1,6 +1,5 @@
-import puppeteer from 'puppeteer'
 import { prisma } from '~/server/utils/prisma'
-import { buildPdfHtml } from '~/server/utils/pdfTemplate'
+import { buildPdfBuffer } from '~/server/utils/pdfBuilder'
 
 export default defineEventHandler(async (event) => {
   const publicId = getRouterParam(event, 'id')
@@ -22,22 +21,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Result not found' })
   }
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  })
-
-  const page = await browser.newPage()
-  const html = buildPdfHtml(result)
-  await page.setContent(html, { waitUntil: 'load' })
-
-  const pdfBuffer = await page.pdf({
-    format: 'A4',
-    printBackground: true,
-    margin: { top: '0', right: '0', bottom: '0', left: '0' },
-  })
-
-  await browser.close()
+  const pdfBuffer = buildPdfBuffer(result)
 
   const internalSurveyId = result.survey.id
   const fileName = `petabakat-report-${publicId}.pdf`
