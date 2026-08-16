@@ -167,8 +167,7 @@
           </div>
 
           <div class="card p-6">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-xs text-gray-400">Tidak setuju</span>
+            <div class="flex items-center justify-center gap-2">
               <div class="flex gap-3">
                 <button
                   v-for="score in [1, 2, 3, 4, 5]"
@@ -181,7 +180,6 @@
                   {{ score }}
                 </button>
               </div>
-              <span class="text-xs text-gray-400">Setuju</span>
             </div>
           </div>
         </section>
