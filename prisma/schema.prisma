@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Parent {
+  id        Int       @id @default(autoincrement())
+  name      String
+  phone     String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  children  Child[]
+  surveys   Survey[]
+
+  @@map("parents")
+}
+
+model Child {
+  id        Int       @id @default(autoincrement())
+  parentId  Int       @map("parent_id")
+  name      String
+  birthDate DateTime  @map("birth_date") @db.Date
+  gender    String    @db.VarChar(1)
+  createdAt DateTime  @default(now()) @map("created_at")
+  parent    Parent    @relation(fields: [parentId], references: [id])
+  surveys   Survey[]
+
+  @@map("children")
+}
+
+model HasabCategory {
+  id          Int        @id @default(autoincrement())
+  code        String     @unique @db.VarChar(20)
+  name        String     @db.VarChar(100)
+  description String?
+  questions   Question[]
+
+  @@map("hasab_categories")
+}
+
+model Question {
+  id         Int            @id @default(autoincrement())
+  categoryId Int?           @map("category_id")
+  order      Int
+  text       String
+  type       String         @db.VarChar(10)
+  category   HasabCategory? @relation(fields: [categoryId], references: [id])
+  answers    SurveyAnswer[]
+
+  @@map("questions")
+}
+
+model Survey {
+  id          Int       @id @default(autoincrement())
+  publicId    String    @unique @default(uuid()) @map("public_id")
+  childId     Int       @map("child_id")
+  parentId    Int       @map("parent_id")
+  status      String    @default("in_progress") @db.VarChar(20)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+  child       Child     @relation(fields: [childId], references: [id])
+  parent      Parent    @relation(fields: [parentId], references: [id])
+  answers     SurveyAnswer[]
+  responses   ChildNaturalResponse[]
+  result      SurveyResult?
+  pdfReports  PdfReport[]
+
+  @@map("surveys")
+}
+
+model SurveyAnswer {
+  id         Int      @id @default(autoincrement())
+  surveyId   Int      @map("survey_id")
+  questionId Int      @map("question_id")
+  value      Int      @db.SmallInt
+  survey     Survey   @relation(fields: [surveyId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
+
+  @@unique([surveyId, questionId])
+  @@map("survey_answers")
+}
+
+model ChildNaturalResponse {
+  id             Int     @id @default(autoincrement())
+  surveyId       Int     @map("survey_id")
+  responseOption String  @map("response_option") @db.VarChar(255)
+  freeText       String? @map("free_text")
+  survey         Survey  @relation(fields: [surveyId], references: [id])
+
+  @@map("child_natural_responses")
+}
+
+model SurveyResult {
+  id                 Int      @id @default(autoincrement())
+  surveyId           Int      @unique @map("survey_id")
+  scoreAsyiha        Int      @map("score_asyiha") @db.SmallInt
+  scoreIlmi          Int      @map("score_ilmi") @db.SmallInt
+  scoreAmali         Int      @map("score_amali") @db.SmallInt
+  scoreWajdan        Int      @map("score_wajdan") @db.SmallInt
+  pctAsyiha          Decimal  @map("pct_asyiha") @db.Decimal(5, 2)
+  pctIlmi            Decimal  @map("pct_ilmi") @db.Decimal(5, 2)
+  pctAmali           Decimal  @map("pct_amali") @db.Decimal(5, 2)
+  pctWajdan          Decimal  @map("pct_wajdan") @db.Decimal(5, 2)
+  dominantHasab      String   @map("dominant_hasab") @db.VarChar(20)
+  source             String   @default("ai") @db.VarChar(10)
+  personaLabel       String   @map("persona_label") @db.VarChar(100)
+  personaDescription String?  @map("persona_description")
+  scoreNarrative     String?  @map("score_narrative")
+  parentNotes        String?  @map("parent_notes")
+  microdosingPlan    Json?    @map("microdosing_plan")
+  aiRawResponse      Json?    @map("ai_raw_response")
+  aiModel            String?  @map("ai_model") @db.VarChar(50)
+  createdAt          DateTime @default(now()) @map("created_at")
+  survey             Survey   @relation(fields: [surveyId], references: [id])
+
+  @@map("survey_results")
+}
+
+model OtpCode {
+  id        Int      @id @default(autoincrement())
+  phone     String
+  code      String   @db.VarChar(6)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([phone])
+  @@map("otp_codes")
+}
+
+model PdfReport {
+  id        Int       @id @default(autoincrement())
+  surveyId  Int       @map("survey_id")
+  filePath  String    @map("file_path") @db.VarChar(500)
+  sentViaWa Boolean   @default(false) @map("sent_via_wa")
+  sentAt    DateTime? @map("sent_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  survey    Survey    @relation(fields: [surveyId], references: [id])
+
+  @@map("pdf_reports")
+}

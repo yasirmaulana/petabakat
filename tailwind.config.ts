@@ -1,0 +1,87 @@
+import type { Config } from 'tailwindcss'
+
+export default {
+  content: [
+    './components/**/*.{vue,js,ts}',
+    './layouts/**/*.vue',
+    './pages/**/*.vue',
+    './plugins/**/*.{js,ts}',
+    './app.vue',
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        body: ['"Inter Tight"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['"Inter Tight"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
+      colors: {
+        brand: {
+          25:  '#fffbf5',
+          50:  '#fff8eb',
+          100: '#fff0cc',
+          200: '#ffda44',
+          300: '#fcd27e',
+          400: '#fabc3f',
+          500: '#e4ab39',
+          600: '#b2852d',
+          700: '#8a6723',
+          800: '#634a19',
+          900: '#3d2e10',
+          950: '#1f1708',
+        },
+        gray: {
+          25:  '#fafafa',
+          50:  '#f5f5f5',
+          100: '#f0f0f0',
+          200: '#e9eaeb',
+          300: '#d5d7da',
+          400: '#a4a7ae',
+          500: '#717680',
+          600: '#535862',
+          700: '#414651',
+          800: '#252b37',
+          900: '#181d27',
+          950: '#0a0d12',
+        },
+        error: {
+          50:  '#fef3f2',
+          100: '#fee4e2',
+          300: '#fda29b',
+          500: '#f04438',
+          600: '#d92d20',
+        },
+        success: {
+          50:  '#ecfdf3',
+          500: '#17b26a',
+          600: '#079455',
+          700: '#067647',
+        },
+        warning: {
+          50:  '#fffaeb',
+          500: '#f79009',
+          600: '#dc6803',
+        },
+      },
+      borderRadius: {
+        'xxs': '2px',
+        'xs':  '4px',
+        'sm':  '6px',
+        'md':  '8px',
+        'lg':  '10px',
+        'xl':  '12px',
+        '2xl': '16px',
+        '3xl': '20px',
+        '4xl': '24px',
+      },
+      boxShadow: {
+        'xs': '0px 1px 2px 0px rgba(16,24,40,.05)',
+        'sm': '0px 1px 2px 0px rgba(16,24,40,.06), 0px 1px 3px 0px rgba(16,24,40,.1)',
+        'md': '0px 2px 4px -2px rgba(16,24,40,.06), 0px 4px 8px -2px rgba(16,24,40,.1)',
+        'lg': '0px 4px 6px -2px rgba(16,24,40,.03), 0px 12px 16px -4px rgba(16,24,40,.08)',
+        'xl': '0px 8px 8px -4px rgba(16,24,40,.03), 0px 20px 24px -4px rgba(16,24,40,.08)',
+        '2xl': '0px 24px 48px -12px rgba(16,24,40,.18)',
+        'btn': '0 1px 2px rgba(10,13,18,.05), inset 0 0 0 1px rgba(10,13,18,.18), inset 0 -2px 0 rgba(10,13,18,.05)',
+      },
+    },
+  },
+} satisfies Config
