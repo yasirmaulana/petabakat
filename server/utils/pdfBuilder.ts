@@ -86,7 +86,7 @@ export function buildPdfBuffer(result: any): Buffer {
   })
   y += 34
 
-  const narrLines = doc.splitTextToSize(result.scoreNarrative || '', CW)
+  const narrLines = doc.splitTextToSize(result.scoreNarrative || '', CW - 5)
   color(doc, DARK); doc.setFontSize(9); doc.setFont('helvetica', 'normal')
   doc.text(narrLines, M, y)
   y += narrLines.length * 5 + 12
@@ -102,14 +102,20 @@ export function buildPdfBuffer(result: any): Buffer {
   y += 9
 
   for (const item of result.microdosingPlan?.schedule || []) {
-    const actLines = doc.splitTextToSize(item.activity || '', CW)
-    const rowH = 12 + (actLines.length - 1) * 5
+    const actLines = doc.splitTextToSize(item.activity || '', CW - 5)
+    const rowH = 20 + (actLines.length - 1) * 5
     if (y + rowH > 272) { doc.addPage(); y = 20 }
+
+    // day badge: auto-width based on text
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold')
+    const dayText = item.day || ''
+    const dayW = doc.getTextWidth(dayText) + 8
     fill(doc, GREEN)
-    doc.roundedRect(M, y - 1, 30, 8, 2, 2, 'F')
-    doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold')
-    doc.text(item.day, M + 15, y + 4.5, { align: 'center' })
+    doc.roundedRect(M, y - 1, dayW, 8, 2, 2, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.text(dayText, M + 4, y + 4.5)
     y += 12
+
     color(doc, DARK); doc.setFontSize(9); doc.setFont('helvetica', 'bold')
     doc.text(actLines, M, y)
     y += actLines.length * 5
