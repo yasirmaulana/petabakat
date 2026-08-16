@@ -11,6 +11,49 @@
       <span class="text-xs font-medium text-gray-500">Langkah {{ currentStep + 1 }} dari {{ totalSteps }}</span>
     </header>
 
+    <!-- Loading overlay -->
+    <Transition name="fade-overlay">
+      <div v-if="loading" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-950/95 px-6 text-white">
+        <div class="w-full max-w-sm">
+          <!-- Brand -->
+          <p class="mb-8 text-center text-sm font-semibold tracking-widest text-brand-400 uppercase">PetaBakat</p>
+
+          <!-- Steps -->
+          <div class="space-y-4">
+            <div
+              v-for="(step, i) in loadingSteps"
+              :key="i"
+              class="flex items-center gap-3 transition-opacity duration-500"
+              :class="i > loadingStep ? 'opacity-25' : 'opacity-100'"
+            >
+              <!-- icon -->
+              <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full">
+                <svg v-if="i < loadingStep" class="h-5 w-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <svg v-else-if="i === loadingStep" class="h-5 w-5 animate-spin text-brand-400" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <div v-else class="h-2 w-2 rounded-full bg-gray-600" />
+              </div>
+              <span class="text-sm" :class="i === loadingStep ? 'font-semibold text-white' : i < loadingStep ? 'text-brand-400' : 'text-gray-500'">
+                {{ step }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Fun fact -->
+          <div class="mt-10 rounded-xl border border-white/10 bg-white/5 px-4 py-4">
+            <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-400">Tahukah kamu?</p>
+            <Transition name="fact-swap" mode="out-in">
+              <p :key="currentFact" class="text-sm leading-relaxed text-gray-300">{{ loadingFacts[currentFact] }}</p>
+            </Transition>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <main class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
 
       <!-- Progress bar -->
@@ -225,6 +268,46 @@ const form = reactive({
 const currentStep = ref(0)
 const loading = ref(false)
 
+const loadingSteps = [
+  'Membaca jawaban kamu...',
+  'Menganalisis pola Nasab & Hasab...',
+  'Menyusun persona potensi...',
+  'Merancang rencana stimulasi mingguan...',
+  'Menyiapkan laporan akhir...',
+]
+const loadingStep = ref(0)
+
+const loadingFacts = [
+  'Anak yang sering diajak berdiskusi tumbuh dengan kemampuan berpikir kritis lebih tinggi.',
+  'Minat belajar anak terbentuk paling kuat antara usia 3–8 tahun — masa emas stimulasi.',
+  'Framework Hasab mengelompokkan potensi ke dalam 4 dimensi: Asyiha, Ilmi, Amali, dan Wajdan.',
+  'Nasab bukan hanya silsilah darah — ia adalah warisan karakter dan kecenderungan jiwa.',
+  'Stimulasi 20–30 menit per hari lebih efektif daripada satu sesi panjang seminggu sekali.',
+  'Anak dengan dimensi Amali tinggi belajar paling baik melalui tangan — membuat dan merancang.',
+  'Musik instrumental terbukti membantu anak dengan dimensi Wajdan memproses emosi dan ide.',
+]
+const currentFact = ref(0)
+let stepTimer = null
+let factTimer = null
+
+function startLoadingAnimation() {
+  loadingStep.value = 0
+  currentFact.value = 0
+  stepTimer = setInterval(() => {
+    if (loadingStep.value < loadingSteps.length - 1) loadingStep.value++
+  }, 2800)
+  factTimer = setInterval(() => {
+    currentFact.value = (currentFact.value + 1) % loadingFacts.length
+  }, 4000)
+}
+
+function stopLoadingAnimation() {
+  if (stepTimer) clearInterval(stepTimer)
+  if (factTimer) clearInterval(factTimer)
+}
+
+onUnmounted(stopLoadingAnimation)
+
 // Flatten & shuffle semua hasab questions saat data tersedia, order tetap selama sesi
 const shuffledHasabQuestions = ref([])
 watch(data, (val) => {
@@ -303,6 +386,7 @@ function selectHasabScore(questionId, score) {
 
 async function submitSurvey() {
   loading.value = true
+  startLoadingAnimation()
   try {
     const payload = {
       parentName: form.parentName,
@@ -320,7 +404,32 @@ async function submitSurvey() {
     alert('Gagal menyimpan survey. Silakan coba lagi.')
     console.error(err)
   } finally {
+    stopLoadingAnimation()
     loading.value = false
   }
 }
 </script>
+
+<style scoped>
+.fade-overlay-enter-active,
+.fade-overlay-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-overlay-enter-from,
+.fade-overlay-leave-to {
+  opacity: 0;
+}
+
+.fact-swap-enter-active,
+.fact-swap-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.fact-swap-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.fact-swap-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+</style>
