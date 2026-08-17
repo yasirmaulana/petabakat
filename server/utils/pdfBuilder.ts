@@ -155,41 +155,25 @@ export function buildPdfBuffer(result: any): Buffer {
   const notesLines = wrap(doc, result.parentNotes || '', CW)
   doc.text(notesLines, M, y)
 
-  // ── Wakaf Banner ─────────────────────────────────────────
-  // Letakkan di dekat footer agar tidak menutupi Catatan Orang Tua
-  const bannerH = 56
-  const bannerY = 286 - bannerH - 6
-  fill(doc, DARK)
-  doc.roundedRect(M, bannerY, CW, bannerH, 3, 3, 'F')
-  fill(doc, AMBER)
-  doc.rect(M, bannerY, CW, 2, 'F')
-
-  color(doc, [255, 255, 255]); doc.setFontSize(12); doc.setFont('helvetica', 'bold')
-  doc.text('Bangun Peradaban Lewat Wakaf', M + 8, bannerY + 12)
-
-  color(doc, [212, 212, 212]); doc.setFontSize(8); doc.setFont('helvetica', 'normal')
-  const wakafDesc = wrap(doc, 'Potensi anak adalah benih peradaban. Agar benih itu tumbuh, dibutuhkan lembaga pendidikan yang kuat. Wakafkan asrama santri Madrasah Al-Fatih — satu langkah nyata membangun generasi berilmu.', CW - 16)
-  doc.text(wakafDesc, M + 8, bannerY + 20)
-
-  const ctaText = 'Wakaf Sekarang'
-  doc.setFontSize(9); doc.setFont('helvetica', 'bold')
-  const ctaW = doc.getTextWidth(ctaText) + 16
-  const ctaX = M + 8
-  const ctaY = bannerY + bannerH - 18
-  fill(doc, AMBER)
-  doc.roundedRect(ctaX, ctaY, ctaW, 12, 2, 2, 'F')
-  color(doc, DARK)
-  doc.text(ctaText, ctaX + ctaW / 2, ctaY + 8, { align: 'center' })
-  doc.link(ctaX, ctaY, ctaW, 12, { url: 'https://tarahum.id/amal/wakaf-asrama-akhwat-madrasah-al-fatih-situ-daun-bogor?ref=AsyTTx2F' })
-
   // ── Footer semua halaman ─────────────────────────────────
   const total = doc.getNumberOfPages()
+  const wakafUrl = 'https://tarahum.id/amal/wakaf-asrama-akhwat-madrasah-al-fatih-situ-daun-bogor?ref=AsyTTx2F'
   for (let p = 1; p <= total; p++) {
     doc.setPage(p)
     stroke(doc, LIGHT); doc.setLineWidth(0.4)
     doc.line(M, 284, W - M, 284)
-    color(doc, GRAY); doc.setFontSize(7); doc.setFont('helvetica', 'normal')
-    doc.text('PetaBakat · Laporan Potensi Anak', W / 2, 289, { align: 'center' })
+
+    color(doc, GRAY); doc.setFontSize(14); doc.setFont('helvetica', 'normal')
+    const pre = 'Bangun Peradaban Lewat Wakaf, klik '
+    const link = 'wakaf sekarang'
+    const preW = doc.getTextWidth(pre)
+    const linkW = doc.getTextWidth(link)
+    const fullW = preW + linkW
+    const startX = (W - fullW) / 2
+    doc.text(pre, startX, 289)
+    color(doc, AMBER); doc.setFont('helvetica', 'bold')
+    doc.text(link, startX + preW, 289)
+    doc.link(startX + preW, 289 - 6, linkW, 9, { url: wakafUrl })
   }
 
   return Buffer.from(doc.output('arraybuffer'))
