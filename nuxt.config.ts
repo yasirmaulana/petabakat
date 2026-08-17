@@ -19,6 +19,8 @@ export default defineNuxtConfig({
     anthropicAuthToken: process.env.ANTHROPIC_AUTH_TOKEN,
     anthropicSonnetModel: process.env.ANTHROPIC_DEFAULT_SONNET_MODEL,
     anthropicHaikuModel: process.env.ANTHROPIC_DEFAULT_HAIKU_MODEL,
+    groqApiKey: process.env.GROQ_API_KEY,
+    groqModel: process.env.GROQ_MODEL,
     whatsappApiUrl: process.env.WHATSAPP_API_URL,
     whatsappFonnteToken: process.env.WHATSAPP_API_TOKEN_FONNTE,
   },

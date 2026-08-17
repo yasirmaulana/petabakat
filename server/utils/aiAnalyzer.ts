@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import Groq from 'groq-sdk'
 
 export interface AiAnalysisInput {
   scores: { asyiha: number; ilmi: number; amali: number; wajdan: number }
@@ -57,18 +58,40 @@ export interface AiAnalysisResult extends AiAnalysisOutput {
   _model: string
 }
 
-async function callModel(anthropic: Anthropic, model: string, userPrompt: string): Promise<AiAnalysisResult> {
+async function parseAiResponse(raw: string, model: string): Promise<AiAnalysisResult> {
+  const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim()
+  return { ...JSON.parse(cleaned), _model: model }
+}
+
+async function callAnthropic(anthropic: Anthropic, model: string, userPrompt: string): Promise<AiAnalysisResult> {
   const response = await anthropic.messages.create({
     model,
     max_tokens: 3000,
     system: systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],
   })
-
   const raw = response.content.find((c) => c.type === 'text')?.text || '{}'
-  // strip markdown code fences if model wraps output
-  const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim()
-  return { ...JSON.parse(cleaned), _model: model }
+  return parseAiResponse(raw, model)
+}
+
+async function callGroq(groq: Groq, model: string, userPrompt: string): Promise<AiAnalysisResult> {
+  const completion = await groq.chat.completions.create({
+    model,
+    temperature: 0.7,
+    max_tokens: 3000,
+    stream: false,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+  })
+  const raw = completion.choices[0]?.message?.content || '{}'
+  return parseAiResponse(raw, model)
+}
+
+function isRetryableError(err: any): boolean {
+  const status = err?.status ?? err?.statusCode
+  return RATE_LIMIT_CODES.has(status) || status >= 500 || err?.code === 'ECONNRESET' || err?.code === 'ETIMEDOUT'
 }
 
 export async function analyzeWithAi(input: AiAnalysisInput): Promise<AiAnalysisResult> {
@@ -80,31 +103,38 @@ export async function analyzeWithAi(input: AiAnalysisInput): Promise<AiAnalysisR
     defaultHeaders: { 'User-Agent': 'anthropic-typescript/0.36.0' },
   })
 
+  const groq = config.groqApiKey
+    ? new Groq({ apiKey: config.groqApiKey })
+    : null
+
   const userPrompt = buildUserPrompt(input)
 
-  // Chain: Sonnet → Haiku (Kimi) → static fallback (thrown to caller)
-  const models = [
-    config.anthropicSonnetModel || 'cc/claude-sonnet-4-6',
-    config.anthropicHaikuModel || 'ocg/kimi-k2.7-code',
-  ].filter(Boolean)
+  const attempts: Array<() => Promise<AiAnalysisResult>> = [
+    () => callAnthropic(anthropic, config.anthropicSonnetModel || 'cc/claude-sonnet-4-6', userPrompt),
+    () => callAnthropic(anthropic, config.anthropicHaikuModel || 'ocg/kimi-k2.7-code', userPrompt),
+  ]
 
-  let lastError: unknown
-  for (const model of models) {
+  if (groq) {
+    attempts.push(() => callGroq(groq, config.groqModel || 'llama-3.3-70b-versatile', userPrompt))
+  }
+
+  const errors: string[] = []
+  for (const attempt of attempts) {
     try {
-      return await callModel(anthropic, model, userPrompt)
+      return await attempt()
     } catch (err: any) {
-      lastError = err
-      const status = err?.status ?? err?.statusCode
-      if (RATE_LIMIT_CODES.has(status)) {
-        console.warn(`Model ${model} rate limited (${status}), trying next model...`)
+      const msg = err?.message || String(err)
+      errors.push(msg)
+      if (isRetryableError(err)) {
+        console.warn(`AI provider failed (${msg}), trying next fallback...`)
         continue
       }
-      // non-rate-limit error → stop chain, let caller handle
+      // client/config errors: fail fast
       throw err
     }
   }
 
-  throw lastError
+  throw new Error(`All AI providers failed: ${errors.join(' | ')}`)
 }
 
 function buildUserPrompt(input: AiAnalysisInput): string {

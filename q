@@ -1,0 +1,61 @@
+[33mcommit 6939f2b40d379e3c26ca50721a0df96946fda5f5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: yasirmaulana <yasir.maulana@gmail.com>
+Date:   Sun Aug 16 15:29:02 2026 +0700
+
+    feat: loading overlay fullscreen saat submit survey - progress steps + fun facts
+
+[33mcommit ebc4dde42eed8936c5710d665f6c815e47a75e90[m
+Author: yasirmaulana <yasir.maulana@gmail.com>
+Date:   Sun Aug 16 15:20:53 2026 +0700
+
+    fix: ganti splitTextToSize dengan custom wrap() berbasis getTextWidth agar wrapping akurat
+
+[33mcommit d8a8b2818a47566fb2620d0150b23d3d7b408c0a[m
+Author: yasirmaulana <yasir.maulana@gmail.com>
+Date:   Sun Aug 16 15:09:55 2026 +0700
+
+    fix: splitTextToSize dipanggil setelah setFont agar wrapping akurat
+
+[33mcommit 2622f1725bc536b24b43cb079c709de6d2be742c[m
+Author: yasirmaulana <yasir.maulana@gmail.com>
+Date:   Sun Aug 16 15:01:28 2026 +0700
+
+    fix: badge hari auto-width & teks narasi tidak kepotong di PDF
+
+[33mcommit 4553472c412ca44c599474b432995882e79b113e[m
+Author: yasirmaulana <yasir.maulana@gmail.com>
+Date:   Sun Aug 16 14:54:28 2026 +0700
+
+    fix: PDF teks tidak kepotong - micro-dosing 1 kolom dengan splitTextToSize
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+[33mcommit caa53ec3b820507a7359bef4f322b76f060773b4[m
+Author: yasirmaulana <yasir.maulana@gmail.com>
+Date:   Sun Aug 16 14:43:31 2026 +0700
+
+    fix: ganti puppeteer dengan jsPDF, ubah layout micro-dosing jadi 1 kolom
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+[33mcommit f9e17574f2ef96ef51f51ce4d6358e3b9cc0d1fe[m
+Author: yasirmaulana <yasir.maulana@gmail.com>
+Date:   Sun Aug 16 14:13:09 2026 +0700
+
+    fix: run prisma generate on postinstall so Vercel build includes generated client
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+[33mcommit c9224838352ff2d880d218eef5b98e2551b733e9[m
+Author: yasirmaulana <yasir.maulana@gmail.com>
+Date:   Sun Aug 16 14:04:44 2026 +0700
+
+    fix: import PrismaClient via default export for Vercel ESM compatibility
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+[33mcommit bb9cd63b18ce9b65c22adcaa84412af93e6894e0[m
+Author: yasirmaulana <yasir.maulana@gmail.com>
+Date:   Sun Aug 16 11:16:06 2026 +0700
+
+    first commit
