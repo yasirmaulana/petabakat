@@ -77,7 +77,7 @@
           <p class="text-xs font-semibold uppercase tracking-widest text-brand-600">Preview Output</p>
           <h2 class="mt-2 text-2xl font-bold text-gray-950">Contoh Hasil Analisis</h2>
           <p class="mt-2 text-sm text-gray-500">
-            Hasil mencakup radar chart, persona potensi, narasi skor, catatan pengasuhan, dan rencana stimulus mingguan.
+            Hasil mencakup radar chart, persona potensi, narasi skor, catatan pengasuhan, dan rencana stimulus mingguan 
           </p>
         </div>
         <div class="card overflow-hidden">
