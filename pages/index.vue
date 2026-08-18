@@ -77,36 +77,14 @@
           <p class="text-xs font-semibold uppercase tracking-widest text-brand-600">Preview Output</p>
           <h2 class="mt-2 text-2xl font-bold text-gray-950">Contoh Hasil Analisis</h2>
           <p class="mt-2 text-sm text-gray-500">
-            Hasil mencakup radar chart, persona potensi, narasi skor, catatan pengasuhan, dan rencana micro-dosing mingguan.
+            Hasil mencakup radar chart, persona potensi, narasi skor, catatan pengasuhan, dan rencana stimulus mingguan.
           </p>
         </div>
         <div class="card overflow-hidden">
-          <div class="border-b border-brand-200 bg-brand-50 px-6 py-5">
-            <div class="mb-1 flex items-center gap-2">
-              <span class="rounded-full bg-brand-400 px-2.5 py-0.5 text-xs font-semibold text-black">Sample</span>
-              <span class="text-xs text-gray-500">AI Generated</span>
-            </div>
-            <h3 class="text-xl font-bold text-gray-950">The Innovator Leader</h3>
-            <p class="mt-1 text-sm text-gray-600">Amali dominan · Ilmi kuat · Asyiha berkembang</p>
-          </div>
-          <div class="p-6">
-            <p class="text-sm leading-relaxed text-gray-700">
-              Anak dengan kombinasi <strong>Amali + Ilmi + Asyiha</strong> cenderung memiliki kekuatan eksekusi teknis,
-              daya kritis, dan pengaruh sosial. Cocok dikembangkan ke arah technopreneur, product leader, atau robotics/AI.
-            </p>
-            <div class="mt-5">
-              <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Micro-Dosing Mingguan</p>
-              <div class="space-y-2">
-                <div v-for="item in sampleSchedule" :key="item.day" class="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-25 px-4 py-3">
-                  <span class="mt-0.5 shrink-0 rounded-lg bg-brand-400 px-2 py-0.5 text-xs font-semibold text-black">{{ item.day }}</span>
-                  <div>
-                    <p class="text-sm font-medium text-gray-800">{{ item.activity }}</p>
-                    <p class="text-xs text-gray-400">{{ item.duration }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <LiteYoutube
+            id="B26hZ_CQsSI"
+            title="Contoh Hasil Analisis PetaBakat"
+          />
         </div>
       </div>
     </section>
@@ -153,7 +131,6 @@
 
     <!-- Footer -->
     <footer class="border-t border-gray-100 px-6 py-6 text-center">
-      <p class="text-xs text-gray-400">PetaBakat · Berbasis framework Nasab &amp; Hasab dalam perspektif Islam</p>
       <p class="mt-1 text-xs text-gray-400">
         Framework Nasab &amp; Hasab terinspirasi dari pemikiran <strong class="text-gray-500">Kyai Budi Ashari</strong>
         · dikembangkan dalam
