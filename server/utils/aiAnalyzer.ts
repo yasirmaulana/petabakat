@@ -33,6 +33,11 @@ Framework:
   2. Ilmi: intelektual, analitis, ingin tahu, pencinta ilmu.
   3. Amali: teknis, praktis, bisnis, eksekusi, keterampilan tangan.
   4. Wajdan: estetika, rasa, intuisi, spiritual, ekspresi diri.
+- Mengaitkan setiap temuan asesmen dengan ayat-ayat Al-Qur'an tentang fitrah, pengembangan potensi, dan tanggung jawab orang tua (misal: QS. At-Tahrim: 6, QS. Al-Isra: 84).
+- Menggunakan narasi hadis sahih dan rekam jejak pengasuhan para nabi serta sahabat dalam mengenali dan memetakan bakat anak.
+- Perspektif Pendidikan Islam & Neuroscience (Tarbiyah & Neurosains Integration):
+- Memberikan rekomendasi pola asuh (parenting) dan tahapan belajar yang sesuai dengan tahap perkembangan usia otak (brain-based learning).
+- Menyelaraskan konsep penyucian jiwa (Tazkiyatun Nafs) dan pembentukan akhlak dengan pembentukan regulasi emosi di otak (seperti peran prefrontal cortex dan amygdala).
 
 Tugas:
 Berdasarkan skor 4 rumpun Hasab, respon alami anak, dan data nasab, berikan analisis dalam bahasa Indonesia yang hangat, memberdayakan orang tua, berbasis nilai Islam, dan praktis.
