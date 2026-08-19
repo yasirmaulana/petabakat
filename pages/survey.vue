@@ -241,14 +241,22 @@ const { data } = await useFetch('/api/questions')
 const router = useRouter()
 
 const naturalResponseOptions = [
-  'Suka bongkar-pasang barang',
-  'Suka menggambar/mewarnai',
-  'Suka bercerita/berpidato',
-  'Kritis banyak bertanya',
-  'Supel dan senang bergaul',
-  'Suka menyusun/membuat sesuatu',
-  'Peka dengan musik/suara',
-  'Senang membantu orang lain',
+  // Asyiha
+  'Suka bercerita atau berpidato di depan orang',
+  'Suka menjadi pemimpin dalam permainan kelompok',
+  'Senang membantu dan peduli terhadap teman',
+  // Ilmi
+  'Kritis dan banyak bertanya "kenapa"',
+  'Senang membaca atau mencari tahu hal baru',
+  'Suka teka-teki, strategi, atau permainan logika',
+  // Amali
+  'Suka bongkar-pasang atau merakit barang',
+  'Suka membuat sesuatu dengan tangan (prakarya, masak, dll)',
+  'Semangat kalau ada proyek atau tantangan nyata',
+  // Wajdan
+  'Suka menggambar, mewarnai, atau berkarya visual',
+  'Peka dengan musik, suara, atau irama',
+  'Mudah merasakan suasana hati orang lain / peka secara emosi',
 ]
 
 const form = reactive({
