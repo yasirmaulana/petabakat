@@ -23,8 +23,7 @@ export interface AiAnalysisOutput {
   }
 }
 
-// const systemPrompt = `Kamu adalah asesor potensi anak yang berbasis framework Nasab & Hasab dalam perspektif Islam.
-const systemPrompt = `Kamu adalah asesor potensi anak yang berbasis framework Nasab & Hasab dalam perspektif Islam. Kamu mengintegrasikan keahlian multidisplin sebagai pakar Neuroscience, pakar Pendidikan Islam (Tarbiyah Islamiyah), serta ahli Al-Qur'an dan Hadis.
+const systemPrompt = `Kamu adalah asesor potensi anak yang berbasis framework Nasab & Hasab dalam perspektif Islam. Kamu mengintegrasikan keahlian multidisiplin sebagai pakar Neuroscience, pakar Pendidikan Islam (Tarbiyah Islamiyah), serta ahli Al-Qur'an dan Hadis.
 
 Framework:
 - Nasab = garis keturunan sah yang menjaga identitas, silaturahim, dan hak waris.
@@ -54,9 +53,17 @@ Output HARUS berupa JSON valid dengan struktur:
 Pastikan JSON valid tanpa komentar dan tanpa teks di luar JSON.`
 
 const RATE_LIMIT_CODES = new Set([429, 529])
+const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 25_000)
 
 export interface AiAnalysisResult extends AiAnalysisOutput {
   _model: string
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error(`AI request timed out after ${ms}ms`)), ms)
+  )
+  return Promise.race([promise, timeout])
 }
 
 async function parseAiResponse(raw: string, model: string): Promise<AiAnalysisResult> {
@@ -65,27 +72,33 @@ async function parseAiResponse(raw: string, model: string): Promise<AiAnalysisRe
 }
 
 async function callAnthropic(anthropic: Anthropic, model: string, userPrompt: string): Promise<AiAnalysisResult> {
-  const response = await anthropic.messages.create({
-    model,
-    max_tokens: 3000,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userPrompt }],
-  })
+  const response = await withTimeout(
+    anthropic.messages.create({
+      model,
+      max_tokens: 3000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    }),
+    AI_TIMEOUT_MS,
+  )
   const raw = response.content.find((c) => c.type === 'text')?.text || '{}'
   return parseAiResponse(raw, model)
 }
 
 async function callGroq(groq: Groq, model: string, userPrompt: string): Promise<AiAnalysisResult> {
-  const completion = await groq.chat.completions.create({
-    model,
-    temperature: 0.7,
-    max_tokens: 3000,
-    stream: false,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ],
-  })
+  const completion = await withTimeout(
+    groq.chat.completions.create({
+      model,
+      temperature: 0.7,
+      max_tokens: 3000,
+      stream: false,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+    }),
+    AI_TIMEOUT_MS,
+  )
   const raw = completion.choices[0]?.message?.content || '{}'
   return parseAiResponse(raw, model)
 }
@@ -93,6 +106,10 @@ async function callGroq(groq: Groq, model: string, userPrompt: string): Promise<
 function isRetryableError(err: any): boolean {
   const status = err?.status ?? err?.statusCode
   return RATE_LIMIT_CODES.has(status) || status >= 500 || err?.code === 'ECONNRESET' || err?.code === 'ETIMEDOUT'
+}
+
+async function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export async function analyzeWithAi(input: AiAnalysisInput): Promise<AiAnalysisResult> {
@@ -110,28 +127,38 @@ export async function analyzeWithAi(input: AiAnalysisInput): Promise<AiAnalysisR
 
   const userPrompt = buildUserPrompt(input)
 
-  const attempts: Array<() => Promise<AiAnalysisResult>> = [
-    () => callAnthropic(anthropic, config.anthropicSonnetModel || 'cc/claude-sonnet-4-6', userPrompt),
-    () => callAnthropic(anthropic, config.anthropicHaikuModel || 'ocg/kimi-k2.7-code', userPrompt),
+  const attempts: Array<{ fn: () => Promise<AiAnalysisResult>; retries: number; backoffMs: number }> = [
+    { fn: () => callAnthropic(anthropic, config.anthropicSonnetModel || 'cc/claude-sonnet-4-6', userPrompt), retries: 2, backoffMs: 500 },
+    { fn: () => callAnthropic(anthropic, config.anthropicHaikuModel || 'ocg/kimi-k2.7-code', userPrompt), retries: 2, backoffMs: 750 },
   ]
 
   if (groq) {
-    attempts.push(() => callGroq(groq, config.groqModel || 'llama-3.3-70b-versatile', userPrompt))
+    attempts.push({ fn: () => callGroq(groq, config.groqModel || 'llama-3.3-70b-versatile', userPrompt), retries: 2, backoffMs: 1000 })
   }
 
   const errors: string[] = []
-  for (const attempt of attempts) {
-    try {
-      return await attempt()
-    } catch (err: any) {
-      const msg = err?.message || String(err)
-      errors.push(msg)
-      if (isRetryableError(err)) {
+
+  for (const { fn, retries, backoffMs } of attempts) {
+    let lastAttempt = 0
+    while (lastAttempt <= retries) {
+      try {
+        return await fn()
+      } catch (err: any) {
+        const msg = err?.message || String(err)
+        errors.push(msg)
+
+        if (isRetryableError(err) && lastAttempt < retries) {
+          const wait = backoffMs * 2 ** lastAttempt
+          console.warn(`AI provider failed (${msg}), retrying in ${wait}ms...`)
+          await delay(wait)
+          lastAttempt++
+          continue
+        }
+
+        // client/config errors or exhausted retries: move to next provider
         console.warn(`AI provider failed (${msg}), trying next fallback...`)
-        continue
+        break
       }
-      // client/config errors: fail fast
-      throw err
     }
   }
 

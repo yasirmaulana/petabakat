@@ -220,14 +220,14 @@
           <button
             v-else-if="currentStep === totalSteps - 1"
             type="submit"
-            :disabled="loading"
+            :disabled="loading || submitting"
             class="btn-primary px-5 py-2.5 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <svg v-if="loading" class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg v-if="loading || submitting" class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            {{ loading ? 'Memproses...' : 'Lihat Hasil' }}
+            {{ loading || submitting ? 'Memproses...' : 'Lihat Hasil' }}
           </button>
         </div>
 
@@ -273,6 +273,7 @@ const form = reactive({
 
 const currentStep = ref(0)
 const loading = ref(false)
+const submitting = ref(false)
 
 const loadingSteps = [
   'Membaca jawaban kamu...',
@@ -391,6 +392,8 @@ function selectHasabScore(questionId, score) {
 }
 
 async function submitSurvey() {
+  if (submitting.value) return
+  submitting.value = true
   loading.value = true
   startLoadingAnimation()
   try {
@@ -407,11 +410,13 @@ async function submitSurvey() {
     const { surveyId } = await $fetch('/api/surveys', { method: 'POST', body: payload })
     await router.push(`/results/${surveyId}`)
   } catch (err) {
-    alert('Gagal menyimpan survey. Silakan coba lagi.')
+    const message = err?.statusMessage || err?.message || 'Gagal menyimpan survey. Silakan coba lagi.'
+    alert(message)
     console.error(err)
   } finally {
     stopLoadingAnimation()
     loading.value = false
+    submitting.value = false
   }
 }
 </script>

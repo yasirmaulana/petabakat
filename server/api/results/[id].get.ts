@@ -3,8 +3,30 @@ import { prisma } from '~/server/utils/prisma'
 export default defineEventHandler(async (event) => {
   const publicId = getRouterParam(event, 'id')
 
-  const result = await prisma.surveyResult.findFirst({
-    where: { survey: { publicId } },
+  const survey = await prisma.survey.findUnique({
+    where: { publicId },
+    select: {
+      id: true,
+      status: true,
+      publicId: true,
+      completedAt: true,
+    },
+  })
+
+  if (!survey) {
+    throw createError({ statusCode: 404, statusMessage: 'Survey not found' })
+  }
+
+  if (survey.status === 'processing') {
+    return {
+      status: 'processing',
+      surveyId: survey.publicId,
+      message: 'Analisis masih diprosses, silakan tunggu sebentar.',
+    }
+  }
+
+  const result = await prisma.surveyResult.findUnique({
+    where: { surveyId: survey.id },
     include: {
       survey: {
         include: {
@@ -21,6 +43,7 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
+    status: 'completed',
     ...result,
     microdosingPlan: result.microdosingPlan as Record<string, unknown>,
   }

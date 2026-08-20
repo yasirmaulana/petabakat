@@ -69,16 +69,19 @@
 
     <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6">
 
-      <!-- Loading -->
-      <div v-if="pending" class="flex flex-col items-center gap-4 py-24 text-center">
+      <!-- Loading / Processing -->
+      <div v-if="pending || result?.status === 'processing'" class="flex flex-col items-center gap-4 py-24 text-center">
         <svg class="h-8 w-8 animate-spin text-brand-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
-        <p class="text-sm text-gray-500">Memuat hasil analisis...</p>
+        <div>
+          <p class="text-sm font-medium text-gray-900">Hasil sedang disusun...</p>
+          <p class="text-sm text-gray-500">AI sedang menganalisis potensi anak kamu.</p>
+        </div>
       </div>
 
-      <template v-else-if="result">
+      <template v-else-if="result && result.status === 'completed'">
 
         <!-- Persona Banner -->
         <div class="mb-6 overflow-hidden rounded-2xl border border-brand-200 bg-brand-50">
@@ -232,13 +235,33 @@
 const route = useRoute()
 const resultId = route.params.id
 
-const { data: result, pending } = await useFetch(`/api/results/${resultId}`)
+const { data: result, pending, refresh } = await useFetch(`/api/results/${resultId}`)
 const waSending = ref(false)
 const showWakafPopup = ref(false)
 const showDisclaimer = ref(false)
 
+let pollTimer = null
+function startPolling() {
+  stopPolling()
+  pollTimer = setInterval(async () => {
+    await refresh()
+    if (result.value?.status === 'completed') {
+      stopPolling()
+      setTimeout(() => { showWakafPopup.value = true }, 1800)
+    }
+  }, 3000)
+}
+function stopPolling() {
+  if (pollTimer) clearInterval(pollTimer)
+}
+
+onMounted(() => {
+  if (result.value?.status === 'processing') startPolling()
+})
+onUnmounted(stopPolling)
+
 watch(pending, (val) => {
-  if (!val && result.value) {
+  if (!val && result.value?.status === 'completed') {
     setTimeout(() => { showWakafPopup.value = true }, 1800)
   }
 })
