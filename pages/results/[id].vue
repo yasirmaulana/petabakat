@@ -78,6 +78,7 @@
         <div>
           <p class="text-sm font-medium text-gray-900">Hasil sedang disusun...</p>
           <p class="text-sm text-gray-500">AI sedang menganalisis potensi anak kamu.</p>
+          <p class="mt-2 text-xs text-gray-400">Analisis ini membutuhkan waktu 2–5 menit. Kamu boleh menutup halaman ini; hasil bisa dilihat kapan saja melalui menu Riwayat.</p>
         </div>
       </div>
 

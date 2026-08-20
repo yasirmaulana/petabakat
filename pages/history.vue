@@ -107,6 +107,49 @@
         </p>
       </form>
 
+      <!-- Wakaf Popup -->
+      <Transition name="fade">
+        <div v-if="showWakafPopup" class="fixed inset-0 z-[60] flex items-end justify-center p-4 sm:items-center">
+          <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px]" @click="showWakafPopup = false" />
+          <div class="relative w-full max-w-md overflow-hidden rounded-2xl border border-brand-200 bg-white shadow-2xl">
+            <div
+              class="relative px-5 py-6"
+              style="background-image: url('/wakaf-asrama.png'); background-size: cover; background-position: center top;"
+            >
+              <div class="absolute inset-0 bg-black/60" />
+              <div class="relative">
+                <p class="text-xs font-semibold uppercase tracking-widest text-brand-300">Wakaf Pendidikan</p>
+                <h3 class="mt-0.5 text-lg font-bold text-white">Bangun Peradaban Lewat Wakaf</h3>
+              </div>
+            </div>
+            <div class="p-5">
+              <p class="text-sm leading-relaxed text-gray-700">
+                Anda baru saja melihat peta potensi anak — benih peradaban masa depan.
+                Agar benih itu tumbuh, dibutuhkan lembaga pendidikan yang kuat dan layak.
+              </p>
+              <p class="mt-3 text-sm leading-relaxed text-gray-700">
+                Ikut ambil bagian dalam membangun <strong>asrama santri Madrasah Al-Fatih</strong>, Situ Daun, Bogor.
+                Wakaf di bidang pendidikan adalah investasi peradaban yang pahalanya terus mengalir.
+              </p>
+              <div class="mt-5 flex flex-col gap-2.5">
+                <a
+                  href="https://tarahum.id/amal/wakaf-asrama-akhwat-madrasah-al-fatih-situ-daun-bogor?ref=AsyTTx2F"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn-primary-full"
+                  @click="showWakafPopup = false"
+                >
+                  🕌 Wakaf Sekarang via Tarahum
+                </a>
+                <button class="btn-secondary-full" @click="showWakafPopup = false">
+                  Nanti saja
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
       <!-- Results -->
       <template v-if="step === 'result' && result?.found">
         <p class="mb-4 text-sm text-gray-600">
@@ -191,6 +234,8 @@ const scoreItems = [
   { code: 'wajdan', label: 'Wajdan', icon: '🎨', scoreKey: 'scoreWajdan' },
 ]
 
+const showWakafPopup = ref(false)
+
 onMounted(async () => {
   loading.value = true
   try {
@@ -198,6 +243,7 @@ onMounted(async () => {
     if (data.authenticated && data.found) {
       result.value = data
       step.value = 'result'
+      setTimeout(() => { showWakafPopup.value = true }, 1800)
     }
   } catch (err) {
     console.error('Failed to restore history session', err)
@@ -261,6 +307,7 @@ async function verifyOtp() {
     result.value = await $fetch('/api/otp/verify', { method: 'POST', body: { phone: phone.value, code: otpCode.value } })
     step.value = 'result'
     clearInterval(countdownTimer)
+    setTimeout(() => { showWakafPopup.value = true }, 1800)
   } catch (err) {
     errorMsg.value = err?.data?.statusMessage || 'Kode OTP salah atau sudah kadaluarsa.'
   } finally {
@@ -308,3 +355,14 @@ function formatDate(date) {
   return new Intl.DateTimeFormat('id-ID', { dateStyle: 'long' }).format(new Date(date))
 }
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
