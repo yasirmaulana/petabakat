@@ -8,6 +8,14 @@
         </svg>
         Beranda
       </NuxtLink>
+      <button
+        v-if="step === 'result'"
+        type="button"
+        class="text-sm font-medium text-gray-500 hover:text-gray-900"
+        @click="logout"
+      >
+        Ganti nomor
+      </button>
     </header>
 
     <main class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
@@ -118,11 +126,22 @@
                 <p class="mt-0.5 text-xs text-gray-400">{{ formatDate(survey.completedAt) }}</p>
               </div>
               <NuxtLink
+                v-if="survey.status === 'completed'"
                 :to="`/results/${survey.surveyId}`"
                 class="btn-secondary shrink-0 px-3 py-1.5 text-xs"
               >
                 Lihat Detail →
               </NuxtLink>
+              <span
+                v-else
+                class="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700"
+              >
+                <svg class="h-3 w-3 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Diproses
+              </span>
             </div>
 
             <div v-if="survey.result" class="grid grid-cols-4 gap-2">
@@ -171,6 +190,21 @@ const scoreItems = [
   { code: 'amali',  label: 'Amali',  icon: '🛠️', scoreKey: 'scoreAmali'  },
   { code: 'wajdan', label: 'Wajdan', icon: '🎨', scoreKey: 'scoreWajdan' },
 ]
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const data = await $fetch('/api/history')
+    if (data.authenticated && data.found) {
+      result.value = data
+      step.value = 'result'
+    }
+  } catch (err) {
+    console.error('Failed to restore history session', err)
+  } finally {
+    loading.value = false
+  }
+})
 
 function onOtpInput(i, event) {
   const val = event.target.value.replace(/\D/g, '')
@@ -246,6 +280,18 @@ function startResendCountdown() {
 async function resendOtp() {
   otpDigits.value = ['', '', '', '', '', '']
   await sendOtp()
+}
+
+async function logout() {
+  loading.value = true
+  try {
+    await $fetch('/api/history/logout', { method: 'POST' })
+  } catch (err) {
+    console.error('Logout failed', err)
+  } finally {
+    reset()
+    loading.value = false
+  }
 }
 
 function reset() {

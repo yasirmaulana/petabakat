@@ -4,6 +4,7 @@ import { calculateHasabScores, calculatePercentages } from '~/server/utils/hasab
 import { analyzeWithAi } from '~/server/utils/aiAnalyzer'
 import { fallbackAnalysis } from '~/server/utils/fallbackAnalysis'
 import { checkRateLimit } from '~/server/utils/rateLimiter'
+import { sendWhatsAppMessage } from '~/server/utils/whatsapp'
 
 export default defineEventHandler(async (event) => {
   // ponytail: per-IP limit 5 submissions per minute. Tune after real traffic analysis.
@@ -67,7 +68,7 @@ export default defineEventHandler(async (event) => {
   // AI analysis runs outside the DB transaction to avoid holding connections
   // while waiting for a slow external service. If it fails we still save a
   // fallback result so the user always has a report.
-  processAnalysisAsync(survey.id, {
+  processAnalysisAsync(survey.id, body.parentPhone, {
     scores,
     percentages,
     orderedHasab,
@@ -83,6 +84,7 @@ export default defineEventHandler(async (event) => {
 
 async function processAnalysisAsync(
   surveyId: number,
+  parentPhone: string,
   input: {
     scores: { asyiha: number; ilmi: number; amali: number; wajdan: number }
     percentages: { asyiha: number; ilmi: number; amali: number; wajdan: number }
@@ -157,9 +159,37 @@ async function processAnalysisAsync(
       where: { id: surveyId },
       data: { status: 'completed' },
     })
+
+    // Notify parent via WhatsApp after successful analysis.
+    // This is fire-and-forget: failures are logged but do not fail the request.
+    notifyParentAsync(surveyId, parentPhone, input.childName).catch((err) => {
+      console.error('WhatsApp notification failed (background)', { surveyId, err })
+    })
   } catch (err) {
     console.error('Failed to persist survey result', { surveyId, err })
     // Status remains 'processing' so monitoring/retries can pick it up.
     // In production this should alert Sentry/PagerDuty.
   }
+}
+
+async function notifyParentAsync(surveyId: number, parentPhone: string, childName: string) {
+  const existing = await prisma.notificationLog.findUnique({ where: { surveyId } })
+  if (existing) return
+
+  const config = useRuntimeConfig()
+  const baseUrl = config.public?.siteUrl || process.env.NUXT_PUBLIC_SITE_URL || 'https://petabakat.id'
+  const historyUrl = `${baseUrl}/history`
+
+  const message = `Assalamu'alaikum,\n\nHasil analisis Peta Bakat untuk ${childName} sudah selesai.\n\nSilakan lihat di Riwayat: ${historyUrl}\n\nTerima kasih.`
+
+  const response = await sendWhatsAppMessage({ target: parentPhone, message })
+
+  await prisma.notificationLog.create({
+    data: {
+      surveyId,
+      channel: 'whatsapp',
+      status: 'sent',
+      response: response as Prisma.InputJsonValue,
+    },
+  })
 }

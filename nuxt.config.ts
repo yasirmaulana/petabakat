@@ -23,5 +23,8 @@ export default defineNuxtConfig({
     groqModel: process.env.GROQ_MODEL,
     whatsappApiUrl: process.env.WHATSAPP_API_URL,
     whatsappFonnteToken: process.env.WHATSAPP_API_TOKEN_FONNTE,
+    public: {
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL,
+    },
   },
 })

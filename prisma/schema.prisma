@@ -67,6 +67,7 @@ model Survey {
   responses   ChildNaturalResponse[]
   result      SurveyResult?
   pdfReports  PdfReport[]
+  notifications NotificationLog[]
 
   @@map("surveys")
 }
@@ -117,6 +118,18 @@ model SurveyResult {
   survey             Survey   @relation(fields: [surveyId], references: [id])
 
   @@map("survey_results")
+}
+
+model NotificationLog {
+  id        Int      @id @default(autoincrement())
+  surveyId  Int      @unique @map("survey_id")
+  channel   String   @db.VarChar(20)
+  sentAt    DateTime @default(now()) @map("sent_at")
+  status    String   @default("sent") @db.VarChar(20)
+  response  Json?    @map("response")
+  survey    Survey   @relation(fields: [surveyId], references: [id])
+
+  @@map("notification_logs")
 }
 
 model OtpCode {

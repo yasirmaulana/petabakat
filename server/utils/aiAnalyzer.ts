@@ -53,7 +53,8 @@ Output HARUS berupa JSON valid dengan struktur:
 Pastikan JSON valid tanpa komentar dan tanpa teks di luar JSON.`
 
 const RATE_LIMIT_CODES = new Set([429, 529])
-const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 25_000)
+// ponytail: 3 minutes per provider allows slow models to finish; tune down if UX degrades.
+const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 180_000)
 
 export interface AiAnalysisResult extends AiAnalysisOutput {
   _model: string
@@ -90,7 +91,7 @@ async function callGroq(groq: Groq, model: string, userPrompt: string): Promise<
     groq.chat.completions.create({
       model,
       temperature: 0.7,
-      max_tokens: 3000,
+      max_completion_tokens: 3000,
       stream: false,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -133,7 +134,7 @@ export async function analyzeWithAi(input: AiAnalysisInput): Promise<AiAnalysisR
   ]
 
   if (groq) {
-    attempts.push({ fn: () => callGroq(groq, config.groqModel || 'llama-3.3-70b-versatile', userPrompt), retries: 2, backoffMs: 1000 })
+    attempts.push({ fn: () => callGroq(groq, config.groqModel || 'openai/gpt-oss-120b', userPrompt), retries: 2, backoffMs: 1000 })
   }
 
   const errors: string[] = []
@@ -155,7 +156,6 @@ export async function analyzeWithAi(input: AiAnalysisInput): Promise<AiAnalysisR
           continue
         }
 
-        // client/config errors or exhausted retries: move to next provider
         console.warn(`AI provider failed (${msg}), trying next fallback...`)
         break
       }

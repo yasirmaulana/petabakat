@@ -1,11 +1,10 @@
 import { prisma } from '~/server/utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-  const phone = String(query.phone || '').trim()
+  const phone = getCookie(event, 'history_session')
 
   if (!phone) {
-    throw createError({ statusCode: 400, statusMessage: 'phone is required' })
+    return { authenticated: false, found: false, surveys: [] }
   }
 
   const parent = await prisma.parent.findUnique({
@@ -32,16 +31,19 @@ export default defineEventHandler(async (event) => {
   })
 
   if (!parent) {
-    return { found: false, surveys: [] }
+    deleteCookie(event, 'history_session', { path: '/' })
+    return { authenticated: false, found: false, surveys: [] }
   }
 
   return {
+    authenticated: true,
     found: true,
     parent: { name: parent.name, phone: parent.phone },
     surveys: parent.surveys.map((s) => ({
       surveyId: s.publicId,
       childName: s.child.name,
       completedAt: s.completedAt,
+      status: s.status,
       result: s.result,
     })),
   }
