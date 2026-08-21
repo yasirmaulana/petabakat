@@ -1,3 +1,4 @@
+import { waitUntil } from '@vercel/functions'
 import { Prisma } from '@prisma/client'
 import { prisma } from '~/server/utils/prisma'
 import { calculateHasabScores, calculatePercentages } from '~/server/utils/hasabCalculator'
@@ -65,10 +66,9 @@ export default defineEventHandler(async (event) => {
     timeout: 15000,
   })
 
-  // AI analysis runs outside the DB transaction to avoid holding connections
-  // while waiting for a slow external service. If it fails we still save a
-  // fallback result so the user always has a report.
-  processAnalysisAsync(survey.id, body.parentPhone, {
+  // waitUntil memberi tahu Vercel untuk tidak freeze event loop sampai AI selesai,
+  // meski response sudah dikirim ke client.
+  waitUntil(processAnalysisAsync(survey.id, body.parentPhone, {
     scores,
     percentages,
     orderedHasab,
@@ -77,7 +77,7 @@ export default defineEventHandler(async (event) => {
     childName: body.childName,
     childAgeYears,
     childGender: body.childGender,
-  })
+  }))
 
   return { surveyId: survey.publicId }
 })
