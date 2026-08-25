@@ -1,5 +1,6 @@
 <template>
   <main class="min-h-screen font-body">
+    <ToastContainer :toasts="toasts" />
     <!-- Navbar minimal -->
     <nav class="sticky top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-white/95 px-6 py-4 backdrop-blur-sm">
       <span class="text-base font-bold text-gray-950">PetaBakat</span>
@@ -154,6 +155,28 @@
 </template>
 
 <script setup>
+const { toasts, add: addToast } = useToast()
+
+const { data: recentResults } = await useFetch('/api/recent-results')
+
+onMounted(() => {
+  if (!recentResults.value?.length) return
+
+  let index = 0
+  addToast(formatToastMessage(recentResults.value[0]), 5000)
+
+  const interval = setInterval(() => {
+    index = (index + 1) % recentResults.value.length
+    addToast(formatToastMessage(recentResults.value[index]), 5000)
+  }, 5000)
+
+  onBeforeUnmount(() => clearInterval(interval))
+})
+
+function formatToastMessage(result) {
+  return `${result.childName} baru saja mendapatkan pemetaan persona: ${result.personaLabel}.`
+}
+
 const categories = [
   { code: 'asyiha', name: 'Hasab Al-Asyiha', description: 'Kepemimpinan, komunikasi, empati sosial, dan pengaruh positif', icon: '🤝' },
   { code: 'ilmi',   name: 'Hasab Al-Ilmi',   description: 'Kecerdasan intelektual, analitis, ingin tahu, dan pencinta ilmu', icon: '📚' },
