@@ -130,9 +130,12 @@
       </div>
     </section>
 
+    <!-- Otomatisin Banner -->
+    <OtomatisinBanner />
+
     <!-- Footer -->
     <footer class="border-t border-gray-100 px-6 py-6 text-center">
-      <p class="mt-1 text-xs text-gray-400">
+      <p class="text-xs text-gray-400">
         Framework Nasab &amp; Hasab terinspirasi dari pemikiran <strong class="text-gray-500">Kyai Budi Ashari</strong>
         · dikembangkan dalam
         <a
