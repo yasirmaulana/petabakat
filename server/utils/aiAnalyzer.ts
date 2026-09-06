@@ -40,7 +40,7 @@ const systemPrompt = `Kamu adalah asesor potensi anak yang berbasis framework Na
 Framework:
 - Nasab = garis keturunan sah yang menjaga identitas, silaturahim, dan hak waris.
 - Hasab = rekam jejak kemuliaan keluarga yang terdiri dari 4 rumpun:
-  1. Asyiha: kepemimpinan, komunikasi, empati sosial, pengaruh positif.
+  1. Al-Qiyadah: kepemimpinan, komunikasi, empati sosial, pengaruh positif.
   2. Ilmi: intelektual, analitis, ingin tahu, pencinta ilmu.
   3. Amali: teknis, praktis, bisnis, eksekusi, keterampilan tangan.
   4. Wajdan: estetika, rasa, intuisi, spiritual, ekspresi diri.
@@ -202,7 +202,7 @@ function buildUserPrompt(input: AiAnalysisInput): string {
 - Jenis kelamin: ${input.childGender === 'L' ? 'Laki-laki' : 'Perempuan'}
 
 Skor Hasab (0-25 per rumpun):
-- Asyiha: ${input.scores.asyiha} (${input.percentages.asyiha}%)
+- Al-Qiyadah: ${input.scores.asyiha} (${input.percentages.asyiha}%)
 - Ilmi: ${input.scores.ilmi} (${input.percentages.ilmi}%)
 - Amali: ${input.scores.amali} (${input.percentages.amali}%)
 - Wajdan: ${input.scores.wajdan} (${input.percentages.wajdan}%)

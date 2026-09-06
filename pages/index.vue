@@ -336,7 +336,7 @@ const elshaSkor = [
   { code: 'ilmi',   icon: '📚', label: 'Al-Ilmi',   pct: 26.58, dominant: true  },
   { code: 'amali',  icon: '🛠️', label: 'Al-Amali',  pct: 26.58, dominant: true  },
   { code: 'wajdan', icon: '🎨', label: 'Al-Wajdan', pct: 25.32, dominant: false },
-  { code: 'asyiha', icon: '🤝', label: 'Al-Asyiha', pct: 21.52, dominant: false },
+  { code: 'asyiha', icon: '🤝', label: 'Al-Qiyadah', pct: 21.52, dominant: false },
 ]
 
 const elshaLes = [
@@ -346,7 +346,7 @@ const elshaLes = [
 ]
 
 const categories = [
-  { code: 'asyiha', name: 'Hasab Al-Asyiha', description: 'Kepemimpinan, komunikasi, empati sosial, dan pengaruh positif', icon: '🤝' },
+  { code: 'asyiha', name: 'Hasab Al-Qiyadah', description: 'Kepemimpinan, komunikasi, empati sosial, dan pengaruh positif', icon: '🤝' },
   { code: 'ilmi',   name: 'Hasab Al-Ilmi',   description: 'Kecerdasan intelektual, analitis, ingin tahu, dan pencinta ilmu', icon: '📚' },
   { code: 'amali',  name: 'Hasab Al-Amali',  description: 'Teknis, praktis, bisnis, eksekusi, dan keterampilan tangan', icon: '🛠️' },
   { code: 'wajdan', name: 'Hasab Al-Wajdan', description: 'Estetika, rasa, intuisi, spiritual, dan ekspresi diri', icon: '🎨' },

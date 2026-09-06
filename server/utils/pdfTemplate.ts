@@ -51,7 +51,7 @@ export function buildPdfHtml(result: any) {
     <h2>Skor Hasab</h2>
     <div class="scores">
       <div class="score-box">
-        <div class="label">Asyiha</div>
+        <div class="label">Al-Qiyadah</div>
         <div class="value">${result.scoreAsyiha}</div>
         <div class="pct">${result.pctAsyiha}%</div>
       </div>

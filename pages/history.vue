@@ -228,7 +228,7 @@ let countdownTimer = null
 const otpCode = computed(() => otpDigits.value.join(''))
 
 const scoreItems = [
-  { code: 'asyiha', label: 'Asyiha', icon: '🤝', scoreKey: 'scoreAsyiha' },
+  { code: 'asyiha', label: 'Al-Qiyadah', icon: '🤝', scoreKey: 'scoreAsyiha' },
   { code: 'ilmi',   label: 'Ilmi',   icon: '📚', scoreKey: 'scoreIlmi'   },
   { code: 'amali',  label: 'Amali',  icon: '🛠️', scoreKey: 'scoreAmali'  },
   { code: 'wajdan', label: 'Wajdan', icon: '🎨', scoreKey: 'scoreWajdan' },

@@ -84,7 +84,7 @@ export function buildPdfBuffer(result: any): Buffer {
   y += 8
 
   const scores = [
-    { label: 'Asyiha', value: result.scoreAsyiha, pct: result.pctAsyiha },
+    { label: 'Al-Qiyadah', value: result.scoreAsyiha, pct: result.pctAsyiha },
     { label: 'Ilmi',   value: result.scoreIlmi,   pct: result.pctIlmi   },
     { label: 'Amali',  value: result.scoreAmali,  pct: result.pctAmali  },
     { label: 'Wajdan', value: result.scoreWajdan, pct: result.pctWajdan },

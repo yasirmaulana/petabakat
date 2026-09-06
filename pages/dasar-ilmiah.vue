@@ -32,21 +32,27 @@
             <li>
               <strong>Nasab</strong> — garis keturunan sah yang menjaga identitas, hak waris, dan larangan mahram.
               Disebutkan dalam Al-Qur'an surat Al-Furqan:54:
-              <em>"Dan Dia (Allah) yang menciptakan manusia dari air, lalu menjadikannya mempunyai keturunan (nasab) dan mushaharah."</em>
+              <em>"Dan Dia (Allah) yang menciptakan manusia dari air, lalu menjadikannya mempunyai keturunan (nasab) dan mushaharah (hubungan pernikahan). Dan Tuhanmu adalah Mahakuasa."</em>
             </li>
             <li>
               <strong>Hasab</strong> — rekam jejak kemuliaan, akhlak, dan pencapaian keluarga secara turun-temurun.
-              Dalam hadis Nabi ﷺ (HR. Tirmidzi, no. 3090):
-              <em>"Seorang laki-laki dari kalangan orang Arab benar-benar berkedudukan (berhasab) karena lisannya."</em>
-              Imam Ibn Manzhur dalam <em>Lisanul Arab</em> mendefinisikan hasab sebagai
-              "apa yang dihitung dari perbuatan-perbuatan bapak dan nenek moyang berupa kemuliaan."
+              Nabi ﷺ menggambarkannya melalui hadis riwayat Bukhari & Muslim:
+              <em>"Manusia itu ibarat tambang (ma'adin) — seperti tambang emas dan perak. Orang yang terbaik di masa jahiliyah adalah orang yang terbaik pula di masa Islam, apabila mereka paham agama."</em>
+              Imam Ibn Manzhur dalam <em>Lisanul Arab</em> (لسان العرب) mendefinisikan hasab secara leksikal sebagai:
+              <em>"mā ya'udduhu al-rajul min mafākhir ābā'ih"</em> — apa yang dihitung seseorang dari kejayaan dan kemuliaan para leluhurnya.
             </li>
           </ul>
           <p class="mt-3">
-            Penerapan framework Nasab & Hasab dalam konteks pemetaan potensi anak dikembangkan oleh
-            <strong>Ustadz Budi Ashari, Lc.</strong> (pendiri Parenting Nabawiyah), yang memformulasikan
-            bahwa warisan karakter keluarga (hasab) adalah salah satu "modal awal" yang dapat diidentifikasi
-            dan dikembangkan — bukan determinisme, melainkan titik berangkat pengasuhan yang sadar.
+            Penerapan framework Nasab & Hasab dalam konteks pemetaan potensi anak dikembangkan dengan terinspirasi
+            dari pemikiran <strong>Ustadz Budi Ashari, Lc.</strong> (pendiri Parenting Nabawiyah), sebagaimana
+            tertuang dalam seri <em>Sentuhan Parenting</em> (Pustaka Nabawiyyah).
+          </p>
+          <p class="mt-3">
+            Salah satu ilustrasi paling kuat tentang hasab keluarga ada dalam Al-Qur'an surat Ali Imran ayat 33:
+            Allah memilih Keluarga Imran — meski Imran bukan seorang nabi — dan mensejajarkan mereka dengan para nabi.
+            Istri Imran menazarkan anaknya agar menjadi hamba yang shalih dan berkhidmat. Dari rahim yang terjaga itu
+            lahirlah Maryam, yang kemudian melahirkan Isa AS, seorang nabi. Rekam jejak kebaikan keluarga (hasab)
+            yang dibangun generasi demi generasi inilah yang menjadi fondasi lahirnya kemuliaan berikutnya.
           </p>
         </div>
       </section>
@@ -56,7 +62,7 @@
         <h2 class="mb-4 text-lg font-bold text-gray-900">2. Kaitan Tiap Rumpun Hasab dengan Riset Psikologi</h2>
         <p class="mb-6 text-sm text-gray-500">
           Masing-masing rumpun Hasab memiliki padanan konstruk ilmiah yang telah diteliti dalam psikologi perkembangan
-          dan psikologi keluarga. Tabel berikut memetakan kaitannya.
+          dan psikologi keluarga. Setiap rumpun di bawah ini merupakan <strong class="text-gray-700">interaksi dinamis antara Nasab</strong> (potensi biologis/genetik bawaan) <strong class="text-gray-700">dan Hasab</strong> (pola pengasuhan, tradisi, dan rekam jejak amal keluarga) — keduanya bekerja bersama membentuk kecenderungan potensi anak.
         </p>
 
         <div v-for="(rumpun, i) in rumpunData" :key="i" class="card mb-5 overflow-hidden">
@@ -182,7 +188,7 @@ useHead({
 
 const rumpunData = [
   {
-    name: 'Hasab Al-Asyiha — Kepemimpinan & Sosial',
+    name: 'Hasab Al-Qiyadah — Kepemimpinan & Sosial',
     tagline: 'Pola kepemimpinan, komunikasi, dan pengaruh keluarga besar',
     icon: '🤝',
     bg: 'bg-blue-50',
@@ -200,7 +206,7 @@ const rumpunData = [
     icon: '📚',
     bg: 'bg-green-50',
     construct: 'Home learning environment (HLE), parental academic involvement, dan transmisi orientasi intelektual. Keluarga yang memiliki tradisi membaca, mendiskusikan ilmu, dan menghargai pertanyaan anak menciptakan lingkungan belajar (cognitive home environment) yang secara signifikan memprediksi kemampuan kognitif dan prestasi akademik anak.',
-    mechanism: 'Melalui dua jalur: (1) genetik — heritabilitas kemampuan kognitif berkisar 50–80% pada usia dewasa (Plomin & Deary, 2015); dan (2) lingkungan — kualitas stimulasi kognitif di rumah, frekuensi membaca bersama, dan ekspektasi akademik orang tua. Keduanya bekerja bersamaan dan saling memperkuat.',
+    mechanism: 'Melalui dua jalur: (1) genetik — heritabilitas kemampuan kognitif berkisar 50–80% pada usia dewasa (Plomin & Deary, 2015), meski angka ini adalah estimasi populasi, bukan takdir individu; dan (2) lingkungan — kualitas stimulasi kognitif di rumah, frekuensi membaca bersama, dan ekspektasi akademik orang tua. Keduanya bekerja bersamaan dan saling memperkuat — potensi bawaan hanya mencapai nilainya melalui lingkungan yang kaya.',
     refs: [
       { authors: 'Melhuish, E. C., et al.', year: 2008, title: 'Effects of the home learning environment and preschool center experience upon literacy and numeracy development in early primary school', journal: 'Journal of Social Issues', detail: '64(1), 95–114', note: 'HLE memprediksi literasi dan numerasi anak secara independen dari status sosio-ekonomi.' },
       { authors: 'Plomin, R., & Deary, I. J.', year: 2015, title: 'Genetics and intelligence differences: five special findings', journal: 'Molecular Psychiatry', detail: '20(1), 98–108', note: 'Heritabilitas kecerdasan meningkat dari ~40% pada masa kanak-kanak ke ~60–80% pada usia dewasa.' },
@@ -254,6 +260,6 @@ const limitations = [
   'Skor Hasab membandingkan rumpun satu sama lain dalam keluarga yang sama — bukan perbandingan antar keluarga.',
   'Karakter anak bersifat dinamis. Isi ulang jika pola keluarga atau minat anak berubah signifikan.',
   'Untuk kebutuhan diagnosis khusus (keterlambatan perkembangan, ADHD, dll.), selalu libatkan psikolog atau dokter anak.',
-  'Referensi ilmiah di halaman ini mendukung konstruk teoretis tiap rumpun — bukan "sertifikasi" terhadap kuesioner 22 soal ini.',
+  'Referensi ilmiah di halaman ini mendukung konstruk teoretis tiap rumpun — bukan "sertifikasi" terhadap kuesioner 22 soal ini. Platform berada dalam tahap pengumpulan data awal; kami berkomitmen untuk melakukan uji validitas psikometrik (uji reliabilitas Alpha Cronbach) secara berkala seiring bertambahnya basis data pengguna.',
 ]
 </script>

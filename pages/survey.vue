@@ -287,7 +287,7 @@ const loadingStep = ref(0)
 const loadingFacts = [
   'Anak yang sering diajak berdiskusi tumbuh dengan kemampuan berpikir kritis lebih tinggi.',
   'Minat belajar anak terbentuk paling kuat antara usia 3–8 tahun — masa emas stimulasi.',
-  'Framework Hasab mengelompokkan potensi ke dalam 4 dimensi: Asyiha, Ilmi, Amali, dan Wajdan.',
+  'Framework Hasab mengelompokkan potensi ke dalam 4 dimensi: Al-Qiyadah, Al-Ilmi, Al-Amali, dan Al-Wajdan.',
   'Nasab bukan hanya silsilah darah — ia adalah warisan karakter dan kecenderungan jiwa.',
   'Stimulasi 20–30 menit per hari lebih efektif daripada satu sesi panjang seminggu sekali.',
   'Anak dengan dimensi Amali tinggi belajar paling baik melalui tangan — membuat dan merancang.',

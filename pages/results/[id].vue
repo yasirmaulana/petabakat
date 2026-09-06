@@ -329,7 +329,7 @@ watch(pending, (val) => {
 })
 
 const scoreItems = [
-  { code: 'asyiha', label: 'Asyiha', icon: '🤝', scoreKey: 'scoreAsyiha', pctKey: 'pctAsyiha' },
+  { code: 'asyiha', label: 'Al-Qiyadah', icon: '🤝', scoreKey: 'scoreAsyiha', pctKey: 'pctAsyiha' },
   { code: 'ilmi',   label: 'Ilmi',   icon: '📚', scoreKey: 'scoreIlmi',   pctKey: 'pctIlmi'   },
   { code: 'amali',  label: 'Amali',  icon: '🛠️', scoreKey: 'scoreAmali',  pctKey: 'pctAmali'  },
   { code: 'wajdan', label: 'Wajdan', icon: '🎨', scoreKey: 'scoreWajdan', pctKey: 'pctWajdan' },
@@ -337,7 +337,7 @@ const scoreItems = [
 
 const chartOptions = computed(() => ({
   chart: { type: 'radar', toolbar: { show: false }, fontFamily: '"Inter Tight", sans-serif' },
-  labels: ['Asyiha', 'Ilmi', 'Amali', 'Wajdan'],
+  labels: ['Al-Qiyadah', 'Ilmi', 'Amali', 'Wajdan'],
   colors: ['#fabc3f'],
   fill: { opacity: 0.2, colors: ['#fabc3f'] },
   stroke: { width: 2, colors: ['#e4ab39'] },
@@ -472,7 +472,7 @@ function downloadStoryCard() {
     rv.scoreAmali  || 0,
     rv.scoreWajdan || 0,
   ]
-  const labels = ['Asyiha', 'Ilmi', 'Amali', 'Wajdan']
+  const labels = ['Al-Qiyadah', 'Ilmi', 'Amali', 'Wajdan']
   const icons  = ['🤝', '📚', '🛠️', '🎨']
   const angles = [Math.PI * 1.5, 0, Math.PI * 0.5, Math.PI] // top, right, bottom, left
 
