@@ -12,6 +12,17 @@ export interface AiAnalysisInput {
   childGender: string
 }
 
+export interface LesItem {
+  nama: string
+  deskripsi: string
+}
+
+export interface LesRecommendations {
+  jalurUtama: LesItem[]
+  jalurPendukung: LesItem[]
+  belumPrioritas: string[]
+}
+
 export interface AiAnalysisOutput {
   personaLabel: string
   personaDescription: string
@@ -21,6 +32,7 @@ export interface AiAnalysisOutput {
     title: string
     schedule: { day: string; activity: string; durationMinutes: number }[]
   }
+  lesRecommendations: LesRecommendations
 }
 
 const systemPrompt = `Kamu adalah asesor potensi anak yang berbasis framework Nasab & Hasab dalam perspektif Islam. Kamu mengintegrasikan keahlian multidisiplin sebagai pakar Neuroscience, pakar Pendidikan Islam (Tarbiyah Islamiyah), serta ahli Al-Qur'an dan Hadis.
@@ -47,8 +59,26 @@ Output HARUS berupa JSON valid dengan struktur:
     "schedule": [
       { "day": "Sabtu Pagi", "activity": "aktivitas konkret", "durationMinutes": 60 }
     ]
+  },
+  "lesRecommendations": {
+    "jalurUtama": [
+      { "nama": "Nama les/aktivitas spesifik yang NYATA dan bisa langsung dicari", "deskripsi": "1-2 kalimat kenapa cocok untuk anak ini, sesuaikan dengan usia dan minat alaminya" },
+      { "nama": "...", "deskripsi": "..." },
+      { "nama": "...", "deskripsi": "..." }
+    ],
+    "jalurPendukung": [
+      { "nama": "1 aktivitas pendukung dari rumpun ke-2", "deskripsi": "..." }
+    ],
+    "belumPrioritas": ["nama aktivitas 1", "nama aktivitas 2", "nama aktivitas 3"]
   }
 }
+
+Aturan lesRecommendations:
+- jalurUtama: 3 rekomendasi spesifik berdasarkan rumpun DOMINAN. Sebutkan nama konkret (contoh: "Kelas Robotik Lego Education", "Sanggar Kaligrafi", "Les Piano Yamaha") — bukan generik.
+- Sesuaikan dengan usia anak dan minat alami yang disebutkan dalam data.
+- jalurPendukung: 1 rekomendasi dari rumpun ke-2.
+- belumPrioritas: 3 aktivitas yang tidak cocok sekarang (sesuai skor terendah), nama konkret.
+- Semua dalam Bahasa Indonesia.
 
 Pastikan JSON valid tanpa komentar dan tanpa teks di luar JSON.`
 

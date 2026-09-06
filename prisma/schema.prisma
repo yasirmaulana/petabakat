@@ -112,6 +112,7 @@ model SurveyResult {
   scoreNarrative     String?  @map("score_narrative")
   parentNotes        String?  @map("parent_notes")
   microdosingPlan    Json?    @map("microdosing_plan")
+  lesRecommendations Json?    @map("les_recommendations")
   aiRawResponse      Json?    @map("ai_raw_response")
   aiModel            String?  @map("ai_model") @db.VarChar(50)
   createdAt          DateTime @default(now()) @map("created_at")

@@ -150,6 +150,7 @@ async function processAnalysisAsync(
         scoreNarrative: analysis.scoreNarrative,
         parentNotes: analysis.parentNotes,
         microdosingPlan: analysis.microdosingPlan as Prisma.InputJsonValue,
+        lesRecommendations: analysis.lesRecommendations ? (analysis.lesRecommendations as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
         aiRawResponse: source === 'ai' ? (analysis as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
         aiModel: usedModel,
       },

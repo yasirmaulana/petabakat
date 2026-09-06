@@ -155,6 +155,82 @@ export function buildPdfBuffer(result: any): Buffer {
   const notesLines = wrap(doc, result.parentNotes || '', CW)
   doc.text(notesLines, M, y)
 
+  // ── Rekomendasi Aktivitas & Les ──────────────────────────
+  const les = result.lesRecommendations
+  if (les && (les.jalurUtama?.length || les.jalurPendukung?.length)) {
+    y += notesLines.length * 5 + 8
+    if (y > 230) { doc.addPage(); y = 20 }
+
+    color(doc, GREEN); doc.setFontSize(13); doc.setFont('helvetica', 'bold')
+    doc.text('Rekomendasi Aktivitas & Les', M, y)
+    stroke(doc, AMBER); doc.setLineWidth(0.8)
+    doc.line(M, y + 2, M + 60, y + 2)
+    y += 10
+
+    // Jalur Utama
+    if (les.jalurUtama?.length) {
+      color(doc, GRAY); doc.setFontSize(7); doc.setFont('helvetica', 'bold')
+      doc.text('JALUR UTAMA', M, y)
+      y += 5
+
+      les.jalurUtama.forEach((item: { nama: string; deskripsi: string }, i: number) => {
+        doc.setFontSize(9); doc.setFont('helvetica', 'bold')
+        const namaLines = wrap(doc, `${String.fromCharCode(65 + i)}. ${item.nama}`, CW - 4)
+        doc.setFontSize(8); doc.setFont('helvetica', 'normal')
+        const descLines = wrap(doc, item.deskripsi || '', CW - 4)
+        const rowH = namaLines.length * 5 + descLines.length * 4.5 + 8
+        if (y + rowH > 272) { doc.addPage(); y = 20 }
+
+        fill(doc, CREAM); stroke(doc, LIGHT); doc.setLineWidth(0.3)
+        doc.roundedRect(M, y, CW, rowH, 2, 2, 'FD')
+
+        color(doc, DARK); doc.setFontSize(9); doc.setFont('helvetica', 'bold')
+        doc.text(namaLines, M + 4, y + 6)
+        color(doc, GRAY); doc.setFontSize(8); doc.setFont('helvetica', 'normal')
+        doc.text(descLines, M + 4, y + 6 + namaLines.length * 5)
+        y += rowH + 3
+      })
+      y += 3
+    }
+
+    // Jalur Pendukung
+    if (les.jalurPendukung?.length) {
+      if (y > 255) { doc.addPage(); y = 20 }
+      color(doc, GRAY); doc.setFontSize(7); doc.setFont('helvetica', 'bold')
+      doc.text('PENDUKUNG', M, y)
+      y += 5
+
+      les.jalurPendukung.forEach((item: { nama: string; deskripsi: string }) => {
+        doc.setFontSize(9); doc.setFont('helvetica', 'bold')
+        const namaLines = wrap(doc, `+ ${item.nama}`, CW - 4)
+        doc.setFontSize(8); doc.setFont('helvetica', 'normal')
+        const descLines = wrap(doc, item.deskripsi || '', CW - 4)
+        const rowH = namaLines.length * 5 + descLines.length * 4.5 + 8
+        if (y + rowH > 272) { doc.addPage(); y = 20 }
+
+        fill(doc, [248, 248, 248] as RGB); stroke(doc, LIGHT); doc.setLineWidth(0.3)
+        doc.roundedRect(M, y, CW, rowH, 2, 2, 'FD')
+        color(doc, DARK); doc.setFontSize(9); doc.setFont('helvetica', 'bold')
+        doc.text(namaLines, M + 4, y + 6)
+        color(doc, GRAY); doc.setFontSize(8); doc.setFont('helvetica', 'normal')
+        doc.text(descLines, M + 4, y + 6 + namaLines.length * 5)
+        y += rowH + 3
+      })
+      y += 3
+    }
+
+    // Belum Prioritas
+    if (les.belumPrioritas?.length) {
+      if (y > 265) { doc.addPage(); y = 20 }
+      color(doc, GRAY); doc.setFontSize(7); doc.setFont('helvetica', 'bold')
+      doc.text('BELUM PRIORITAS', M, y)
+      y += 5
+      color(doc, GRAY); doc.setFontSize(8); doc.setFont('helvetica', 'normal')
+      doc.text(les.belumPrioritas.map((s: string) => `• ${s}`).join('   '), M, y)
+      y += 8
+    }
+  }
+
   // ── Footer semua halaman ─────────────────────────────────
   const total = doc.getNumberOfPages()
   const wakafUrl = 'https://tarahum.id/amal/wakaf-asrama-akhwat-madrasah-al-fatih-situ-daun-bogor?ref=AsyTTx2F'

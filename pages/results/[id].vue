@@ -211,19 +211,80 @@
           <p class="text-sm leading-relaxed text-gray-700">{{ result.parentNotes }}</p>
         </div>
 
+        <!-- Rekomendasi Les & Aktivitas (dari AI) -->
+        <div v-if="lesRecs" class="card mt-6 p-6">
+          <h2 class="mb-1 text-base font-semibold text-gray-900">Rekomendasi Aktivitas & Les</h2>
+          <p class="mb-5 text-xs text-gray-400">Dipilih AI berdasarkan rumpun dominan, usia, dan minat anak. Coba satu dulu — trial sebelum komitmen.</p>
+
+          <div class="mb-5">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Jalur Utama</p>
+            <div class="space-y-2">
+              <div
+                v-for="(les, i) in lesRecs.jalurUtama"
+                :key="i"
+                class="flex gap-3 rounded-xl border border-gray-100 bg-gray-25 px-4 py-3"
+              >
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-black">
+                  {{ String.fromCharCode(65 + i) }}
+                </span>
+                <div>
+                  <p class="text-sm font-medium text-gray-800">{{ les.nama }}</p>
+                  <p class="text-xs leading-relaxed text-gray-500">{{ les.deskripsi }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="lesRecs.jalurPendukung?.length" class="mb-4">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Pendukung</p>
+            <div class="space-y-1.5">
+              <div
+                v-for="(les, i) in lesRecs.jalurPendukung"
+                :key="i"
+                class="flex gap-3 rounded-xl border border-dashed border-gray-200 px-4 py-3"
+              >
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600">+</span>
+                <div>
+                  <p class="text-sm font-medium text-gray-700">{{ les.nama }}</p>
+                  <p class="text-xs leading-relaxed text-gray-400">{{ les.deskripsi }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="lesRecs.belumPrioritas?.length">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Belum Prioritas</p>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="(s, i) in lesRecs.belumPrioritas"
+                :key="i"
+                class="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500"
+              >{{ s }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Actions bottom -->
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          <button class="btn-primary-full sm:flex-1" @click="downloadPdf">
+        <div class="mt-8 flex flex-col gap-3">
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <button class="btn-primary-full sm:flex-1" @click="downloadPdf">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Unduh Laporan PDF
+            </button>
+            <button class="btn-secondary-full sm:flex-1" @click="sendViaWa" :disabled="waSending">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              {{ waSending ? 'Mengirim...' : 'Kirim ke WhatsApp' }}
+            </button>
+          </div>
+          <button class="btn-secondary-full" @click="downloadStoryCard">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            Unduh Laporan PDF
-          </button>
-          <button class="btn-secondary-full sm:flex-1" @click="sendViaWa" :disabled="waSending">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-            {{ waSending ? 'Mengirim...' : 'Kirim ke WhatsApp' }}
+            Unduh Card Story 9:16
           </button>
         </div>
 
@@ -299,6 +360,11 @@ const chartSeries = computed(() => [{
     : [0, 0, 0, 0],
 }])
 
+const lesRecs = computed(() => {
+  if (!result.value) return null
+  return result.value.lesRecommendations || null
+})
+
 function downloadPdf() {
   window.open(`/api/reports/${resultId}/pdf`, '_blank')
 }
@@ -313,6 +379,207 @@ async function sendViaWa() {
   } finally {
     waSending.value = false
   }
+}
+
+function downloadStoryCard() {
+  if (!result.value) return
+
+  const W = 1080
+  const H = 1920
+  const canvas = document.createElement('canvas')
+  canvas.width = W
+  canvas.height = H
+  const ctx = canvas.getContext('2d')
+  // ponytail: roundRect polyfill for older Safari/Chrome
+  if (!ctx.roundRect) {
+    ctx.roundRect = function(x, y, w, h, r) {
+      ctx.beginPath()
+      ctx.moveTo(x + r, y)
+      ctx.lineTo(x + w - r, y)
+      ctx.arcTo(x + w, y, x + w, y + r, r)
+      ctx.lineTo(x + w, y + h - r)
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
+      ctx.lineTo(x + r, y + h)
+      ctx.arcTo(x, y + h, x, y + h - r, r)
+      ctx.lineTo(x, y + r)
+      ctx.arcTo(x, y, x + r, y, r)
+      ctx.closePath()
+    }
+  }
+
+  // Background gradient
+  const bg = ctx.createLinearGradient(0, 0, 0, H)
+  bg.addColorStop(0, '#fffbf0')
+  bg.addColorStop(1, '#fef3c7')
+  ctx.fillStyle = bg
+  ctx.fillRect(0, 0, W, H)
+
+  // Top accent bar
+  ctx.fillStyle = '#fabc3f'
+  ctx.fillRect(0, 0, W, 12)
+
+  // Brand name
+  ctx.fillStyle = '#1c1917'
+  ctx.font = 'bold 52px system-ui, sans-serif'
+  ctx.fillText('PetaBakat', 90, 130)
+  ctx.fillStyle = '#78716c'
+  ctx.font = '34px system-ui, sans-serif'
+  ctx.fillText('Peta Potensi Anak — Nasab & Hasab', 90, 185)
+
+  // Divider
+  ctx.strokeStyle = '#e7e5e4'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.moveTo(90, 220)
+  ctx.lineTo(W - 90, 220)
+  ctx.stroke()
+
+  // Child name + persona label — rv escapes TS union narrowing (result can be processing|completed)
+  const rv = Object.assign({}, result.value)
+  const childName = rv?.survey?.child?.name || 'Anak'
+  ctx.fillStyle = '#78716c'
+  ctx.font = '36px system-ui, sans-serif'
+  ctx.fillText(`Hasil Analisis untuk ${childName}`, 90, 295)
+
+  ctx.fillStyle = '#1c1917'
+  ctx.font = 'bold 72px system-ui, sans-serif'
+  const personaLabel = rv.personaLabel || ''
+  // wrap if long
+  const maxW = W - 180
+  const words = personaLabel.split(' ')
+  let line = ''
+  let yL = 400
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word
+    if (ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line, 90, yL)
+      line = word
+      yL += 88
+    } else {
+      line = test
+    }
+  }
+  ctx.fillText(line, 90, yL)
+  const afterPersona = yL + 60
+
+  // Radar polygon (manual)
+  const cx = W / 2
+  const cy = afterPersona + 340
+  const maxR = 280
+  const scores = [
+    rv.scoreAsyiha || 0,
+    rv.scoreIlmi   || 0,
+    rv.scoreAmali  || 0,
+    rv.scoreWajdan || 0,
+  ]
+  const labels = ['Asyiha', 'Ilmi', 'Amali', 'Wajdan']
+  const icons  = ['🤝', '📚', '🛠️', '🎨']
+  const angles = [Math.PI * 1.5, 0, Math.PI * 0.5, Math.PI] // top, right, bottom, left
+
+  // Grid rings
+  ctx.strokeStyle = '#e7e5e4'
+  ctx.lineWidth = 1.5
+  for (const pct of [0.25, 0.5, 0.75, 1]) {
+    ctx.beginPath()
+    for (let i = 0; i < 4; i++) {
+      const x = cx + Math.cos(angles[i]) * maxR * pct
+      const y = cy + Math.sin(angles[i]) * maxR * pct
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+    }
+    ctx.closePath()
+    ctx.stroke()
+  }
+  // Axis lines
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath()
+    ctx.moveTo(cx, cy)
+    ctx.lineTo(cx + Math.cos(angles[i]) * maxR, cy + Math.sin(angles[i]) * maxR)
+    ctx.stroke()
+  }
+  // Data polygon
+  ctx.fillStyle = 'rgba(250,188,63,0.25)'
+  ctx.strokeStyle = '#e4ab39'
+  ctx.lineWidth = 4
+  ctx.beginPath()
+  for (let i = 0; i < 4; i++) {
+    const r = (scores[i] / 25) * maxR
+    const x = cx + Math.cos(angles[i]) * r
+    const y = cy + Math.sin(angles[i]) * r
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+  }
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+  // Dots
+  for (let i = 0; i < 4; i++) {
+    const r = (scores[i] / 25) * maxR
+    ctx.fillStyle = '#e4ab39'
+    ctx.beginPath()
+    ctx.arc(cx + Math.cos(angles[i]) * r, cy + Math.sin(angles[i]) * r, 10, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  // Labels
+  ctx.fillStyle = '#44403c'
+  ctx.font = 'bold 36px system-ui, sans-serif'
+  for (let i = 0; i < 4; i++) {
+    const labelR = maxR + 60
+    const lx = cx + Math.cos(angles[i]) * labelR
+    const ly = cy + Math.sin(angles[i]) * labelR
+    ctx.textAlign = 'center'
+    ctx.fillText(`${icons[i]} ${labels[i]}`, lx, ly + 12)
+  }
+  ctx.textAlign = 'left'
+
+  // Score bars below radar
+  const barTop = cy + maxR + 130
+  const barAreaW = W - 180
+  ctx.fillStyle = '#1c1917'
+  ctx.font = 'bold 38px system-ui, sans-serif'
+  ctx.fillText('Skor Rumpun', 90, barTop)
+
+  const sortedScores = scores
+    .map((s, i) => {
+      const key = `pct${['Asyiha','Ilmi','Amali','Wajdan'][i]}`
+      return { label: labels[i], icon: icons[i], score: s, pct: parseFloat(rv[key]) || (s / 25) * 100 }
+    })
+    .sort((a, b) => b.score - a.score)
+
+  for (let i = 0; i < 4; i++) {
+    const item = sortedScores[i]
+    const by = barTop + 70 + i * 110
+    ctx.fillStyle = '#57534e'
+    ctx.font = '34px system-ui, sans-serif'
+    ctx.fillText(`${item.icon} ${item.label}`, 90, by)
+    const pct = parseFloat(item.pct) || 0
+    ctx.fillStyle = '#e5e7eb'
+    ctx.beginPath()
+    ctx.roundRect(90, by + 14, barAreaW, 30, 15)
+    ctx.fill()
+    ctx.fillStyle = i === 0 ? '#fabc3f' : '#fde68a'
+    ctx.beginPath()
+    ctx.roundRect(90, by + 14, barAreaW * (pct / 100), 30, 15)
+    ctx.fill()
+    ctx.fillStyle = '#44403c'
+    ctx.font = 'bold 28px system-ui, sans-serif'
+    ctx.fillText(`${Math.round(pct)}%`, 90 + barAreaW * (pct / 100) + 10, by + 36)
+  }
+
+  // Footer
+  ctx.fillStyle = '#a8a29e'
+  ctx.font = '30px system-ui, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('petabakat.vercel.app · Framework Nasab & Hasab', W / 2, H - 80)
+  ctx.fillText('Kenali potensi anakmu dari akar keluarga', W / 2, H - 40)
+  ctx.textAlign = 'left'
+
+  // Bottom accent bar
+  ctx.fillStyle = '#fabc3f'
+  ctx.fillRect(0, H - 12, W, 12)
+
+  const a = document.createElement('a')
+  a.href = canvas.toDataURL('image/png')
+  a.download = `petabakat-${childName.replace(/\s+/g, '-')}-story.png`
+  a.click()
 }
 </script>
 
