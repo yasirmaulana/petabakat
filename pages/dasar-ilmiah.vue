@@ -40,6 +40,7 @@
               <em>"Manusia itu ibarat tambang (ma'adin) — seperti tambang emas dan perak. Orang yang terbaik di masa jahiliyah adalah orang yang terbaik pula di masa Islam, apabila mereka paham agama."</em>
               Imam Ibn Manzhur dalam <em>Lisanul Arab</em> (لسان العرب) mendefinisikan hasab secara leksikal sebagai:
               <em>"mā ya'udduhu al-rajul min mafākhir ābā'ih"</em> — apa yang dihitung seseorang dari kejayaan dan kemuliaan para leluhurnya.
+              <span class="block mt-2 text-xs text-gray-400 italic">Catatan: hadis ma'adin di atas digunakan sebagai ilustrasi konseptual tentang karakter bawaan manusia — bukan dalil langsung untuk framework Nasab & Hasab.</span>
             </li>
           </ul>
           <p class="mt-3">
