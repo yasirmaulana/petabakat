@@ -329,7 +329,7 @@ watch(pending, (val) => {
 })
 
 const scoreItems = [
-  { code: 'asyiha', label: 'Al-Qiyadah', icon: '🤝', scoreKey: 'scoreAsyiha', pctKey: 'pctAsyiha' },
+  { code: 'asyiha', label: 'Qiyadah', icon: '🤝', scoreKey: 'scoreAsyiha', pctKey: 'pctAsyiha' },
   { code: 'ilmi',   label: 'Ilmi',   icon: '📚', scoreKey: 'scoreIlmi',   pctKey: 'pctIlmi'   },
   { code: 'amali',  label: 'Amali',  icon: '🛠️', scoreKey: 'scoreAmali',  pctKey: 'pctAmali'  },
   { code: 'wajdan', label: 'Wajdan', icon: '🎨', scoreKey: 'scoreWajdan', pctKey: 'pctWajdan' },

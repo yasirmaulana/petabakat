@@ -19,7 +19,7 @@
     <section class="px-6 pb-16 pt-20 text-center">
       <div class="mx-auto max-w-2xl">
         <span class="mb-4 inline-flex items-center gap-1.5 rounded-full border border-brand-300 bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-700">
-          ✦ Framework Nasab &amp; Hasab · Berbasis AI
+          ✦ Framework Nasab &amp; Hasab
         </span>
         <h1 class="mt-4 text-5xl font-bold leading-tight tracking-tight text-gray-950 sm:text-6xl">
           Kenali Potensi Anak dari<br><span class="text-brand-500">Akar Keluarganya</span>
@@ -27,7 +27,7 @@
         <p class="mt-6 text-lg leading-relaxed text-gray-600">
           Bukan zodiak, bukan tebakan. PetaBakat memetakan kecenderungan potensi anak berdasarkan
           rekam jejak karakter keluarga besar (<strong class="text-gray-900">Nasab &amp; Hasab</strong>) —
-          framework pengasuhan Islami yang dianalisis AI menjadi persona, skor 4 rumpun, dan rekomendasi les yang personal.
+          framework pengasuhan Islami yang menghasilkan persona, skor 4 rumpun, dan rekomendasi les yang personal.
         </p>
 
         <!-- Benefit pills -->
@@ -49,7 +49,7 @@
         <p class="mt-3 text-xs text-gray-400">Gratis · ~5-10 menit · Hasil PDF + WhatsApp</p>
 
         <p class="mt-5 mx-auto max-w-lg rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-xs leading-relaxed text-gray-500">
-          ⚠️ Hasil survei ini bersifat <strong class="text-gray-600">indikatif</strong> dan dihasilkan oleh AI berdasarkan framework Nasab &amp; Hasab.
+          ⚠️ Hasil survei ini bersifat <strong class="text-gray-600">indikatif</strong> berdasarkan framework Nasab &amp; Hasab.
           Bukan pengganti asesmen psikolog, dokter anak, atau konselor pendidikan.
           Orang tua tetap penentu terbaik dalam mengenali potensi anaknya.
         </p>
@@ -167,9 +167,9 @@
             <p class="text-xs leading-relaxed text-gray-500">Skor 4 rumpun Hasab dihitung deterministik dari jawaban Anda — transparan, bukan black box.</p>
           </div>
           <div class="card p-5 text-center">
-            <div class="mb-3 text-2xl">🤖</div>
-            <h3 class="mb-1 text-sm font-semibold text-gray-900">AI Menafsirkan</h3>
-            <p class="text-xs leading-relaxed text-gray-500">AI menghasilkan persona, narasi, dan rekomendasi les yang personal. Akurasi bergantung pada kejujuran pengisian.</p>
+            <div class="mb-3 text-2xl">🎯</div>
+            <h3 class="mb-1 text-sm font-semibold text-gray-900">Terima Hasil Peta Bakat</h3>
+            <p class="text-xs leading-relaxed text-gray-500">Terima laporan hasil persona, narasi, dan rekomendasi les yang personal. Akurasi bergantung pada kejujuran pengisian.</p>
           </div>
         </div>
 
@@ -327,7 +327,6 @@ const openFaq = ref(null)
 const pills = [
   '✓ Gratis & tanpa akun',
   '✓ Berbasis Al-Qur\'an & Sunnah',
-  '✓ Analisis AI personal',
   '✓ Laporan PDF',
   '✓ Rekomendasi les spesifik',
 ]
