@@ -10,6 +10,7 @@ model Parent {
   id        Int       @id @default(autoincrement())
   name      String
   phone     String    @unique
+  email     String?
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   children  Child[]
@@ -58,18 +59,126 @@ model Survey {
   publicId    String    @unique @default(uuid()) @map("public_id")
   childId     Int       @map("child_id")
   parentId    Int       @map("parent_id")
+  voucherId   Int?      @map("voucher_id")
+  schoolId    Int?      @map("school_id")
+  schoolCode  String?   @map("school_code") @db.VarChar(50)
   status      String    @default("in_progress") @db.VarChar(20)
   createdAt   DateTime  @default(now()) @map("created_at")
   completedAt DateTime? @map("completed_at")
   child       Child     @relation(fields: [childId], references: [id])
   parent      Parent    @relation(fields: [parentId], references: [id])
+  voucher     Voucher?  @relation(fields: [voucherId], references: [id])
+  school      School?   @relation(fields: [schoolId], references: [id])
   answers     SurveyAnswer[]
   responses   ChildNaturalResponse[]
   result      SurveyResult?
   pdfReports  PdfReport[]
   notifications NotificationLog[]
+  schoolStudent SurveyStudent?
 
   @@map("surveys")
+}
+
+model School {
+  id            Int           @id @default(autoincrement())
+  name          String
+  npsn          String?       @unique @db.VarChar(20)
+  city          String?
+  code          String        @unique @db.VarChar(30)
+  plan          String        @default("starter") @db.VarChar(20)
+  studentCap    Int           @default(30) @map("student_cap")
+  billingStatus String        @default("trial") @db.VarChar(20) @map("billing_status")
+  adminEmail    String        @map("admin_email")
+  adminPhone    String        @map("admin_phone")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  classes       SchoolClass[]
+  users         SchoolUser[]
+  surveys       Survey[]
+
+  @@map("schools")
+}
+
+model SchoolClass {
+  id       Int              @id @default(autoincrement())
+  schoolId Int              @map("school_id")
+  name     String
+  grade    Int
+  year     String           @db.VarChar(10)
+  school   School           @relation(fields: [schoolId], references: [id])
+  students SurveyStudent[]
+
+  @@map("school_classes")
+}
+
+model SurveyStudent {
+  id            Int         @id @default(autoincrement())
+  surveyId      Int         @unique @map("survey_id")
+  schoolClassId Int         @map("school_class_id")
+  consentGiven  Boolean     @default(false) @map("consent_given")
+  survey        Survey      @relation(fields: [surveyId], references: [id])
+  schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id])
+
+  @@map("survey_students")
+}
+
+model SchoolUser {
+  id           Int      @id @default(autoincrement())
+  schoolId     Int      @map("school_id")
+  email        String   @unique
+  name         String
+  role         String   @db.VarChar(20)
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  school       School   @relation(fields: [schoolId], references: [id])
+
+  @@map("school_users")
+}
+
+model Voucher {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique @db.VarChar(20)
+  status    String    @default("active") @db.VarChar(20)
+  quota     Int       @default(1)
+  usedCount Int       @default(0) @map("used_count")
+  expiresAt DateTime? @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  partnerId Int?      @map("partner_id")
+  partner   Partner?  @relation(fields: [partnerId], references: [id])
+  surveys   Survey[]
+
+  @@map("vouchers")
+}
+
+model Partner {
+  id             Int          @id @default(autoincrement())
+  name           String
+  institution    String?
+  type           String       @db.VarChar(20) // institutional | affiliate
+  email          String       @unique
+  phone          String
+  passwordHash   String       @map("password_hash")
+  referralCode   String       @unique @map("referral_code") @db.VarChar(30)
+  status         String       @default("pending") @db.VarChar(20) // pending | active | suspended
+  creditBalance  Int          @default(0) @map("credit_balance")
+  commissionRate Int          @default(20000) @map("commission_rate")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  vouchers       Voucher[]
+  commissions    Commission[]
+
+  @@map("partners")
+}
+
+model Commission {
+  id        Int       @id @default(autoincrement())
+  partnerId Int       @map("partner_id")
+  surveyId  Int       @unique @map("survey_id")
+  amount    Int
+  status    String    @default("pending") @db.VarChar(20) // pending | paid
+  paidAt    DateTime? @map("paid_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  partner   Partner   @relation(fields: [partnerId], references: [id])
+
+  @@map("commissions")
 }
 
 model SurveyAnswer {

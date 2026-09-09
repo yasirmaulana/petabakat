@@ -1,5 +1,5 @@
 {
-  "name": "petabakat-app",
+  "name": "petaminatbakat-app",
   "private": true,
   "type": "module",
   "scripts": {
@@ -21,7 +21,9 @@
     "@vercel/functions": "^3.9.5",
     "@vercel/speed-insights": "^2.0.0",
     "apexcharts": "^6.8.0",
+    "bcryptjs": "^3.0.3",
     "groq-sdk": "^1.5.0",
+    "jose": "^6.2.12",
     "jspdf": "^4.2.1",
     "nuxt": "^3.21.11",
     "pg": "^8.23.0",
@@ -34,6 +36,7 @@
     "vue3-apexcharts": "^1.11.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^26.2.0",
     "tsx": "^4.23.12"
   }

@@ -1,16 +1,16 @@
 # TECCA · Dasar Ilmiah
 
 ## Apa itu TECCA?
-### Lima sisi frekuensi di rumah, dari mana idenya, dan bagaimana kami memakainya di PetaBakat.
+### Lima sisi frekuensi di rumah, dari mana idenya, dan bagaimana kami memakainya di PetaMinatBakat.
 
-Kerangka TECCA merangkum 5 karakter dominan anak: **Thinker** (Si Pemikir), **Explorer** (Si Petualang), **Creator** (Si Pencipta), **Connector** (Si Penghubung), dan **Adapter** (Si Penyesuai). Kerangka ini disusun berdasarkan berbagai studi tumbuh kembang anak (aktivitas fisik, logika, kreativitas, empati sosial, dan fleksibilitas). Di PetaBakat, pengamatan Ayah & Bunda di rumah dirapikan menjadi peta kecenderungan yang praktis untuk menentukan arah les dan aktivitas yang pas.
+Kerangka TECCA merangkum 5 karakter dominan anak: **Thinker** (Si Pemikir), **Explorer** (Si Petualang), **Creator** (Si Pencipta), **Connector** (Si Penghubung), dan **Adapter** (Si Penyesuai). Kerangka ini disusun berdasarkan berbagai studi tumbuh kembang anak (aktivitas fisik, logika, kreativitas, empati sosial, dan fleksibilitas). Di PetaMinatBakat, pengamatan Ayah & Bunda di rumah dirapikan menjadi peta kecenderungan yang praktis untuk menentukan arah les dan aktivitas yang pas.
 
 Hasil laporan disusun berdasarkan pengamatan kebiasaan sehari-hari oleh orang tua di rumah. Sangat cocok sebagai panduan berdiskusi dan memilih aktivitas anak, bukan sebagai vonis mutlak atau diagnosis medis.
 
 ---
 
 ## Metodologi
-### Cara kerja di PetaBakat
+### Cara kerja di PetaMinatBakat
 * **Observasi frekuensi di rumah**, dirapikan ke lima sisi TECCA untuk putusan les dan main.
 * **Tiap sisi = 3 pertanyaan frekuensi di rumah.** Persen membandingkan jawaban di form ini antar sisi pada anak yang sama.
 * **Hasil mengikuti apa yang Anda amati di rumah.**
@@ -21,7 +21,7 @@ Hasil laporan disusun berdasarkan pengamatan kebiasaan sehari-hari oleh orang tu
 ## Inti
 ### Ringkasan singkat
 1. **Kerangka TECCA** memetakan 5 dimensi yang terbukti dalam studi tumbuh kembang anak: tingkat aktivitas fisik, daya nalar, ekspresi kreatif, empati sosial, dan fleksibilitas.
-2. **Orang tua adalah pengamat terbaik** kebiasaan harian si kecil. Kuesioner PetaBakat mengemas pengamatan tersebut menjadi peta visual yang mudah dibaca.
+2. **Orang tua adalah pengamat terbaik** kebiasaan harian si kecil. Kuesioner PetaMinatBakat mengemas pengamatan tersebut menjadi peta visual yang mudah dibaca.
 3. **Hasil analisis** merupakan gambaran kecenderungan perilaku anak saat ini, yang sangat membantu dalam memilih les atau kegiatan yang paling sesuai.
 4. **Kami mengutamakan pengamatan nyata** kebiasaan anak sehari-hari daripada metode tebak-tebakan berdasarkan tanggal lahir atau ramalan.
 5. **Perkembangan minat dan karakter anak bersifat dinamis;** laporan ini menjadi panduan praktis untuk mendampingi fase tumbuh kembang si kecil saat ini.
@@ -45,7 +45,7 @@ Hasil laporan disusun berdasarkan pengamatan kebiasaan sehari-hari oleh orang tu
   *Catatan:* Keterkaitan erat perkembangan motorik dan kognitif.
 * **Rothbart, M. K., et al. (2001).** *Investigations of Temperament at Three to Seven Years: The Children's Behavior Questionnaire (CBQ)*. Child Development, 72(5), 1394-1408.  
   *DOI:* [10.1111/1467-8624.00355](https://doi.org/10.1111/1467-8624.00355)  
-  *Catatan:* CBQ mengukur *Activity Level* via laporan orang tua: relevan dengan format kuesioner PetaBakat.
+  *Catatan:* CBQ mengukur *Activity Level* via laporan orang tua: relevan dengan format kuesioner PetaMinatBakat.
 
 ---
 

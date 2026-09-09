@@ -18,6 +18,9 @@ export interface LesItem {
 }
 
 export interface LesRecommendations {
+  kekuatanUtama: string[]
+  potensiProfesi: { nama: string; alasan: string }[]
+  karakterMenonjol: string[]
   jalurUtama: LesItem[]
   jalurPendukung: LesItem[]
   belumPrioritas: string[]
@@ -48,6 +51,12 @@ Framework:
 Tugas:
 Berdasarkan skor 4 rumpun Hasab, respon alami anak, dan data nasab, berikan analisis dalam bahasa Indonesia yang hangat, memberdayakan orang tua, berbasis nilai Islam, dan praktis.
 
+PENTING — Kelompok usia dan cara penyampaian:
+- Usia 3–6 tahun (Tahap Awal): fokus pada observasi perilaku konkret sehari-hari. Skor mencerminkan pola keluarga lebih dari anak itu sendiri. Gunakan bahasa yang sangat sederhana dan aktivitas bermain.
+- Usia 7–11 tahun (Tahap Berkembang): mulai terlihat kecenderungan personal anak. Profesi masih berupa gambaran besar, aktivitas lebih terstruktur.
+- Usia 12–15 tahun (Tahap Eksplorasi): anak mulai punya preferensi jelas. Profesi bisa lebih spesifik, aktivitas bisa lebih serius dan kompetitif.
+Sesuaikan seluruh output dengan kelompok usia anak.
+
 Output HARUS berupa JSON valid dengan struktur:
 {
   "personaLabel": "label persona kontekstual (contoh: The Innovator Leader)",
@@ -61,6 +70,19 @@ Output HARUS berupa JSON valid dengan struktur:
     ]
   },
   "lesRecommendations": {
+    "kekuatanUtama": [
+      "Kalimat pendek (max 10 kata) menggambarkan kekuatan/karakter spesifik dari kombinasi skor — bukan generik",
+      "...",
+      "...",
+      "...",
+      "..."
+    ],
+    "potensiProfesi": [
+      { "nama": "Nama profesi/bidang nyata (sesuaikan usia)", "alasan": "1 kalimat alasan berdasarkan kombinasi rumpun dominan + minat alami" },
+      { "nama": "...", "alasan": "..." },
+      { "nama": "...", "alasan": "..." }
+    ],
+    "karakterMenonjol": ["Sifat/karakter 1", "Sifat/karakter 2", "Sifat/karakter 3"],
     "jalurUtama": [
       { "nama": "Nama les/aktivitas spesifik yang NYATA dan bisa langsung dicari", "deskripsi": "1-2 kalimat kenapa cocok untuk anak ini, sesuaikan dengan usia dan minat alaminya" },
       { "nama": "...", "deskripsi": "..." },
@@ -74,6 +96,9 @@ Output HARUS berupa JSON valid dengan struktur:
 }
 
 Aturan lesRecommendations:
+- kekuatanUtama: TEPAT 5 item. Setiap item adalah kalimat pendek berbentuk kekuatan konkret (contoh: "Berpikir sistematis sejak dini", "Mudah memimpin kelompok teman sebaya"). Harus sesuai kombinasi skor dan minat alami yang diberikan.
+- potensiProfesi: 3 profesi/bidang, sesuai usia. Usia 3–6 → gambaran besar ("Arsitek / Insinyur"), usia 12–15 → lebih spesifik ("Software Engineer di bidang AI").
+- karakterMenonjol: TEPAT 3 kata sifat/karakter pendek (contoh: "Analitis", "Pemberani", "Pemimpin alami").
 - jalurUtama: 3 rekomendasi spesifik berdasarkan rumpun DOMINAN. Sebutkan nama konkret (contoh: "Kelas Robotik Lego Education", "Sanggar Kaligrafi", "Les Piano Yamaha") — bukan generik.
 - Sesuaikan dengan usia anak dan minat alami yang disebutkan dalam data.
 - jalurPendukung: 1 rekomendasi dari rumpun ke-2.
@@ -195,10 +220,16 @@ export async function analyzeWithAi(input: AiAnalysisInput): Promise<AiAnalysisR
   throw new Error(`All AI providers failed: ${errors.join(' | ')}`)
 }
 
+function ageGroup(years: number): string {
+  if (years <= 6) return 'Tahap Awal (3–6 tahun)'
+  if (years <= 11) return 'Tahap Berkembang (7–11 tahun)'
+  return 'Tahap Eksplorasi (12–15 tahun)'
+}
+
 function buildUserPrompt(input: AiAnalysisInput): string {
   return `Data anak:
 - Nama: ${input.childName}
-- Usia: ${input.childAgeYears} tahun
+- Usia: ${input.childAgeYears} tahun — ${ageGroup(input.childAgeYears)}
 - Jenis kelamin: ${input.childGender === 'L' ? 'Laki-laki' : 'Perempuan'}
 
 Skor Hasab (0-25 per rumpun):

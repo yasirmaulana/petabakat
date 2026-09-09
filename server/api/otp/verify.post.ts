@@ -1,4 +1,5 @@
 import { prisma } from '~/server/utils/prisma'
+import { signHistoryToken } from '~/server/utils/auth'
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 // 24 hours
 
@@ -43,7 +44,8 @@ export default defineEventHandler(async (event) => {
 
   if (!parent) throw createError({ statusCode: 404, statusMessage: 'Data tidak ditemukan' })
 
-  setCookie(event, 'history_session', normalizedPhone, {
+  const sessionToken = await signHistoryToken(normalizedPhone)
+  setCookie(event, 'history_session', sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

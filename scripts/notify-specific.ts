@@ -55,7 +55,7 @@ async function main() {
       continue
     }
 
-    const baseUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://petabakat.otomatisin.web.id'
+    const baseUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://petaminatbakat.otomatisin.web.id'
     const message = `Assalamu'alaikum,\n\nHasil analisis Peta Bakat untuk ${survey.child.name} sudah selesai.\n\nSilakan lihat di Riwayat: ${baseUrl}/history\n\nTerima kasih.`
 
     try {

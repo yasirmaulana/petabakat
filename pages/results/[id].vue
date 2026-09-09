@@ -77,7 +77,7 @@
         </svg>
         <div>
           <p class="text-sm font-medium text-gray-900">Hasil sedang disusun...</p>
-          <p class="text-sm text-gray-500">AI sedang menganalisis potensi anak kamu.</p>
+          <p class="text-sm text-gray-500">Sistem sedang menganalisa potensi kamu.</p>
           <p class="mt-2 text-xs text-gray-400">Analisis ini membutuhkan waktu 2–5 menit. Kamu boleh menutup halaman ini; hasil bisa dilihat kapan saja melalui menu Riwayat.</p>
         </div>
       </div>
@@ -93,15 +93,54 @@
             <div class="flex-1">
               <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-600">Persona Potensi Anak</p>
               <h1 class="text-2xl font-bold text-gray-950 sm:text-3xl">{{ result.personaLabel }}</h1>
+              <!-- Karakter Menonjol badges -->
+              <div v-if="karakterMenonjol.length" class="mt-2 flex flex-wrap gap-1.5">
+                <span
+                  v-for="k in karakterMenonjol"
+                  :key="k"
+                  class="inline-flex items-center rounded-full bg-brand-400/20 px-2.5 py-0.5 text-xs font-semibold text-brand-800"
+                >{{ k }}</span>
+              </div>
               <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ result.personaDescription }}</p>
             </div>
-            <div class="mt-4 sm:mt-0 sm:shrink-0">
-              <span
-                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                :class="result.source === 'ai' ? 'bg-success-50 text-success-700 border border-success-500/30' : 'bg-gray-100 text-gray-500'"
-              >
-                {{ result.source === 'ai' ? '✦ AI Analysis' : 'Static Fallback' }}
+          </div>
+        </div>
+
+        <!-- Kekuatan Utama -->
+        <div v-if="kekuatanUtama.length" class="mb-6 card p-6">
+          <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-600">Kekuatan Utama</p>
+          <h2 class="mb-4 text-base font-bold text-gray-900">
+            {{ result.survey?.child?.name || 'Anak' }} memiliki {{ kekuatanUtama.length }} kekuatan utama:
+          </h2>
+          <ol class="space-y-2">
+            <li
+              v-for="(k, i) in kekuatanUtama"
+              :key="i"
+              class="flex items-start gap-3"
+            >
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-black">{{ i + 1 }}</span>
+              <span class="text-sm text-gray-800 leading-relaxed">{{ k }}</span>
+            </li>
+          </ol>
+        </div>
+
+        <!-- Potensi Profesi -->
+        <div v-if="potensiProfesi.length" class="mb-6 card p-6">
+          <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-600">Peluang di Dunia Nyata</p>
+          <h2 class="mb-4 text-base font-bold text-gray-900">Sehingga memberikan peluang untuk berkembang sebagai:</h2>
+          <div class="space-y-3">
+            <div
+              v-for="(p, i) in potensiProfesi"
+              :key="i"
+              class="flex gap-3 rounded-xl border border-gray-100 bg-gray-25 px-4 py-3.5"
+            >
+              <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-600">
+                {{ ['🎯','🔬','💡'][i] || '★' }}
               </span>
+              <div>
+                <p class="text-sm font-semibold text-gray-900">{{ p.nama }}</p>
+                <p class="text-xs leading-relaxed text-gray-500">{{ p.alasan }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -293,7 +332,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const route = useRoute()
 const resultId = route.params.id
 
@@ -309,7 +348,7 @@ function startPolling() {
     await refresh()
     if (result.value?.status === 'completed') {
       stopPolling()
-      setTimeout(() => { showWakafPopup.value = true }, 1800)
+      // setTimeout(() => { showWakafPopup.value = true }, 1800)
     }
   }, 3000)
 }
@@ -324,7 +363,7 @@ onUnmounted(stopPolling)
 
 watch(pending, (val) => {
   if (!val && result.value?.status === 'completed') {
-    setTimeout(() => { showWakafPopup.value = true }, 1800)
+    // setTimeout(() => { showWakafPopup.value = true }, 1800)
   }
 })
 
@@ -364,6 +403,10 @@ const lesRecs = computed(() => {
   if (!result.value) return null
   return result.value.lesRecommendations || null
 })
+
+const kekuatanUtama = computed(() => (lesRecs.value?.kekuatanUtama as string[]) || [])
+const potensiProfesi = computed(() => (lesRecs.value?.potensiProfesi as { nama: string; alasan: string }[]) || [])
+const karakterMenonjol = computed(() => (lesRecs.value?.karakterMenonjol as string[]) || [])
 
 function downloadPdf() {
   window.open(`/api/reports/${resultId}/pdf`, '_blank')
@@ -421,7 +464,7 @@ function downloadStoryCard() {
   // Brand name
   ctx.fillStyle = '#1c1917'
   ctx.font = 'bold 52px system-ui, sans-serif'
-  ctx.fillText('PetaBakat', 90, 130)
+  ctx.fillText('PetaMinatBakat', 90, 130)
   ctx.fillStyle = '#78716c'
   ctx.font = '34px system-ui, sans-serif'
   ctx.fillText('Peta Potensi Anak — Nasab & Hasab', 90, 185)
@@ -568,7 +611,7 @@ function downloadStoryCard() {
   ctx.fillStyle = '#a8a29e'
   ctx.font = '30px system-ui, sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText('petabakat.vercel.app · Framework Nasab & Hasab', W / 2, H - 80)
+  ctx.fillText('petaminatbakat.vercel.app · Framework Nasab & Hasab', W / 2, H - 80)
   ctx.fillText('Kenali potensi anakmu dari akar keluarga', W / 2, H - 40)
   ctx.textAlign = 'left'
 
@@ -578,7 +621,7 @@ function downloadStoryCard() {
 
   const a = document.createElement('a')
   a.href = canvas.toDataURL('image/png')
-  a.download = `petabakat-${childName.replace(/\s+/g, '-')}-story.png`
+  a.download = `petaminatbakat-${childName.replace(/\s+/g, '-')}-story.png`
   a.click()
 }
 </script>

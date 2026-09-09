@@ -6,7 +6,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
-        PetaBakat
+        PetaMinatBakat
       </NuxtLink>
       <span class="text-xs font-medium text-gray-500">Langkah {{ currentStep + 1 }} dari {{ totalSteps }}</span>
     </header>
@@ -15,10 +15,7 @@
     <Transition name="fade-overlay">
       <div v-if="loading" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-950/95 px-6 text-white">
         <div class="w-full max-w-sm">
-          <!-- Brand -->
-          <p class="mb-8 text-center text-sm font-semibold tracking-widest text-brand-400 uppercase">PetaBakat</p>
-
-          <!-- Steps -->
+          <p class="mb-8 text-center text-sm font-semibold tracking-widest text-brand-400 uppercase">PetaMinatBakat</p>
           <div class="space-y-4">
             <div
               v-for="(step, i) in loadingSteps"
@@ -26,7 +23,6 @@
               class="flex items-center gap-3 transition-opacity duration-500"
               :class="i > loadingStep ? 'opacity-25' : 'opacity-100'"
             >
-              <!-- icon -->
               <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full">
                 <svg v-if="i < loadingStep" class="h-5 w-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -42,8 +38,6 @@
               </span>
             </div>
           </div>
-
-          <!-- Fun fact -->
           <div class="mt-10 rounded-xl border border-white/10 bg-white/5 px-4 py-4">
             <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-400">Tahukah kamu?</p>
             <Transition name="fact-swap" mode="out-in">
@@ -72,22 +66,11 @@
 
       <form @submit.prevent="submitSurvey">
 
-        <!-- STEP 0: Data Orang Tua & Anak -->
+        <!-- STEP 0: Data Anak + Minat -->
         <section v-if="currentStep === 0" class="space-y-5">
           <div>
-            <h2 class="text-xl font-bold text-gray-950">Data Orang Tua & Anak</h2>
-            <p class="mt-1 text-sm text-gray-500">Informasi ini digunakan untuk personalisasi laporan.</p>
-          </div>
-
-          <div class="card p-5 space-y-4">
-            <div>
-              <label class="label-text">Nama Orang Tua / Wali</label>
-              <input v-model="form.parentName" required placeholder="Nama lengkap" class="input-field" />
-            </div>
-            <div>
-              <label class="label-text">Nomor WhatsApp</label>
-              <input v-model="form.parentPhone" type="tel" required placeholder="0812xxxxxxxx" class="input-field" />
-            </div>
+            <h2 class="text-xl font-bold text-gray-950">Data Anak</h2>
+            <p class="mt-1 text-sm text-gray-500">Informasi ini digunakan untuk personalisasi laporan analisis potensi.</p>
           </div>
 
           <div class="card p-5 space-y-4">
@@ -126,10 +109,122 @@
             </div>
             <input v-model="form.naturalResponseOther" placeholder="Lainnya..." class="input-field mt-3" />
           </div>
+
+          <div class="card p-5">
+            <label class="label-text mb-1 block">Ceritakan satu momen anak paling antusias <span class="font-normal text-gray-400">(opsional)</span></label>
+            <p class="mb-3 text-xs text-gray-400">Misalnya: "Pernah menghafal 10 hadis dalam seminggu tanpa dipaksa", "Selalu minta beli LEGO setiap ulang tahun", dsb.</p>
+            <textarea
+              v-model="form.momentAntusias"
+              rows="3"
+              placeholder="Tulis momen konkret yang menunjukkan kegemaran terbesar anak..."
+              class="input-field resize-none"
+            />
+          </div>
         </section>
 
-        <!-- STEP 1: Pertanyaan Nasab -->
+        <!-- STEP 1: Data Orang Tua + Voucher -->
         <section v-else-if="currentStep === 1" class="space-y-5">
+          <div>
+            <h2 class="text-xl font-bold text-gray-950">Data Orang Tua & Kode Voucher</h2>
+            <p class="mt-1 text-sm text-gray-500">Laporan akan dikirim ke nomor WhatsApp kamu setelah survei selesai.</p>
+          </div>
+
+          <div class="card p-5 space-y-4">
+            <div>
+              <label class="label-text">Nama Orang Tua / Wali</label>
+              <input v-model="form.parentName" required placeholder="Nama lengkap" class="input-field" />
+            </div>
+            <div>
+              <label class="label-text">Nomor WhatsApp</label>
+              <input v-model="form.parentPhone" type="tel" required placeholder="0812xxxxxxxx" class="input-field" />
+            </div>
+            <div>
+              <label class="label-text">Email <span class="font-normal text-gray-400">(opsional)</span></label>
+              <input v-model="form.parentEmail" type="email" placeholder="email@contoh.com" class="input-field" />
+            </div>
+          </div>
+
+          <!-- Kode Sekolah (opsional) -->
+          <div class="card p-5 space-y-3">
+            <div>
+              <label class="label-text">Kode Sekolah <span class="font-normal text-gray-400">(opsional)</span></label>
+              <input
+                v-model="form.schoolCode"
+                placeholder="Contoh: SDIT-ALFATIH-2026"
+                class="input-field uppercase tracking-widest"
+                :class="schoolStatus === 'valid' ? 'border-green-400 bg-green-50' : schoolStatus === 'invalid' ? 'border-red-300' : ''"
+                @input="resetSchool"
+              />
+              <p class="mt-1 text-xs text-gray-400">Isi jika anak bersekolah di sekolah yang bermitra dengan PetaMinatBakat.</p>
+            </div>
+            <button
+              v-if="form.schoolCode.trim()"
+              type="button"
+              class="btn-secondary px-4 py-2 text-sm"
+              :disabled="schoolValidating"
+              @click="validateSchool"
+            >{{ schoolValidating ? 'Mengecek...' : 'Cek Kode Sekolah' }}</button>
+            <p v-if="schoolStatus === 'valid'" class="flex items-center gap-1.5 text-sm font-medium text-green-600">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              Kode sekolah valid — {{ validatedSchoolName }}
+            </p>
+            <p v-if="schoolStatus === 'invalid'" class="text-sm text-red-600">{{ schoolError }}</p>
+            <label v-if="schoolStatus === 'valid'" class="flex items-start gap-3 cursor-pointer rounded-xl border border-green-200 bg-green-50 p-3">
+              <input v-model="form.schoolConsent" type="checkbox" class="mt-0.5 h-4 w-4 accent-black shrink-0" />
+              <span class="text-xs text-green-800">Saya setuju data hasil survei anak saya dibagikan ke <strong>{{ validatedSchoolName }}</strong> untuk keperluan pendidikan.</span>
+            </label>
+          </div>
+
+          <!-- Voucher -->
+          <div class="card p-5 space-y-4">
+            <div>
+              <label class="label-text">Kode Voucher</label>
+              <div class="flex gap-2 mt-1.5">
+                <input
+                  v-model="form.voucherCode"
+                  placeholder="Contoh: PMB-AB12CD34"
+                  class="input-field flex-1 uppercase tracking-widest"
+                  :class="voucherStatus === 'valid' ? 'border-green-400 bg-green-50' : voucherStatus === 'invalid' ? 'border-red-300' : ''"
+                  @input="resetVoucher"
+                />
+                <button
+                  type="button"
+                  class="btn-secondary px-4 shrink-0"
+                  :disabled="voucherValidating || !form.voucherCode.trim()"
+                  @click="validateVoucher"
+                >
+                  <svg v-if="voucherValidating" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <span v-else>Cek</span>
+                </button>
+              </div>
+              <p v-if="voucherStatus === 'valid'" class="mt-2 flex items-center gap-1.5 text-sm font-medium text-green-600">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                Voucher valid — kamu bisa melanjutkan survei
+              </p>
+              <p v-else-if="voucherStatus === 'invalid'" class="mt-2 text-sm text-red-600">{{ voucherError }}</p>
+            </div>
+
+            <div class="rounded-xl border border-amber-100 bg-amber-50 p-4">
+              <p class="text-sm font-medium text-amber-800">Belum punya voucher?</p>
+              <p class="mt-1 text-xs text-amber-700">Voucher didapatkan setelah melakukan pembayaran Rp 99.000 melalui WhatsApp admin.</p>
+              <a
+                href="https://wa.me/6281586245143?text=Halo%2C%20saya%20ingin%20mendapatkan%20voucher%20PetaMinatBakat"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="mt-3 inline-flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-600"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Chat WhatsApp Admin
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 2: Pertanyaan Nasab -->
+        <section v-else-if="currentStep === 2" class="space-y-5">
           <div>
             <h2 class="text-xl font-bold text-gray-950">Pertanyaan Nasab</h2>
             <p class="mt-1 text-sm text-gray-500">Menggali kejelasan garis keturunan dan silaturahim keluarga.</p>
@@ -154,7 +249,7 @@
           </div>
         </section>
 
-        <!-- STEP 2+: Satu pertanyaan Hasab per step -->
+        <!-- STEP 3+: Satu pertanyaan Hasab per step -->
         <section v-else-if="currentHasabQuestion" class="space-y-5">
           <div>
             <div class="mb-2 flex items-center gap-2">
@@ -201,16 +296,17 @@
           </button>
           <div v-else />
 
-          <!-- Hasab steps: auto-advance, hanya tampil hint -->
+          <!-- Hasab steps: auto-advance hint -->
           <p v-if="currentHasabQuestion && currentStep < totalSteps - 1" class="text-xs text-gray-400">
             Pilih untuk lanjut otomatis
           </p>
 
-          <!-- Step data & nasab: tombol manual -->
+          <!-- Step 0, 1, 2: tombol manual Lanjut -->
           <button
             v-else-if="!currentHasabQuestion && currentStep < totalSteps - 1"
             type="button"
-            class="btn-primary px-5 py-2.5"
+            class="btn-primary px-5 py-2.5 disabled:cursor-not-allowed disabled:opacity-50"
+            :disabled="currentStep === 1 && voucherStatus !== 'valid'"
             @click="nextStep"
           >
             Lanjut →
@@ -241,32 +337,54 @@ const { data } = await useFetch('/api/questions')
 const router = useRouter()
 
 const naturalResponseOptions = [
-  // Asyiha
+  // Kepemimpinan & Sosial (Qiyadah)
   'Suka bercerita atau berpidato di depan orang',
   'Suka menjadi pemimpin dalam permainan kelompok',
   'Senang membantu dan peduli terhadap teman',
-  // Ilmi
+  'Suka mengorganisir kegiatan atau acara',
+  'Mudah bergaul dan cepat punya teman baru',
+  // Intelektual & Keilmuan (Ilmi)
   'Kritis dan banyak bertanya "kenapa"',
   'Senang membaca atau mencari tahu hal baru',
   'Suka teka-teki, strategi, atau permainan logika',
-  // Amali
+  'Suka berdebat atau berargumentasi',
+  'Senang menghafal (Quran, fakta, data)',
+  // Bisnis & Teknis (Amali)
   'Suka bongkar-pasang atau merakit barang',
-  'Suka membuat sesuatu dengan tangan (prakarya, masak, dll)',
+  'Suka membuat sesuatu dengan tangan (prakarya, masak, berkebun)',
   'Semangat kalau ada proyek atau tantangan nyata',
-  // Wajdan
+  'Suka berdagang / jual-beli kecil-kecilan',
+  'Teliti dan suka merapikan barang atau jadwal',
+  // Seni & Spiritual (Wajdan)
   'Suka menggambar, mewarnai, atau berkarya visual',
   'Peka dengan musik, suara, atau irama',
   'Mudah merasakan suasana hati orang lain / peka secara emosi',
+  'Suka bercerita lewat tulisan atau gambar komik',
+  'Senang dengan kegiatan rohani (mengaji, dzikir, doa)',
+  // Olahraga & Fisik
+  'Aktif bergerak dan suka olahraga tim',
+  'Suka tantangan fisik (panjat, lari, renang)',
+  // Teknologi & Digital
+  'Tertarik dengan komputer, robotik, atau coding',
+  'Suka bermain game strategi atau simulasi',
 ]
 
 const form = reactive({
-  parentName: '',
-  parentPhone: '',
+  // Step 0
   childName: '',
   childBirthDate: '',
   childGender: '',
   naturalResponses: [],
   naturalResponseOther: '',
+  momentAntusias: '',
+  // Step 1
+  parentName: '',
+  parentPhone: '',
+  parentEmail: '',
+  schoolCode: '',
+  schoolConsent: false,
+  voucherCode: '',
+  // Survey
   nasabAnswers: {},
   hasabAnswers: {},
 })
@@ -274,6 +392,75 @@ const form = reactive({
 const currentStep = ref(0)
 const loading = ref(false)
 const submitting = ref(false)
+
+// Voucher state
+const voucherStatus = ref('') // '' | 'valid' | 'invalid'
+const voucherError = ref('')
+const voucherValidating = ref(false)
+const validatedVoucherId = ref(null)
+
+// School validation
+const schoolStatus = ref('')
+const schoolError = ref('')
+const schoolValidating = ref(false)
+const validatedSchoolName = ref('')
+const validatedSchoolId = ref(null)
+
+function resetSchool() {
+  schoolStatus.value = ''
+  schoolError.value = ''
+  validatedSchoolName.value = ''
+  validatedSchoolId.value = null
+  form.schoolConsent = false
+}
+
+async function validateSchool() {
+  const code = form.schoolCode.trim().toUpperCase()
+  if (!code) return
+  schoolValidating.value = true
+  schoolStatus.value = ''
+  schoolError.value = ''
+  try {
+    const res = await $fetch('/api/sekolah/validate-code', { method: 'POST', body: { code } })
+    schoolStatus.value = 'valid'
+    validatedSchoolName.value = res.schoolName
+    validatedSchoolId.value = res.schoolId
+  } catch (err) {
+    schoolStatus.value = 'invalid'
+    schoolError.value = err?.data?.message || 'Kode sekolah tidak ditemukan.'
+    validatedSchoolId.value = null
+  } finally {
+    schoolValidating.value = false
+  }
+}
+
+function resetVoucher() {
+  voucherStatus.value = ''
+  voucherError.value = ''
+  validatedVoucherId.value = null
+}
+
+async function validateVoucher() {
+  const code = form.voucherCode.trim()
+  if (!code) return
+  voucherValidating.value = true
+  voucherStatus.value = ''
+  voucherError.value = ''
+  try {
+    const res = await $fetch('/api/vouchers/validate', {
+      method: 'POST',
+      body: { code },
+    })
+    voucherStatus.value = 'valid'
+    validatedVoucherId.value = res.voucherId
+  } catch (err) {
+    voucherStatus.value = 'invalid'
+    voucherError.value = err?.data?.message || err?.message || 'Voucher tidak valid.'
+    validatedVoucherId.value = null
+  } finally {
+    voucherValidating.value = false
+  }
+}
 
 const loadingSteps = [
   'Membaca jawaban kamu...',
@@ -315,14 +502,13 @@ function stopLoadingAnimation() {
 
 onUnmounted(stopLoadingAnimation)
 
-// Flatten & shuffle semua hasab questions saat data tersedia, order tetap selama sesi
+// Flatten & shuffle all hasab questions, order fixed for the session
 const shuffledHasabQuestions = ref([])
 watch(data, (val) => {
   if (!val?.categories) return
   const all = val.categories.flatMap(cat =>
     cat.questions.map(q => ({ ...q, categoryName: cat.name, categoryCode: cat.code }))
   )
-  // Fisher-Yates shuffle
   for (let i = all.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [all[i], all[j]] = [all[j], all[i]]
@@ -330,17 +516,18 @@ watch(data, (val) => {
   shuffledHasabQuestions.value = all
 }, { immediate: true })
 
-// Step 0 = data, step 1 = nasab, step 2..N = satu hasab per step
-const totalSteps = computed(() => 2 + shuffledHasabQuestions.value.length)
+// Step 0 = child data, step 1 = parent+voucher, step 2 = nasab, step 3..N = hasab
+const totalSteps = computed(() => 3 + shuffledHasabQuestions.value.length)
 
 const currentHasabQuestion = computed(() => {
-  if (currentStep.value < 2) return null
-  return shuffledHasabQuestions.value[currentStep.value - 2] || null
+  if (currentStep.value < 3) return null
+  return shuffledHasabQuestions.value[currentStep.value - 3] || null
 })
 
 const stepTitle = computed(() => {
-  if (currentStep.value === 0) return 'Data Orang Tua & Anak'
-  if (currentStep.value === 1) return 'Pertanyaan Nasab'
+  if (currentStep.value === 0) return 'Data Anak'
+  if (currentStep.value === 1) return 'Data Orang Tua & Voucher'
+  if (currentStep.value === 2) return 'Pertanyaan Nasab'
   return currentHasabQuestion.value?.categoryName || 'Pertanyaan Hasab'
 })
 
@@ -348,14 +535,18 @@ const validationError = ref('')
 
 function validateCurrentStep() {
   if (currentStep.value === 0) {
-    if (!form.parentName.trim()) return 'Nama orang tua / wali wajib diisi.'
-    if (!form.parentPhone.trim()) return 'Nomor WhatsApp wajib diisi.'
     if (!form.childName.trim()) return 'Nama anak wajib diisi.'
     if (!form.childBirthDate) return 'Tanggal lahir anak wajib diisi.'
     if (!form.childGender) return 'Jenis kelamin anak wajib dipilih.'
     return ''
   }
   if (currentStep.value === 1) {
+    if (!form.parentName.trim()) return 'Nama orang tua / wali wajib diisi.'
+    if (!form.parentPhone.trim()) return 'Nomor WhatsApp wajib diisi.'
+    if (voucherStatus.value !== 'valid') return 'Masukkan kode voucher yang valid untuk melanjutkan.'
+    return ''
+  }
+  if (currentStep.value === 2) {
     const questions = data.value?.nasabQuestions || []
     const unanswered = questions.find(q => form.nasabAnswers[q.id] === undefined)
     if (unanswered) return 'Semua pertanyaan nasab wajib dijawab.'
@@ -383,7 +574,6 @@ function prevStep() {
 
 function selectHasabScore(questionId, score) {
   form.hasabAnswers[questionId] = score
-  // auto-advance setelah 300ms
   setTimeout(() => {
     if (currentStep.value < totalSteps.value - 1) {
       nextStep()
@@ -400,10 +590,20 @@ async function submitSurvey() {
     const payload = {
       parentName: form.parentName,
       parentPhone: form.parentPhone,
+      parentEmail: form.parentEmail || null,
+      voucherId: validatedVoucherId.value,
+      voucherCode: form.voucherCode.trim().toUpperCase(),
+      schoolId: validatedSchoolId.value,
+      schoolCode: form.schoolCode.trim().toUpperCase() || null,
+      schoolConsent: form.schoolConsent,
       childName: form.childName,
       childBirthDate: form.childBirthDate,
       childGender: form.childGender,
-      naturalResponses: [...form.naturalResponses, form.naturalResponseOther].filter(Boolean),
+      naturalResponses: [
+        ...form.naturalResponses,
+        form.naturalResponseOther,
+        form.momentAntusias ? `Momen antusias: ${form.momentAntusias}` : '',
+      ].filter(Boolean),
       nasabAnswers: form.nasabAnswers,
       hasabAnswers: form.hasabAnswers,
     }

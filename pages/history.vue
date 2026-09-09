@@ -107,8 +107,8 @@
         </p>
       </form>
 
-      <!-- Wakaf Popup -->
-      <Transition name="fade">
+      <!-- Wakaf Popup (dinonaktifkan sementara) -->
+      <!-- <Transition name="fade">
         <div v-if="showWakafPopup" class="fixed inset-0 z-[60] flex items-end justify-center p-4 sm:items-center">
           <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px]" @click="showWakafPopup = false" />
           <div class="relative w-full max-w-md overflow-hidden rounded-2xl border border-brand-200 bg-white shadow-2xl">
@@ -148,7 +148,7 @@
             </div>
           </div>
         </div>
-      </Transition>
+      </Transition> -->
 
       <!-- Results -->
       <template v-if="step === 'result' && result?.found">
@@ -243,7 +243,7 @@ onMounted(async () => {
     if (data.authenticated && data.found) {
       result.value = data
       step.value = 'result'
-      setTimeout(() => { showWakafPopup.value = true }, 1800)
+      // setTimeout(() => { showWakafPopup.value = true }, 1800)
     }
   } catch (err) {
     console.error('Failed to restore history session', err)

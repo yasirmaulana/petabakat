@@ -4,7 +4,7 @@
 
     <!-- Navbar -->
     <nav class="sticky top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-white/95 px-6 py-4 backdrop-blur-sm">
-      <span class="text-base font-bold text-gray-950">PetaBakat</span>
+      <span class="text-base font-bold text-gray-950">PetaMinatBakat</span>
       <div class="flex items-center gap-3">
         <NuxtLink to="/history" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
           Cek Riwayat
@@ -25,9 +25,9 @@
           Kenali Potensi Anak dari<br><span class="text-brand-500">Akar Keluarganya</span>
         </h1>
         <p class="mt-6 text-lg leading-relaxed text-gray-600">
-          Bukan zodiak, bukan tebakan. PetaBakat memetakan kecenderungan potensi anak berdasarkan
+          Bukan zodiak, bukan tebakan. PetaMinatBakat memetakan kecenderungan potensi anak berdasarkan
           rekam jejak karakter keluarga besar (<strong class="text-gray-900">Nasab &amp; Hasab</strong>) —
-          framework pengasuhan Islami yang menghasilkan persona, skor 4 rumpun, dan rekomendasi les yang personal.
+          framework pengasuhan Islami yang menghasilkan persona, skor 4 rumpun, dan rekomendasi bimbingan belajar yang personal.
         </p>
 
         <!-- Benefit pills -->
@@ -46,7 +46,7 @@
             Cek Riwayat
           </NuxtLink>
         </div>
-        <p class="mt-3 text-xs text-gray-400">Gratis · ~5-10 menit · Hasil PDF + WhatsApp</p>
+        <p class="mt-3 text-xs text-gray-400">~5-10 menit · Laporan PDF + WhatsApp · Rp 99.000</p>
 
         <p class="mt-5 mx-auto max-w-lg rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-xs leading-relaxed text-gray-500">
           ⚠️ Hasil survei ini bersifat <strong class="text-gray-600">indikatif</strong> berdasarkan framework Nasab &amp; Hasab.
@@ -56,28 +56,76 @@
       </div>
     </section>
 
+    <!-- Testimoni -->
+    <section class="border-t border-gray-100 bg-gray-25 px-6 py-16">
+      <div class="mx-auto max-w-5xl">
+        <div class="mb-10 text-center">
+          <p class="text-xs font-semibold uppercase tracking-widest text-brand-600">Testimoni</p>
+          <h2 class="mt-2 text-2xl font-bold text-gray-950">Kata Orang Tua yang Sudah Pakai</h2>
+        </div>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div v-for="t in testimonials" :key="t.name" class="card p-5 flex flex-col gap-4">
+            <p class="text-sm leading-relaxed text-gray-700 flex-1">"{{ t.quote }}"</p>
+            <div class="flex items-center gap-3 border-t border-gray-100 pt-4">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">
+                {{ t.name.charAt(0) }}
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-gray-900">{{ t.name }}</p>
+                <p class="text-xs text-gray-400">{{ t.meta }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 Rumpun Hasab -->
+    <section class="border-t border-gray-100 px-6 py-16">
+      <div class="mx-auto max-w-5xl">
+        <div class="mb-10 text-center">
+          <p class="text-xs font-semibold uppercase tracking-widest text-brand-600">Framework Hasab</p>
+          <h2 class="mt-2 text-2xl font-bold text-gray-950">4 Rumpun Potensi</h2>
+          <p class="mt-2 text-sm text-gray-500">Setiap anak memiliki kombinasi unik dari keempat rumpun ini, diwariskan dari ekosistem keluarga besar.</p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div v-for="cat in categories" :key="cat.code" class="card p-6 transition-shadow hover:shadow-md">
+            <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-xl">
+              {{ cat.icon }}
+            </div>
+            <h3 class="mb-1 text-sm font-semibold text-gray-900">{{ cat.name }}</h3>
+            <p class="text-xs leading-relaxed text-gray-500">{{ cat.description }}</p>
+          </div>
+        </div>
+        <div class="mt-6 text-center">
+          <NuxtLink to="/dasar-ilmiah" class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700 underline underline-offset-4">
+            <span>📖</span> Apa itu Framework Nasab &amp; Hasab?
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
     <!-- Preview Contoh Hasil — Elsha Navya -->
     <section class="border-t border-gray-100 bg-gray-25 px-6 py-16">
       <div class="mx-auto max-w-3xl">
         <div class="mb-8 text-center">
           <p class="text-xs font-semibold uppercase tracking-widest text-brand-600">Contoh Nyata</p>
           <h2 class="mt-2 text-2xl font-bold text-gray-950">Seperti Apa Hasilnya?</h2>
-          <p class="mt-2 text-sm text-gray-500">Contoh hasil analisis nyata dari salah satu pengguna PetaBakat.</p>
+          <p class="mt-2 text-sm text-gray-500">Contoh hasil analisis nyata dari salah satu pengguna PetaMinatBakat.</p>
         </div>
 
         <div class="card overflow-hidden">
           <!-- Header persona -->
           <div class="bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-5">
             <p class="text-xs font-semibold uppercase tracking-widest text-brand-100">Persona Potensi Anak</p>
-            <h3 class="mt-1 text-2xl font-bold text-white">✦ The Curious Maker</h3>
+            <h3 class="mt-1 text-2xl font-bold text-white">Curious Creator</h3>
             <p class="mt-1 text-sm text-brand-100">Elsha Navya · 11 tahun · Perempuan</p>
           </div>
 
           <div class="px-6 py-5">
             <!-- Deskripsi singkat -->
             <p class="text-sm leading-relaxed text-gray-700">
-              Elsha adalah sosok yang langka — ia bukan hanya pemikir, tetapi juga pembangun. Profil skornya yang seimbang
-              mencerminkan pribadi yang utuh: berpikir tajam, bekerja tuntas, merasakan keindahan, dan tetap terhubung dengan sekitarnya.
+              Elsha Navya adalah anak dengan keseimbangan potensi yang langka — pikiran ilmiahnya tajam, jiwanya peka terhadap keindahan, tangannya senang berkarya, dan hatinya terbuka untuk orang-orang di sekitarnya.
             </p>
 
             <!-- Skor 4 rumpun -->
@@ -116,32 +164,12 @@
             <div class="mt-5 flex items-center justify-between border-t border-gray-100 pt-4">
               <p class="text-xs text-gray-400">Laporan lengkap · radar chart · micro-dosing mingguan · PDF</p>
               <NuxtLink
-                to="/results/fbc027f8-fa48-4d18-8fc6-be7a0675c57b"
+                to="/contoh-laporan-lengkap"
                 class="text-xs font-semibold text-brand-600 hover:text-brand-700 underline underline-offset-2"
               >
                 Lihat laporan lengkap →
               </NuxtLink>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4 Rumpun Hasab -->
-    <section class="border-t border-gray-100 px-6 py-16">
-      <div class="mx-auto max-w-5xl">
-        <div class="mb-10 text-center">
-          <p class="text-xs font-semibold uppercase tracking-widest text-brand-600">Framework Hasab</p>
-          <h2 class="mt-2 text-2xl font-bold text-gray-950">4 Rumpun Potensi</h2>
-          <p class="mt-2 text-sm text-gray-500">Setiap anak memiliki kombinasi unik dari keempat rumpun ini, diwariskan dari ekosistem keluarga besar.</p>
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div v-for="cat in categories" :key="cat.code" class="card p-6 transition-shadow hover:shadow-md">
-            <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-xl">
-              {{ cat.icon }}
-            </div>
-            <h3 class="mb-1 text-sm font-semibold text-gray-900">{{ cat.name }}</h3>
-            <p class="text-xs leading-relaxed text-gray-500">{{ cat.description }}</p>
           </div>
         </div>
       </div>
@@ -169,7 +197,7 @@
           <div class="card p-5 text-center">
             <div class="mb-3 text-2xl">🎯</div>
             <h3 class="mb-1 text-sm font-semibold text-gray-900">Terima Hasil Peta Bakat</h3>
-            <p class="text-xs leading-relaxed text-gray-500">Terima laporan hasil persona, narasi, dan rekomendasi les yang personal. Akurasi bergantung pada kejujuran pengisian.</p>
+            <p class="text-xs leading-relaxed text-gray-500">Terima laporan hasil persona, narasi, dan rekomendasi bimbingan belajar yang personal. Akurasi bergantung pada kejujuran pengisian.</p>
           </div>
         </div>
 
@@ -238,7 +266,7 @@
     </section>
 
     <!-- Wakaf Banner -->
-    <section class="border-t border-gray-100 px-6 py-12">
+    <section class="border-t border-gray-100 bg-gray-25 px-6 py-12">
       <div
         class="relative mx-auto max-w-3xl overflow-hidden rounded-2xl border border-brand-200"
         style="background-image: url('/wakaf-asrama.png'); background-size: cover; background-position: center;"
@@ -267,39 +295,37 @@
     </section>
 
     <!-- CTA Bottom -->
-    <section class="border-t border-gray-100 bg-gray-25 px-6 py-16 text-center">
+    <section class="border-t border-gray-100 px-6 py-16 text-center">
       <div class="mx-auto max-w-xl">
         <h2 class="text-2xl font-bold text-gray-950">Siap memetakan potensi anak?</h2>
-        <p class="mt-3 text-sm text-gray-500">Gratis · ~5-10 menit · Hasil PDF + WhatsApp · Tanpa buat akun</p>
+        <p class="mt-3 text-sm text-gray-500">~5-10 menit · Laporan PDF + rekomendasi bimbingan belajar · Rp 99.000</p>
         <NuxtLink to="/survey" class="btn-primary-lg mt-8 inline-flex">
           Mulai Survey Sekarang
         </NuxtLink>
       </div>
     </section>
 
-    <!-- Otomatisin Banner -->
-    <OtomatisinBanner />
-
     <!-- Footer -->
     <footer class="border-t border-gray-100 px-6 py-6 text-center">
-      <p class="text-xs text-gray-400"><strong class="text-gray-500">© 2026 PetaBakat </strong></p>
+      <p class="text-xs text-gray-400"><strong class="text-gray-500">© 2026 PetaMinatBakat </strong></p>
       <p class="mt-2 text-xs text-gray-400">
         Dikembangkan oleh
         <a href="https://www.otomatisin.web.id/" target="_blank" rel="noopener noreferrer" class="font-medium text-gray-500 hover:text-gray-700">Otomatisin</a>
       </p>
     </footer>
+
   </main>
 </template>
 
 <script setup>
 useHead({
-  title: 'Cek Bakat Anak Online Berbasis Nasab & Hasab — PetaBakat',
+  title: 'Cek Bakat Anak Online Berbasis Nasab & Hasab — PetaMinatBakat',
   meta: [
     {
       name: 'description',
-      content: 'Kenali potensi anak dari rekam jejak karakter keluarga besar menggunakan framework Nasab & Hasab. Analisis AI menghasilkan persona, skor 4 rumpun, micro-dosing mingguan, dan rekomendasi les yang personal. Gratis.',
+      content: 'Kenali potensi anak dari rekam jejak karakter keluarga besar menggunakan framework Nasab & Hasab. Analisis AI menghasilkan persona, skor 4 rumpun, micro-dosing mingguan, dan rekomendasi bimbingan belajar yang personal. Rp 99.000.',
     },
-    { property: 'og:title', content: 'PetaBakat — Peta Potensi Anak dari Nasab & Hasab' },
+    { property: 'og:title', content: 'PetaMinatBakat — Peta Potensi Anak dari Nasab & Hasab' },
     { property: 'og:description', content: 'Framework pengasuhan Islami berbasis AI. Kenali rumpun kecerdasan dominan anak dan dapatkan rekomendasi aktivitas yang personal.' },
   ],
 })
@@ -310,38 +336,55 @@ const { data: recentResults } = await useFetch('/api/recent-results')
 onMounted(() => {
   if (!recentResults.value?.length) return
   let index = 0
-  addToast(formatToastMessage(recentResults.value[0]), 5000)
-  const interval = setInterval(() => {
-    index = (index + 1) % recentResults.value.length
-    addToast(formatToastMessage(recentResults.value[index]), 5000)
-  }, 5000)
-  onBeforeUnmount(() => clearInterval(interval))
+  const show = (r) => addToast({ name: r.childName, activity: `mendapat pemetaan persona: ${r.personaLabel}`, time: 'baru saja' }, 5500)
+  setTimeout(() => {
+    show(recentResults.value[0])
+    const interval = setInterval(() => {
+      index = (index + 1) % recentResults.value.length
+      show(recentResults.value[index])
+    }, 9000)
+    onBeforeUnmount(() => clearInterval(interval))
+  }, 3000)
 })
-
-function formatToastMessage(result) {
-  return `${result.childName} baru saja mendapatkan pemetaan persona: ${result.personaLabel}.`
-}
 
 const openFaq = ref(null)
 
 const pills = [
-  '✓ Gratis & tanpa akun',
+  '✓ Rp 99.000 · 1 laporan',
   '✓ Berbasis Al-Qur\'an & Sunnah',
   '✓ Laporan PDF',
-  '✓ Rekomendasi les spesifik',
+  '✓ Rekomendasi bimbingan belajar yang personal',
+]
+
+const testimonials = [
+  {
+    name: 'Ummu Husein',
+    meta: 'Orang tua siswa SMP',
+    quote: 'Sangat membantu! Lewat tes peta minat bakat ini, saya jadi makin paham potensi tersembunyi yang dimiliki anak. Rekomendasi dan saran pengembangan keahlian yang diberikan juga sangat praktis dan mudah diterapkan di rumah.',
+  },
+  {
+    name: 'R. Fufu Syarifuddin',
+    meta: 'Orang tua siswa SD',
+    quote: 'Alhamdulillah saya jadi lebih yakin dengan bakat yang ada pada diri ananda, jadi saya bisa lebih fokus memberikan apa yang dia cita-citakan. Terimakasih.',
+  },
+  {
+    name: 'Irsan Saepul',
+    meta: 'Orang tua siswa SD',
+    quote: 'Alhamdulillah setelah membaca petabakat-nya, ternyata hasilnya tidak jauh beda dengan hasil tes mesin kecerdasan. Anak saya jadi semakin percaya diri dan saya lebih bertawakal dalam mendampingi tumbuh kembang ananda ke depannya.',
+  },
 ]
 
 const elshaSkor = [
-  { code: 'ilmi',   icon: '📚', label: 'Al-Ilmi',   pct: 26.58, dominant: true  },
-  { code: 'amali',  icon: '🛠️', label: 'Al-Amali',  pct: 26.58, dominant: true  },
-  { code: 'wajdan', icon: '🎨', label: 'Al-Wajdan', pct: 25.32, dominant: false },
-  { code: 'asyiha', icon: '🤝', label: 'Al-Qiyadah', pct: 21.52, dominant: false },
+  { code: 'ilmi',   icon: '📚', label: 'Al-Ilmi',    pct: 26.51, dominant: true  },
+  { code: 'wajdan', icon: '🎨', label: 'Al-Wajdan',  pct: 26.51, dominant: false },
+  { code: 'amali',  icon: '🛠️', label: 'Al-Amali',   pct: 24.10, dominant: false },
+  { code: 'asyiha', icon: '🤝', label: 'Al-Qiyadah', pct: 22.89, dominant: false },
 ]
 
 const elshaLes = [
-  'Kelas Science Club / Eksperimen Sains Anak (program Young Scientist atau lembaga sains lokal)',
-  'Kelas Prakarya & Desain Produk Anak (workshop Craft & Make, sanggar seni DIY)',
-  'Kelas Menggambar & Ilustrasi (Crayonpedia, sanggar seni lokal terdekat)',
+  'Kelas Science Club / Kelompok Ilmiah Remaja (KIR) di sekolah atau komunitas',
+  'Workshop Komik dan Ilustrasi (Akademi Komik Indonesia atau kelas komik lokal)',
+  'Program Pramuka Penggalang atau komunitas pecinta alam remaja',
 ]
 
 const categories = [
@@ -362,23 +405,24 @@ const claimRows = [
 const faqs = [
   {
     q: 'Apakah ini sama dengan tes IQ atau tes psikologi?',
-    a: 'Tidak. PetaBakat bukan tes psikologi formal. Ini adalah alat bantu refleksi orang tua yang merapikan pengamatan tentang karakter keluarga besar dan minat anak menjadi peta kecenderungan. Untuk kebutuhan diagnosis klinis, tetap libatkan psikolog atau dokter anak.',
+    a: 'Tidak. PetaMinatBakat bukan tes psikologi formal. Ini adalah alat bantu refleksi orang tua yang merapikan pengamatan tentang karakter keluarga besar dan minat anak menjadi peta kecenderungan. Untuk kebutuhan diagnosis klinis, tetap libatkan psikolog atau dokter anak.',
   },
   {
     q: 'Kenapa framework-nya Islam (Nasab & Hasab)?',
     a: 'Konsep Nasab (garis keturunan) dan Hasab (rekam jejak kemuliaan keluarga) adalah dua konstruk Islam yang relevan secara psikologis — riset modern mendukung bahwa karakter dan potensi anak dipengaruhi ekosistem keluarga. Pendekatan ini dikembangkan dari pemikiran Ustadz Budi Ashari, Lc. (Parenting Nabawiyah).',
   },
   {
-    q: 'Berapa lama dan apakah berbayar?',
-    a: 'Sekitar 5–10 menit untuk mengisi survei. Sepenuhnya gratis dan tidak perlu membuat akun — hasil tersimpan dan bisa diakses kapan saja via nomor WhatsApp.',
+    q: 'Berapa lama dan berapa biayanya?',
+    a: 'Sekitar 5–10 menit untuk mengisi survei. Biaya Rp 99.000 per laporan — isi data anak dulu, lalu masukkan kode voucher yang didapat setelah pembayaran via WhatsApp admin. Hasil tersimpan dan bisa diakses kapan saja.',
   },
   {
     q: 'Apakah hasilnya bisa berubah seiring waktu?',
     a: 'Ya. Karakter anak bersifat dinamis dan dipengaruhi lingkungan. Anda bisa mengisi ulang survei jika pola keluarga atau minat anak berubah signifikan. Setiap pengisian menghasilkan laporan baru yang tersimpan di riwayat.',
   },
   {
-    q: 'Bagaimana rekomendasi les dihasilkan?',
-    a: 'AI menganalisis kombinasi skor 4 rumpun, usia, jenis kelamin, dan minat alami anak yang Anda isi. Hasilnya berupa 3 rekomendasi jalur utama yang spesifik dan bisa langsung dicari, plus 1 aktivitas pendukung dari rumpun ke-2.',
+    q: 'Bagaimana rekomendasi bimbingan belajar dihasilkan?',
+    a: 'Sistem menganalisis kombinasi skor 4 rumpun, usia, jenis kelamin, dan minat alami anak yang Anda isi. Hasilnya berupa 3 rekomendasi jalur utama yang spesifik dan bisa langsung dicari, plus 1 aktivitas pendukung dari rumpun ke-2.',
   },
 ]
+
 </script>

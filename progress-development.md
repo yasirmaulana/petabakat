@@ -1,4 +1,4 @@
-# Progress Development — PetaBakat
+# Progress Development — PetaMinatBakat
 
 ## Status Keseluruhan
 
@@ -19,7 +19,7 @@
 ## Struktur File
 
 ```
-petabakat/
+petaminatbakat/
 ├── pages/
 │   ├── index.vue               # Landing page
 │   ├── survey.vue              # Wizard survey (6 step)
@@ -62,7 +62,7 @@ petabakat/
 - Prisma 7 memerlukan driver adapter (`PrismaPg`) — bukan inline `url` di schema
 
 ### ✅ Database & Seed
-- Migration `init` applied ke `petabakatDB` (user: yasir, pass: yasir)
+- Migration `init` applied ke `petaminatbakatDB` (user: yasir, pass: yasir)
 - 4 kategori hasab, 20 pertanyaan hasab (5/kategori), 2 pertanyaan nasab
 - Jalankan ulang seed: `DATABASE_URL="..." npx tsx prisma/seed.ts`
 
@@ -115,7 +115,7 @@ petabakat/
 
 File `.env`:
 ```env
-DATABASE_URL="postgresql://yasir:yasir@localhost:5432/petabakatDB?schema=public"
+DATABASE_URL="postgresql://yasir:yasir@localhost:5432/petaminatbakatDB?schema=public"
 ANTHROPIC_API_KEY="sk-ant-..."        # dari console.anthropic.com
 WHATSAPP_API_KEY="..."                # token dari Fonnte/Wablas
 WHATSAPP_API_URL="https://api.fonnte.com/send"

@@ -170,7 +170,7 @@
         >
           Mulai Survey Potensi Anak →
         </NuxtLink>
-        <p class="mt-3 text-xs text-gray-400">Gratis · Tanpa buat akun · Hasil tersimpan via nomor WA</p>
+        <p class="mt-3 text-xs text-gray-400">~5-10 menit · Laporan PDF + rekomendasi bimbingan belajar · Rp 99.000</p>
       </div>
     </main>
   </div>
@@ -178,11 +178,11 @@
 
 <script setup lang="ts">
 useHead({
-  title: 'Dasar Ilmiah — PetaBakat',
+  title: 'Dasar Ilmiah — PetaMinatBakat',
   meta: [
     {
       name: 'description',
-      content: 'Penjelasan konstruk ilmiah di balik framework Nasab & Hasab, kaitan tiap rumpun dengan riset psikologi, dan batasan metodologi PetaBakat.',
+      content: 'Penjelasan konstruk ilmiah di balik framework Nasab & Hasab, kaitan tiap rumpun dengan riset psikologi, dan batasan metodologi PetaMinatBakat.',
     },
   ],
 })

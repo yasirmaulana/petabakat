@@ -1,4 +1,4 @@
-# Dokumentasi PetaBakat
+# Dokumentasi PetaMinatBakat
 
 > Aplikasi web pemetaan potensi anak berbasis konsep Islam **Nasab & Hasab**, dibangun dengan Nuxt 3 fullstack.
 
@@ -17,18 +17,19 @@
 9. [Autentikasi & Keamanan](#autentikasi--keamanan)
 10. [Integrasi Eksternal](#integrasi-eksternal)
 11. [Konfigurasi & Environment](#konfigurasi--environment)
-12. [Deployment](#deployment)
+12. [Scripts Utilitas](#scripts-utilitas)
+13. [Deployment](#deployment)
 
 ---
 
 ## Gambaran Umum
 
-**PetaBakat** adalah platform asesmen mandiri berbasis web yang membantu orang tua mengidentifikasi potensi anak melalui dua dimensi:
+**PetaMinatBakat** adalah platform asesmen mandiri berbasis web yang membantu orang tua mengidentifikasi potensi anak melalui dua dimensi:
 
 - **Nasab** — garis keturunan sah dan kejelasan silsilah keluarga.
 - **Hasab** — rekam jejak kemuliaan, akhlak, dan pencapaian keluarga lintas 3 generasi.
 
-Orang tua mengisi survei tentang karakter keluarga besar dan minat alami anak. Sistem menghitung skor 4 rumpun kecerdasan secara deterministik, lalu AI (Claude API) menganalisis kombinasi skor tersebut menjadi **persona potensi anak** beserta **rencana aktivitas mingguan (micro-dosing)** yang actionable.
+Orang tua mengisi survei tentang karakter keluarga besar dan minat alami anak. Sistem menghitung skor 4 rumpun kecerdasan secara deterministik, lalu AI (Claude API) menganalisis kombinasi skor tersebut menjadi **persona potensi anak** beserta **rencana aktivitas mingguan (micro-dosing)** dan **rekomendasi les/aktivitas** yang actionable.
 
 **Target pengguna:**
 - Orang tua / pasangan muda dengan anak usia 3–15 tahun.
@@ -47,21 +48,23 @@ Orang tua mengisi survei tentang karakter keluarga besar dan minat alami anak. S
 | **Styling** | Tailwind CSS 3 |
 | **Charting** | ApexCharts / vue3-apexcharts (Radar Chart) |
 | **PDF Generator** | jsPDF (server-side, A4) |
-| **AI — Primary** | Anthropic Claude API (`claude-sonnet` / `claude-haiku`) |
-| **AI — Fallback** | Groq (`llama-3.3-70b-versatile`) |
+| **AI — Primary** | Anthropic Claude API (model dikonfigurasi via env, default `cc/claude-sonnet-4-6`) |
+| **AI — Fallback 1** | Anthropic (model alternatif, default `ocg/kimi-k2.7-code`) |
+| **AI — Fallback 2** | Groq (model dikonfigurasi via env, default `openai/gpt-oss-120b`) |
 | **WhatsApp Gateway** | Fonnte API (`api.fonnte.com/send`) |
-| **Deployment** | Vercel (`@vercel/functions`, analytics, speed-insights) |
+| **Deployment** | Vercel (`@vercel/functions`, speed-insights) |
 
 ---
 
 ## Struktur Project
 
 ```
-petabakat/
+petaminatbakat/
 ├── pages/                        # Halaman Nuxt (Vue SPA)
 │   ├── index.vue                 # Landing page
-│   ├── survey.vue                # Wizard survey multi-step
+│   ├── survey.vue                # Wizard survey per-pertanyaan (22 step)
 │   ├── history.vue               # Cek riwayat via nomor HP + OTP
+│   ├── dasar-ilmiah.vue          # Halaman transparansi metodologi Nasab & Hasab
 │   └── results/[id].vue          # Dashboard hasil analisis
 │
 ├── server/
@@ -84,7 +87,7 @@ petabakat/
 │       ├── prisma.ts             # Singleton PrismaClient
 │       ├── hasabCalculator.ts    # Kalkulasi skor deterministik
 │       ├── aiAnalyzer.ts         # Multi-provider AI (Anthropic + Groq)
-│       ├── fallbackAnalysis.ts   # Rule matrix statis jika AI gagal
+│       ├── fallbackAnalysis.ts   # Rule matrix statis jika semua AI gagal
 │       ├── pdfBuilder.ts         # Generator PDF via jsPDF
 │       ├── rateLimiter.ts        # In-memory rate limiter per IP
 │       └── whatsapp.ts           # Wrapper Fonnte API
@@ -94,12 +97,25 @@ petabakat/
 │   ├── ToastContainer.vue        # Toast notifikasi rolling
 │   └── LiteYoutube.vue           # YouTube embed ringan
 │
+├── composables/
+│   └── useToast.ts               # Composable toast notifikasi
+│
+├── plugins/
+│   ├── apexcharts.client.ts      # Register ApexCharts (client-only)
+│   └── vercel.client.ts          # Vercel analytics init
+│
+├── scripts/                      # Script utilitas (dijalankan manual via Node/tsx)
+│   ├── retry-processing.ts       # Re-trigger analisis AI untuk survei stuck
+│   ├── retry-fallback.ts         # Re-run analisis untuk hasil fallback (rule matrix)
+│   ├── backfill-les-recommendations.ts  # Backfill kolom les_recommendations yang kosong
+│   └── notify-specific.ts        # Kirim notifikasi WA manual ke survei tertentu
+│
 ├── prisma/
 │   ├── schema.prisma             # Skema database
 │   └── seed.ts                   # Seed data (pertanyaan + kategori)
 │
 ├── assets/css/main.css           # Global styles
-├── nuxt.config.ts                # Konfigurasi Nuxt
+├── nuxt.config.ts                # Konfigurasi Nuxt + runtimeConfig
 ├── tailwind.config.ts            # Konfigurasi Tailwind
 └── prd.md                        # Product Requirement Document
 ```
@@ -111,7 +127,7 @@ petabakat/
 ### 1. Landing Page (`/`)
 
 - **Hero section** dengan CTA "Mulai Survey Potensi Anak".
-- **Penjelasan 4 rumpun Hasab** secara ringkas (Asyiha, Ilmi, Amali, Wajdan).
+- **Penjelasan 4 rumpun Hasab** secara ringkas (Al-Qiyadah, Ilmi, Amali, Wajdan).
 - **Preview video demo** hasil analisis (YouTube embed lite, lazy load).
 - **Toast rolling** — menampilkan hasil survei terbaru dari API `GET /api/recent-results` secara real-time untuk social proof.
 - **Banner wakaf** Madrasah Al-Fatih (tarahum.id) sebagai afiliasi.
@@ -120,18 +136,17 @@ petabakat/
 
 ### 2. Wizard Survey (`/survey`)
 
-Survey multi-step **6 langkah** dengan progress bar:
+Survey **per-pertanyaan** dengan progress bar — total **22 langkah**:
 
 | Step | Konten |
 |---|---|
 | **0 — Data Keluarga** | Nama & nomor WA orang tua; nama, tanggal lahir, gender anak; pilihan minat alami anak (checkbox + free text) |
 | **1 — Nasab** | 2 pertanyaan Ya/Tidak: kejelasan garis keturunan & kepatuhan batas mahram |
-| **2 — Hasab Asyiha** | 5 pertanyaan Likert 1–5 (Kepemimpinan & Sosial) |
-| **3 — Hasab Ilmi** | 5 pertanyaan Likert 1–5 (Intelektual & Keilmuan) |
-| **4 — Hasab Amali** | 5 pertanyaan Likert 1–5 (Bisnis & Teknis) |
-| **5 — Hasab Wajdan** | 5 pertanyaan Likert 1–5 (Seni & Spiritual) |
+| **2–21 — Hasab (satu per soal)** | 20 pertanyaan Likert 1–5 ditampilkan satu per satu, di-**shuffle** (Fisher-Yates) per sesi, dengan auto-advance setelah memilih |
 
-Setelah step 5, form di-submit ke `POST /api/surveys` dan user diarahkan ke halaman hasil.
+> 20 pertanyaan hasab mencakup 4 rumpun × 5 indikator: Al-Qiyadah (Q1–5), Ilmi (Q6–10), Amali (Q11–15), Wajdan (Q16–20).
+
+Setelah step 21, form di-submit ke `POST /api/surveys` dan user diarahkan ke halaman hasil.
 
 **Validasi:** rate limiter 5 request/menit per IP di server untuk mencegah spam.
 
@@ -142,15 +157,16 @@ Setelah step 5, form di-submit ke `POST /api/surveys` dan user diarahkan ke hala
 Menampilkan hasil analisis lengkap setelah proses AI selesai:
 
 - **Radar Chart interaktif** (ApexCharts) — visualisasi 4 skor rumpun.
-- **Label Persona** — nama persona unik yang dihasilkan AI (contoh: *The Innovator Leader*).
+- **Label Persona** — nama persona unik yang dihasilkan AI.
 - **Deskripsi Persona** — narasi personal tentang potensi anak berdasarkan kombinasi skor + minat alami.
 - **Narasi Skor Hasab** — interpretasi makna tiap rumpun dalam konteks keluarga tersebut.
-- **Micro-Dosing Plan** — jadwal stimulasi aktivitas mingguan (Sabtu Pagi, Minggu Sore, Hari Sekolah) durasi 30–60 menit.
+- **Micro-Dosing Plan** — jadwal stimulasi aktivitas mingguan (contoh: Sabtu Pagi, Minggu Sore, Hari Sekolah).
+- **Rekomendasi Les/Aktivitas** — jalur utama (3 rekomendasi spesifik), jalur pendukung (1), dan daftar yang belum prioritas.
 - **Catatan Orang Tua** — saran pola asuh spesifik dari AI.
 - **Tombol Unduh PDF** — generate & download laporan A4.
 - **Tombol Kirim WA** — kirim link laporan ke nomor WA orang tua.
 
-> Jika AI masih memproses, halaman menampilkan loading state dan polling otomatis.
+> Jika AI masih memproses, halaman menampilkan loading state dengan estimasi waktu 2–5 menit dan polling otomatis.
 
 ---
 
@@ -165,9 +181,23 @@ Akses riwayat survei berbasis verifikasi nomor HP tanpa perlu membuat akun:
 5. User bisa membuka kembali dashboard hasil dan mengunduh PDF tanpa isi ulang survei.
 6. **Logout** menghapus cookie sesi.
 
+> Halaman `/history` juga menampilkan popup campaign wakaf Madrasah Al-Fatih.
+
 ---
 
-### 5. Laporan PDF (`GET /api/reports/:id/pdf`)
+### 5. Dasar Ilmiah (`/dasar-ilmiah`)
+
+Halaman transparansi metodologi yang menjelaskan:
+
+- Asal konsep **Nasab & Hasab** dari Al-Qur'an, Hadis, dan pemikiran Ustadz Budi Ashari, Lc.
+- Kaitan tiap rumpun Hasab dengan **konstruk psikologi perkembangan** (beserta referensi ilmiah per rumpun).
+- Riset umum tentang pengaruh keluarga terhadap potensi anak.
+- Pendekatan yang **secara eksplisit dihindari** (zodiak, learning styles, dll.) beserta alasannya.
+- **Batasan metodologi** yang perlu dipahami pengguna sebelum menafsirkan hasil.
+
+---
+
+### 6. Laporan PDF (`GET /api/reports/:id/pdf`)
 
 PDF dihasilkan **server-side** via jsPDF, format A4, konten:
 
@@ -176,14 +206,15 @@ PDF dihasilkan **server-side** via jsPDF, format A4, konten:
 - Tabel skor 4 rumpun Hasab dengan kolom dominan yang dihighlight.
 - Narasi skor tiap rumpun.
 - Jadwal micro-dosing mingguan.
+- Rekomendasi les/aktivitas (jalur utama, pendukung, belum prioritas).
 - Catatan pola asuh untuk orang tua.
 - Footer setiap halaman: link wakaf Madrasah Al-Fatih.
 
 ---
 
-### 6. Notifikasi WhatsApp
+### 7. Notifikasi WhatsApp
 
-- **Otomatis** — setelah analisis AI selesai, sistem mengirim notifikasi ke nomor WA orang tua berisi link ke halaman hasil (background, fire-and-forget).
+- **Otomatis** — setelah analisis AI selesai, sistem mengirim notifikasi ke nomor WA orang tua berisi link ke halaman hasil (background, fire-and-forget, dicatat di `notification_logs`).
 - **Manual** — user dapat menekan tombol "Kirim ke WA" dari halaman hasil kapan saja (`POST /api/reports/:id/send`).
 
 ---
@@ -194,13 +225,13 @@ PDF dihasilkan **server-side** via jsPDF, format A4, konten:
 Landing Page (/)
     │
     ▼ klik "Mulai Survey"
-Wizard Survey (/survey) — 6 step
+Wizard Survey (/survey) — 22 step (per soal, hasab di-shuffle)
     │
     ▼ submit
 POST /api/surveys
     │ ← redirect langsung (tidak tunggu AI)
     ▼
-Dashboard Hasil (/results/[id]) — loading state
+Dashboard Hasil (/results/[id]) — loading state (estimasi 2–5 menit)
     │
     ▼ background: AI analysis selesai
 Dashboard Hasil — data lengkap tampil
@@ -248,19 +279,22 @@ POST /api/surveys
     │
     ▼ background (Vercel waitUntil — non-blocking):
 analyzeWithAi (multi-provider fallback chain)
-    ├── 1. Anthropic Sonnet  — retry 2×, backoff 500ms
-    ├── 2. Anthropic Haiku   — retry 2×, backoff 750ms
-    └── 3. Groq Llama 3.3 70B — retry 2×, backoff 1000ms
-    │   (jika semua gagal)
-    └── 4. fallbackAnalysis — rule matrix statis
+    ├── 1. Anthropic — model Sonnet (env: ANTHROPIC_DEFAULT_SONNET_MODEL, default: cc/claude-sonnet-4-6)
+    │      retry 2×, backoff 500ms
+    ├── 2. Anthropic — model alternatif (env: ANTHROPIC_DEFAULT_HAIKU_MODEL, default: ocg/kimi-k2.7-code)
+    │      retry 2×, backoff 750ms
+    └── 3. Groq (env: GROQ_MODEL, default: openai/gpt-oss-120b) — retry 2×, backoff 1000ms
+        (jika semua gagal → Error, survey tidak diupdate ke completed)
     │
     ▼
 create SurveyResult (simpan ke DB)
 update Survey.status → 'completed'
     │
     ▼
-notifyParentAsync → kirim WA + log ke NotificationLog
+notifyParentAsync → kirim WA + log ke notification_logs
 ```
+
+> Timeout per request AI: dikonfigurasi via env `AI_TIMEOUT_MS`, default 180000ms (3 menit).
 
 ---
 
@@ -271,10 +305,10 @@ Skor rumpun X  = Σ nilai Likert indikator 1..5   (range: 5–25)
 Persentase X   = (Skor X / Total skor 4 rumpun) × 100%
 
 Mapping question_id → rumpun:
-  Asyiha  → pertanyaan 1–5
-  Ilmi    → pertanyaan 6–10
-  Amali   → pertanyaan 11–15
-  Wajdan  → pertanyaan 16–20
+  Al-Qiyadah  → pertanyaan 1–5
+  Ilmi        → pertanyaan 6–10
+  Amali       → pertanyaan 11–15
+  Wajdan      → pertanyaan 16–20
 ```
 
 ---
@@ -282,10 +316,10 @@ Mapping question_id → rumpun:
 ### Analisis AI
 
 **Input ke AI (user prompt per anak):**
+- Nama, usia, jenis kelamin anak.
 - Skor & persentase 4 rumpun, urutan dominan ke lemah.
 - Jawaban nasab (konteks nilai dasar keluarga).
 - Respon alami / minat dominan anak.
-- Usia dan jenis kelamin anak.
 
 **System prompt** berisi framework Nasab-Hasab, filosofi 4 rumpun, prinsip nature × nurture, dan panduan nada bahasa (hangat, memberdayakan, berbasis nilai Islam).
 
@@ -298,21 +332,41 @@ Mapping question_id → rumpun:
   "scoreNarrative": "...",
   "parentNotes": "...",
   "microdosingPlan": {
-    "sabtupagi": { "activity": "...", "duration": "30 menit" },
-    "minggusore": { "activity": "...", "duration": "45 menit" },
-    "harisekolah": { "activity": "...", "duration": "20 menit" }
+    "title": "Judul rencana stimulasi",
+    "schedule": [
+      { "day": "Sabtu Pagi", "activity": "aktivitas konkret", "durationMinutes": 60 }
+    ]
+  },
+  "lesRecommendations": {
+    "jalurUtama": [
+      { "nama": "Kelas Robotik Lego Education", "deskripsi": "..." },
+      { "nama": "...", "deskripsi": "..." },
+      { "nama": "...", "deskripsi": "..." }
+    ],
+    "jalurPendukung": [
+      { "nama": "...", "deskripsi": "..." }
+    ],
+    "belumPrioritas": ["nama aktivitas 1", "nama aktivitas 2", "nama aktivitas 3"]
   }
 }
 ```
 
-**Fallback rule matrix (jika semua AI gagal):**
+**Aturan `lesRecommendations`:**
+- `jalurUtama`: 3 rekomendasi spesifik berdasarkan rumpun dominan, nama konkret (bukan generik), disesuaikan dengan usia dan minat alami.
+- `jalurPendukung`: 1 rekomendasi dari rumpun ke-2.
+- `belumPrioritas`: 3 aktivitas yang tidak cocok sekarang (sesuai skor terendah).
+
+**Fallback rule matrix (jika semua AI gagal — `fallbackAnalysis.ts`):**
 
 | Kombinasi Rumpun Dominan | Persona |
 |---|---|
-| Amali + Ilmi + Asyiha | The Innovator Leader |
-| Wajdan + Ilmi + Asyiha | The Visionary Curator |
-| Wajdan + Ilmi | The Wise Thinker |
+| Amali + Ilmi (+ Asyiha) | The Innovator Leader |
+| Ilmi + Wajdan (+ Asyiha) | The Visionary Curator |
+| Ilmi + Wajdan | The Wise Thinker |
 | Amali + Wajdan | The Ethical Creator |
+| Lainnya | The `[dominan]` Profile (generik) |
+
+> Fallback tidak menghasilkan `lesRecommendations`.
 
 ---
 
@@ -322,12 +376,12 @@ Mapping question_id → rumpun:
 POST /api/otp/send
   1. Cek nomor HP terdaftar di tabel parents
   2. Generate kode 6 digit random
-  3. Simpan ke tabel otps { phone, code, expiresAt: +5 menit }
+  3. Simpan ke tabel otp_codes { phone, code, expiresAt: +5 menit }
   4. Kirim via Fonnte WA API
 
 POST /api/otp/verify
   1. Cek kode cocok + belum expired + belum used
-  2. Set otps.used = true
+  2. Set otp_codes.used = true
   3. Set cookie httpOnly `history_session` = phone (24 jam)
 ```
 
@@ -342,7 +396,11 @@ parents ──1:N── children ──1:N── surveys ──1:N── survey_
                                     │
                                     ├──1:N── child_natural_responses
                                     │
-                                    └──1:1── survey_results ──1:1── pdf_reports
+                                    ├──1:1── survey_results
+                                    │
+                                    ├──1:N── pdf_reports
+                                    │
+                                    └──1:1── notification_logs
 
 questions ──N:1── hasab_categories
 survey_answers ──N:1── questions
@@ -372,10 +430,12 @@ survey_answers ──N:1── questions
 #### `hasab_categories` *(seed tetap, 4 baris)*
 | code | name |
 |---|---|
-| asyiha | Kepemimpinan & Sosial |
-| ilmi | Intelektual & Keilmuan |
-| amali | Bisnis & Teknis |
-| wajdan | Seni & Spiritual |
+| asyiha | Al-Qiyadah (Kepemimpinan & Sosial) |
+| ilmi | Ilmi (Intelektual & Keilmuan) |
+| amali | Amali (Bisnis & Teknis) |
+| wajdan | Wajdan (Seni & Spiritual) |
+
+> Nama tampilan di UI dan AI prompt menggunakan "Al-Qiyadah"; kolom DB internal tetap `asyiha`.
 
 #### `questions`
 | Kolom | Tipe | Keterangan |
@@ -393,7 +453,7 @@ survey_answers ──N:1── questions
 | public_id | UUID | ID publik untuk URL |
 | child_id | FK → children | |
 | parent_id | FK → parents | Denormalisasi untuk query cepat |
-| status | VARCHAR(20) | `processing` / `completed` |
+| status | VARCHAR(20) | `in_progress` / `processing` / `completed` |
 | created_at | TIMESTAMP | |
 | completed_at | TIMESTAMP NULL | |
 
@@ -420,7 +480,7 @@ UNIQUE(survey_id, question_id)
 |---|---|---|
 | id | INT PK | |
 | survey_id | FK → surveys UNIQUE | |
-| score_asyiha | SMALLINT | 0–25 |
+| score_asyiha | SMALLINT | 0–25 (internal name untuk Al-Qiyadah) |
 | score_ilmi | SMALLINT | 0–25 |
 | score_amali | SMALLINT | 0–25 |
 | score_wajdan | SMALLINT | 0–25 |
@@ -434,10 +494,21 @@ UNIQUE(survey_id, question_id)
 | persona_description | TEXT | Deskripsi personal |
 | score_narrative | TEXT | Narasi skor dari AI |
 | parent_notes | TEXT | Catatan pola asuh dari AI |
-| microdosing_plan | JSON | Jadwal aktivitas mingguan |
+| microdosing_plan | JSON | `{ title, schedule: [{day, activity, durationMinutes}] }` |
+| les_recommendations | JSON NULL | `{ jalurUtama, jalurPendukung, belumPrioritas }` |
 | ai_raw_response | JSON NULL | Response mentah AI (debugging) |
 | ai_model | VARCHAR(50) NULL | Model yang dipakai |
 | created_at | TIMESTAMP | |
+
+#### `notification_logs`
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | INT PK | |
+| survey_id | FK → surveys UNIQUE | |
+| channel | VARCHAR(20) | e.g. `whatsapp` |
+| sent_at | TIMESTAMP | |
+| status | VARCHAR(20) | `sent` / error state |
+| response | JSON NULL | Response mentah dari gateway |
 
 #### `pdf_reports`
 | Kolom | Tipe | Keterangan |
@@ -449,11 +520,11 @@ UNIQUE(survey_id, question_id)
 | sent_at | TIMESTAMP NULL | Waktu pengiriman |
 | created_at | TIMESTAMP | |
 
-#### `otps`
+#### `otp_codes`
 | Kolom | Tipe | Keterangan |
 |---|---|---|
 | id | INT PK | |
-| phone | VARCHAR(20) | Nomor HP |
+| phone | VARCHAR(20) | Nomor HP (diindex) |
 | code | VARCHAR(6) | Kode OTP 6 digit |
 | expires_at | TIMESTAMP | +5 menit dari created |
 | used | BOOLEAN | |
@@ -480,7 +551,7 @@ UNIQUE(survey_id, question_id)
 
 ## Autentikasi & Keamanan
 
-PetaBakat **tidak menggunakan akun user**. Sistem menggunakan dua mekanisme berbeda:
+PetaMinatBakat **tidak menggunakan akun user**. Sistem menggunakan dua mekanisme berbeda:
 
 ### Akses Hasil Survei
 - Setiap survei memiliki `public_id` (UUID) yang menjadi bagian dari URL `/results/[id]`.
@@ -500,17 +571,19 @@ PetaBakat **tidak menggunakan akun user**. Sistem menggunakan dua mekanisme berb
 
 ### Anthropic Claude API
 - **Endpoint kustom** — bisa diarahkan ke proxy via env `ANTHROPIC_BASE_URL`.
-- **Model chain:** Sonnet (utama) → Haiku (fallback 1) → Groq Llama 70B (fallback 2) → rule matrix statis (fallback 3).
+- **Auth** — via `ANTHROPIC_API_KEY` atau `ANTHROPIC_AUTH_TOKEN` (keduanya didukung, `ANTHROPIC_AUTH_TOKEN` diprioritaskan).
+- **Model chain:** Sonnet (utama) → model alternatif (fallback 1) → Groq (fallback 2) → Error (tidak ada fallback rule matrix lagi kecuali dipanggil manual via script).
+- Semua model dapat di-override via env var (lihat bagian [Konfigurasi](#konfigurasi--environment)).
 - Semua hasil AI di-cache di kolom `ai_raw_response` sehingga tidak perlu re-generate.
 
 ### Fonnte WhatsApp API
-- Endpoint: `https://api.fonnte.com/send`
-- Auth: token via env `FONNTE_TOKEN`.
+- Endpoint: dikonfigurasi via env `WHATSAPP_API_URL` (default ke `https://api.fonnte.com/send`).
+- Auth: token via env `WHATSAPP_API_TOKEN_FONNTE`.
 - Dipakai untuk: pengiriman OTP, notifikasi hasil analisis, pengiriman link laporan.
 
 ### Vercel
 - `waitUntil` dipakai untuk menjalankan analisis AI secara background tanpa memblokir response HTTP.
-- `@vercel/analytics` dan `@vercel/speed-insights` terpasang untuk monitoring.
+- `@vercel/speed-insights` terpasang untuk monitoring performa.
 
 ---
 
@@ -520,21 +593,42 @@ Variabel environment yang diperlukan (`.env`):
 
 ```env
 # Database
-DATABASE_URL=postgresql://user:password@host:5432/petabakat
+DATABASE_URL=postgresql://user:password@host:5432/petaminatbakat
 
-# AI — Anthropic
+# AI — Anthropic (gunakan salah satu atau keduanya; ANTHROPIC_AUTH_TOKEN diprioritaskan)
 ANTHROPIC_API_KEY=sk-ant-...
-ANTHROPIC_BASE_URL=https://api.anthropic.com   # opsional, untuk proxy
+ANTHROPIC_AUTH_TOKEN=...                          # opsional, alternatif API key
+ANTHROPIC_BASE_URL=https://api.anthropic.com      # opsional, untuk proxy
+ANTHROPIC_DEFAULT_SONNET_MODEL=cc/claude-sonnet-4-6   # opsional, override model utama
+ANTHROPIC_DEFAULT_HAIKU_MODEL=ocg/kimi-k2.7-code      # opsional, override model fallback 1
 
-# AI — Groq (fallback)
+# AI — Groq (fallback 2; opsional, jika tidak diset provider Groq dilewati)
 GROQ_API_KEY=gsk_...
+GROQ_MODEL=openai/gpt-oss-120b                    # opsional, override model Groq
+
+# AI — Timeout
+AI_TIMEOUT_MS=180000                              # opsional, default 180000 (3 menit)
 
 # WhatsApp Gateway — Fonnte
-FONNTE_TOKEN=...
+WHATSAPP_API_URL=https://api.fonnte.com/send      # opsional, default ke URL Fonnte
+WHATSAPP_API_TOKEN_FONNTE=...
 
 # App
-NUXT_PUBLIC_SITE_URL=https://petabakat.vercel.app
+NUXT_PUBLIC_SITE_URL=https://petaminatbakat.vercel.app
 ```
+
+---
+
+## Scripts Utilitas
+
+Script dijalankan manual via `npx tsx scripts/<nama>.ts` (membutuhkan env vars aktif).
+
+| Script | Fungsi |
+|---|---|
+| `retry-processing.ts` | Re-trigger analisis AI untuk survei dengan status `processing` yang stuck |
+| `retry-fallback.ts` | Re-run analisis AI untuk hasil yang source-nya `fallback` (rule matrix) |
+| `backfill-les-recommendations.ts` | Mengisi kolom `les_recommendations` yang NULL pada hasil lama |
+| `notify-specific.ts` | Kirim notifikasi WA secara manual ke survei tertentu by ID |
 
 ---
 

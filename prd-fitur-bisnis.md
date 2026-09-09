@@ -1,4 +1,4 @@
-# PRD — Fitur Bisnis PetaBakat
+# PRD — Fitur Bisnis PetaMinatBakat
 ## Monetisasi · Kemitraan · Dashboard Sekolah
 
 **Versi:** 1.0  
@@ -9,48 +9,44 @@
 
 ## Daftar Isi
 1. [Konteks & Tujuan](#1-konteks--tujuan)
-2. [Fitur 1: Monetisasi Freemium](#2-fitur-1-monetisasi-freemium)
+2. [Fitur 1: Monetisasi Direct](#2-fitur-1-monetisasi-direct)
 3. [Fitur 2: Program Kemitraan](#3-fitur-2-program-kemitraan)
 4. [Dashboard Sekolah](#4-fitur-3-dashboard-sekolah)
 5. [Skema Database Baru](#5-skema-database-baru)
 6. [Arsitektur & Tech Decisions](#6-arsitektur--tech-decisions)
 7. [Roadmap Prioritas](#7-roadmap-prioritas)
+8. [Fitur Pemilik Bisnis (Owner Dashboard)](#8-fitur-pemilik-bisnis-owner-dashboard)
 
 ---
 
 ## 1. Konteks & Tujuan
 
-PetaBakat saat ini bersifat gratis sepenuhnya. Produk sudah memiliki:
+PetaMinatBakat saat ini bersifat gratis sepenuhnya. Produk sudah memiliki:
 - AI analysis pipeline (persona, narasi, micro-dosing, les recommendations)
 - PDF laporan 3 halaman
 - Story card 9:16 (unduh PNG)
 - Real user data (Elsha Navya sebagai contoh)
 
-Kompetitor terdekat **petabakat.id** (TECCA framework) menarik Rp 99.000/laporan. PetaBakat Hasab memiliki USP lebih kuat (Islamic framework + AI personal + les spesifik), sehingga harga Rp 99.000 defensible dan bisa dinaikkan ke Rp 129.000 di iterasi berikutnya.
+Kompetitor terdekat **petaminatbakat.id** (TECCA framework) menarik Rp 99.000/laporan. PetaMinatBakat Hasab memiliki USP lebih kuat (Islamic framework + AI personal + les spesifik), sehingga harga Rp 99.000 defensible dan bisa dinaikkan ke Rp 129.000 di iterasi berikutnya.
 
 **Tiga pilar monetisasi yang dirancang:**
 
 | Pilar | Model | Target Segmen |
 |---|---|---|
-| Freemium Direct | Rp 99.000/laporan | Orang tua individual |
+| Direct | Rp 99.000/laporan | Orang tua individual |
 | Kemitraan | Revenue share / komisi | Bimbel, affiliate personal |
 | Dashboard Sekolah | Langganan bulanan | Sekolah Islam, pesantren, SDIT |
 
 ---
 
-## 2. Fitur 1: Monetisasi Freemium
+## 2. Fitur 1: Monetisasi Direct
 
 ### 2.1 Konsep & Nilai Bisnis
 
-Model **freemium gated**: pengguna mengisi survei dan langsung melihat sebagian hasil. Konten premium di-unlock setelah pembayaran.
+Model **voucher-first**: pengguna mengisi data anak terlebih dahulu, lalu diminta memasukkan kode voucher untuk lanjut ke survei. Jika belum punya voucher, diarahkan beli via WhatsApp admin.
 
-**Free (tanpa bayar):**
-- Radar chart skor 4 rumpun (visual, tanpa angka persen)
-- Label persona (contoh: "The Curious Maker")
-- Satu kalimat deskripsi persona (teaser)
-- Prompt untuk membeli
-
-**Premium (Rp 99.000):**
+**Yang didapat setelah voucher valid:**
+- Akses form survei lengkap (Nasab + Hasab + minat + momen antusias)
 - Radar chart lengkap dengan skor & persentase
 - Narasi persona penuh (3–5 paragraf AI)
 - Score narrative (penjelasan tiap rumpun)
@@ -63,71 +59,75 @@ Model **freemium gated**: pengguna mengisi survei dan langsung melihat sebagian 
 ### 2.2 User Flow
 
 ```
-Isi Survei (gratis)
+Landing page — CTA "Mulai Survei"
     ↓
-Halaman Hasil — tampil versi gratis
-    ↓ (klik "Lihat Laporan Lengkap")
-Modal pembayaran
+Langkah 1: Isi data anak
+(nama, tanggal lahir, jenis kelamin, minat/respon alami, cerita momen antusias)
     ↓
-Pilih metode: QRIS / Transfer / GoPay / Voucher
+Langkah 2: Isi data orang tua
+(nama, nomor WA, email opsional, kode voucher)
+    ↓ [jika kode voucher valid]
+Lanjut ke survei (Nasab + Hasab per pertanyaan)
     ↓
-Payment gateway (Midtrans)
+AI analisis di background
     ↓
-Callback → update payment_status = 'paid'
-    ↓
-Redirect ke halaman hasil — tampil versi premium
+Redirect ke halaman hasil lengkap
     ↓
 Tombol unduh PDF & Story Card aktif
+
+    ↓ [jika tidak punya / tidak masukkan kode voucher]
+Tampil CTA "Dapatkan Voucher"
+→ Buka wa.me/6281586245143 dengan pesan otomatis
 ```
 
-### 2.3 Spesifikasi Halaman Hasil (Gate)
+### 2.3 Spesifikasi Halaman Data Orang Tua (Langkah 2)
 
-**State: `payment_status = null` atau `'pending'`**
-- Radar chart tampil tapi tanpa label angka (blur overlay pada angka)
-- Persona label tampil
-- Deskripsi persona: hanya kalimat pertama + `...`
-- Section narasi, micro-dosing, les: blur + lock icon + CTA "Buka Laporan Penuh"
-- Tombol PDF: disabled + tooltip "Tersedia setelah pembayaran"
+Field:
+- Nama Orang Tua / Wali (wajib)
+- Nomor WhatsApp (wajib)
+- Email (opsional)
+- Kode Voucher / Promo (opsional di input, wajib untuk lanjut)
 
-**State: `payment_status = 'paid'`**
-- Semua konten tampil penuh
-- Tombol PDF dan Story Card aktif
-- Badge "✓ Laporan Premium" di pojok kanan atas
+Tombol CTA utama: **"Lanjut ke Survei"** — aktif hanya jika kode voucher terisi dan valid.
 
-**State: `payment_status = 'voucher'`**
-- Sama seperti `paid`, tidak ada perbedaan tampilan
+Jika kode tidak diisi atau tidak valid:
+- Tampil link/tombol: **"Belum punya voucher? Dapatkan di sini →"**
+- Klik → buka `wa.me/6281586245143?text=Halo%2C+saya+ingin+mendapatkan+voucher+PetaMinatBakat`
+- Tombol "Lanjut ke Survei" tetap disabled selama voucher belum valid
 
-### 2.4 Modal Pembayaran
+Validasi voucher:
+- `POST /api/vouchers/validate` — cek kode, status (aktif/habis/kadaluarsa), sisa kuota
+- Response sukses: lanjut ke step survei
+- Response gagal: tampil error inline di bawah field (contoh: "Kode tidak ditemukan" / "Voucher sudah habis")
 
-Komponen `PaymentModal.vue`:
-- Nama anak & harga (Rp 99.000)
-- Tombol: **QRIS** · **GoPay** · **Transfer Bank** · **Kode Voucher**
-- Input field kode voucher (opsional, langsung skip payment jika valid)
-- Link: "Tanya admin via WhatsApp" (fallback manual)
+### 2.4 Pembayaran & Distribusi Voucher
 
-**Integrasi Midtrans:**
-- Snap.js (popup mode)
-- Server endpoint: `POST /api/payments/create` → buat transaksi Midtrans, return `snap_token`
-- Webhook: `POST /api/payments/webhook` → verifikasi signature → update `payment_status`
-- Polling fallback: `GET /api/payments/status/:order_id` untuk cek status dari client (jika webhook telat)
+Pembelian tidak dilakukan di dalam aplikasi — voucher dibeli melalui WhatsApp admin (`wa.me/6281586245143`). Admin generate kode voucher secara manual atau via endpoint admin dan kirim ke pembeli.
+
+**Model distribusi:**
+- Direct: orang tua beli 1 voucher Rp 99.000 via WA admin
+- Reseller / mitra bimbel: beli batch voucher Rp 65.000/kode (min. 10), distribusikan sendiri
+- Sekolah: lihat Fitur 3
 
 ### 2.5 Skema Harga
 
-| Tier | Harga | Catatan |
+| Tier | Harga | Cara Beli |
 |---|---|---|
-| Laporan Premium | Rp 99.000 | Per laporan, berlaku selamanya |
-| Voucher Bimbel | Rp 65.000/laporan | Harga reseller (minimal 10 laporan) |
+| Direct (1 laporan) | Rp 99.000 | WA admin → dapat kode voucher |
+| Reseller / Bimbel | Rp 65.000/kode | Beli batch min. 10 kode via WA admin |
 | Paket Sekolah | Lihat Fitur 3 | Langganan per siswa |
 
 ### 2.6 Landing Page Update
 
-Ganti semua referensi "Gratis" menjadi freemium framing:
-
 | Teks lama | Teks baru |
 |---|---|
-| `✓ Gratis & tanpa akun` | `✓ Mulai gratis, laporan Rp 99.000` |
-| `Gratis · ~5-10 menit · Hasil PDF` | `~5-10 menit · Radar chart gratis · Laporan lengkap Rp 99.000` |
-| FAQ: "apakah berbayar?" | Update jawaban: freemium, radar gratis, laporan premium Rp 99.000 |
+| `✓ Gratis & tanpa akun` | `Rp 99.000 · laporan AI personal` |
+| `Gratis · ~5-10 menit · Hasil PDF` | `~5-10 menit · Laporan PDF + rekomendasi les · Rp 99.000` |
+| FAQ: "apakah berbayar?" | Update jawaban: Rp 99.000, isi data anak dulu → masukkan kode voucher → akses survei + laporan penuh |
+
+**Banner yang dihapus dari beranda:**
+- `OtomatisinBanner` — dihapus karena kata "Gratis" di banner kontradiktif dengan positioning berbayar. Kredit tetap ada di footer sebagai `Dibangun oleh Otomatisin`.
+- Banner wakaf pendidikan — dipindah dari halaman hasil ke beranda saja (di bawah FAQ), tidak muncul di halaman hasil setelah pengguna baru saja bayar.
 
 ### 2.7 Kebutuhan Teknis
 
@@ -157,8 +157,8 @@ model Payment {
 
 **Perubahan `SurveyResult`:**
 ```prisma
-paymentStatus String? @default("free") @map("payment_status")
-// values: free | paid | voucher | partner (sekolah)
+paymentStatus String? @map("payment_status")
+// values: pending | paid | voucher | school_partner
 ```
 
 ---
@@ -179,7 +179,7 @@ Target: bimbel, pusat try-out, lembaga Parenting Nabawiyah, pesantren, sanggar.
 **Model bisnis:**
 - Mitra beli kredit laporan dengan harga grosir (Rp 65.000/laporan, minimal 10 laporan)
 - Mitra distribusikan ke orang tua melalui kode voucher atau link khusus mitra
-- Mitra bisa markup ke orang tua (harga bebas, PetaBakat tidak intervensi)
+- Mitra bisa markup ke orang tua (harga bebas, PetaMinatBakat tidak intervensi)
 - Dashboard mitra: lihat kredit tersisa, laporan yang sudah di-generate, export data anak
 
 #### Tipe B: Mitra Personal (Affiliate / Reseller Individual)
@@ -336,7 +336,7 @@ Laporan per siswa tetap dibayar terpisah (Rp 65.000/siswa, harga partner) — la
 ### 4.4 Alur Pendaftaran Sekolah
 
 1. Kepala sekolah / admin IT isi form di `/sekolah/daftar`: nama sekolah, NPSN, kota, jumlah siswa estimasi, kontak
-2. Admin PetaBakat review & set paket → approve
+2. Admin PetaMinatBakat review & set paket → approve
 3. Sistem buat akun sekolah + akun admin sekolah pertama → kirim kredensial
 4. Admin sekolah login, setup kelas, undang guru via email
 5. Distribusi survei ke orang tua: share link survei + kode sekolah (`SDIT-ALFATIH-2026`)
@@ -361,7 +361,7 @@ Route: `/sekolah/dashboard`
 
 Sebaran Rumpun Dominan — 47 Siswa
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Al-Asyiha   ████████████░ 14 siswa (29.8%)
+Al-Qiyadah   ████████████░ 14 siswa (29.8%)
 Al-Ilmi     █████████░░░░ 12 siswa (25.5%)
 Al-Amali    ████████░░░░░ 11 siswa (23.4%)
 Al-Wajdan   ███████░░░░░░  9 siswa (19.1%)
@@ -390,7 +390,7 @@ Saat klik satu kelas (misal: Kelas 3A):
 #### Halaman Analytics
 
 - Bar chart: distribusi rumpun per kelas (comparative)
-- Scatter plot: hubungan skor Asyiha vs Amali (identifikasi leadership potential)
+- Scatter plot: hubungan skor Qiyadah vs Amali (identifikasi leadership potential)
 - Top personas di sekolah ini
 - Trend: jika sekolah sudah pakai lebih dari 1 tahun ajaran → perbandingan antar angkatan
 
@@ -415,7 +415,7 @@ Di halaman `/survey`, tambah field opsional:
 ```
 Kode Sekolah (opsional)
 [ SDIT-ALFATIH-2026     ]
-Isi jika anak Anda bersekolah di sekolah yang bermitra dengan PetaBakat.
+Isi jika anak Anda bersekolah di sekolah yang bermitra dengan PetaMinatBakat.
 ```
 
 Saat submit:
@@ -520,7 +520,7 @@ model SchoolUser {
 
 ```prisma
 // SurveyResult — tambah field
-paymentStatus String? @default("free") @map("payment_status")
+paymentStatus String? @map("payment_status")
 // values: free | paid | voucher | school_partner
 
 // Survey — tambah field
@@ -586,7 +586,7 @@ Tidak ada SSO — keduanya independent. Shared `lib/auth.ts` utility untuk JWT v
   POST siswa/remind    → trigger WA reminder
 
 /api/admin/
-  GET  mitra           → list semua mitra (admin PetaBakat)
+  GET  mitra           → list semua mitra (admin PetaMinatBakat)
   POST mitra/:id/approve
   GET  sekolah
   POST sekolah/:id/activate
@@ -617,14 +617,15 @@ Tidak ada SSO — keduanya independent. Shared `lib/auth.ts` utility untuk JWT v
 ### Phase 1 — Monetisasi Direct (2–3 minggu)
 **Goal:** Generate revenue pertama.
 
-- [ ] Tambah `payment_status` di `SurveyResult`
-- [ ] Gate di `pages/results/[id].vue` (blur premium content)
-- [ ] Midtrans Snap integration
-- [ ] Webhook handler + polling endpoint
-- [ ] Modal pembayaran (QRIS / GoPay / Transfer / Voucher)
-- [ ] Update landing page text (hapus "Gratis")
-- [ ] Admin endpoint untuk mark-paid manual
-- [ ] Test end-to-end dengan akun sandbox Midtrans
+- [ ] Tambah tabel `vouchers` (kode, status, kuota, expiry, used_by)
+- [ ] Step 1 survei: isi data anak + minat + momen antusias (tanpa gate)
+- [ ] Step 2 survei: isi data orang tua + input kode voucher
+- [ ] Endpoint `POST /api/vouchers/validate` — cek kode valid, aktif, kuota tersisa
+- [ ] Jika voucher valid → lanjut ke step pertanyaan Nasab + Hasab
+- [ ] Jika voucher tidak diisi → tampil link WA admin `wa.me/6281586245143`
+- [ ] Admin endpoint: generate kode voucher (single / batch)
+- [ ] Update landing page text (Rp 99.000, voucher via WA)
+- [ ] Test: kode valid, kode salah, kode habis kuota, kode kadaluarsa
 
 **Validasi:** 10 pembayaran pertama → konfirmasi willingness to pay Rp 99.000.
 
@@ -659,7 +660,7 @@ Tidak ada SSO — keduanya independent. Shared `lib/auth.ts` utility untuk JWT v
 - [ ] Analytics halaman (bar chart per kelas)
 - [ ] Billing: paket starter/growth/pesantren (manual invoice dulu, Midtrans subscription next)
 
-**Target awal:** 2–3 sekolah pilot (SDIT mitra atau kenalan), gratis 1 bulan trial.
+**Target awal:** 2–3 sekolah pilot (SDIT mitra atau kenalan), trial berbayar 1 bulan dengan harga diskon.
 
 ---
 
@@ -679,3 +680,130 @@ Tidak ada SSO — keduanya independent. Shared `lib/auth.ts` utility untuk JWT v
 3. **Consent sekolah:** Apakah perlu tanda tangan digital (e-meterai) untuk compliance? Untuk MVP, checkbox + timestamp cukup.
 4. **NPSN validasi:** Sekolah harus punya NPSN valid? Cek via API Kemdikbud jika diperlukan legitimasi.
 5. **Multi-laporan per anak:** Orang tua isi survei 2x (anak yang sama). Bayar 2x? Ya — setiap survei adalah satu laporan. Pertimbangkan diskon isi ulang (Rp 49.000) sebagai retensi.
+
+---
+
+## 8. Fitur Pemilik Bisnis (Owner Dashboard)
+
+### 8.1 Konteks
+Pemilik bisnis membutuhkan visibilitas penuh atas operasional, keuangan, dan tumbuh kembang platform — tanpa harus masuk ke database langsung. Owner dashboard diakses via URL tersembunyi + `ADMIN_SECRET` (bukan halaman publik).
+
+---
+
+### 8.2 Ringkasan Bisnis (Home)
+
+**Tujuan:** Satu halaman yang menjawab "bisnis ini sehat atau tidak hari ini?"
+
+**Metrik yang ditampilkan:**
+- Total survei selesai (all-time, bulan ini, 7 hari terakhir)
+- Estimasi pendapatan (jumlah survei × Rp 99.000)
+- Total voucher aktif / terpakai / kedaluwarsa
+- Jumlah mitra aktif dan total komisi yang belum dibayar
+- Jumlah sekolah aktif dan total siswa terhubung
+- Grafik tren survei harian (30 hari terakhir)
+
+---
+
+### 8.3 Manajemen Voucher
+
+**Tujuan:** Kontrol penuh atas stok dan distribusi voucher.
+
+**Fitur:**
+- Generate voucher batch (jumlah, kuota per kode, tanggal kedaluwarsa, prefix)
+- Lihat daftar semua voucher: status (aktif/terpakai/expired), siapa yang pakai, kapan
+- Nonaktifkan voucher tertentu (misal: kode yang beredar salah)
+- Filter per: status, mitra, tanggal buat, tanggal expire
+- Export CSV daftar voucher
+
+---
+
+### 8.4 Manajemen Mitra
+
+**Tujuan:** Proses pendaftaran mitra, pantau aktivitas, bayar komisi.
+
+**Fitur:**
+- Daftar mitra: status (pending/aktif/nonaktif), tipe (afiliasi/institusi), tanggal daftar
+- Approve mitra baru + set password awal
+- Lihat laporan dan voucher yang dihasilkan per mitra
+- Lihat komisi: total, pending, sudah dibayar
+- Tandai komisi sebagai "sudah dibayar" (setelah transfer manual)
+- Nonaktifkan mitra
+- Filter & cari per nama, email, institusi
+
+---
+
+### 8.5 Manajemen Sekolah
+
+**Tujuan:** Onboard sekolah baru, pantau penggunaan, kendalikan akses.
+
+**Fitur:**
+- Daftar sekolah: status (pending/aktif), paket, jumlah siswa, kota
+- Aktivasi sekolah baru + set password admin sekolah
+- Lihat detail: kode sekolah, kelas, jumlah siswa sudah survei
+- Ganti paket sekolah (basic/pro/enterprise) + student cap
+- Nonaktifkan sekolah
+- Filter per: kota, paket, status
+
+---
+
+### 8.6 Daftar Semua Survei
+
+**Tujuan:** Audit dan troubleshooting data survei.
+
+**Fitur:**
+- Tabel semua survei: nama anak, nama orang tua, tanggal, persona dominan, asal (direct/mitra/sekolah)
+- Klik baris → buka halaman `/results/:id` (via token admin, bypass auth normal)
+- Filter per: tanggal, mitra, sekolah, persona
+- Export CSV (tanpa nomor HP — hanya nama + persona + tanggal untuk keamanan data)
+- Tandai survei untuk ditinjau / hapus jika ada data palsu
+
+---
+
+### 8.7 Keuangan & Payout
+
+**Tujuan:** Rekonsiliasi pendapatan dan pembayaran komisi.
+
+**Fitur:**
+- Ringkasan: gross revenue (estimasi), total komisi terhutang, net revenue
+- Daftar permintaan payout dari mitra (nama, jumlah, tanggal request)
+- Tombol "Tandai Lunas" per request → ubah status Commission menjadi `paid`, catat `paidAt`
+- Histori payout yang sudah dibayar
+
+---
+
+### 8.8 Pengaturan Platform
+
+**Tujuan:** Konfigurasi operasional tanpa perlu deploy ulang.
+
+**Fitur:**
+- Ubah harga voucher (tersimpan di DB, dibaca server saat generate voucher)
+- Ubah nomor WA admin (saat ini dari env var, pertimbangkan pindah ke DB)
+- Ubah teks notifikasi WA (template pesan yang dikirim ke orang tua)
+- Toggle fitur: aktifkan/nonaktifkan mitra baru, nonaktifkan pendaftaran sekolah baru
+- DEMO_RESULT_ID: ubah contoh laporan yang tampil di `/contoh-laporan-lengkap`
+
+---
+
+### 8.9 Keamanan Owner Dashboard
+
+- URL: `/owner` atau `/admin` — tidak dilink dari manapun di situs publik
+- Auth: header `Authorization: Bearer ADMIN_SECRET` **atau** session cookie khusus owner (lebih ergonomis untuk penggunaan harian)
+- Semua aksi write (approve, payout, nonaktifkan) dicatat di audit log (tabel `AdminLog`: action, targetType, targetId, timestamp)
+- Rate limit ketat: 10 req/menit per IP pada semua endpoint `/api/admin/`
+
+---
+
+### 8.10 Implementasi (Roadmap)
+
+| Prioritas | Fitur | Estimasi |
+|---|---|---|
+| P1 | Ringkasan bisnis (metrik + grafik tren) | 1 hari |
+| P1 | Manajemen voucher (generate + daftar + nonaktifkan) | 0.5 hari |
+| P1 | Daftar mitra + approve + komisi lunas | 1 hari |
+| P2 | Daftar sekolah + aktivasi + ganti paket | 1 hari |
+| P2 | Daftar semua survei + export CSV | 0.5 hari |
+| P2 | Keuangan & payout summary | 0.5 hari |
+| P3 | Pengaturan platform (harga, template WA) | 1 hari |
+| P3 | Audit log | 0.5 hari |
+
+**Tech stack:** Nuxt pages di `/pages/owner/` dengan middleware `owner-auth`, semua data dari endpoint `/api/admin/` yang sudah ada + endpoint baru. Chart via ApexCharts (sudah terinstall).

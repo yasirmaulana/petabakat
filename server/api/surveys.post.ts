@@ -14,10 +14,30 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   const { survey, scores, percentages, orderedHasab, childAgeYears } = await prisma.$transaction(async (tx) => {
+    // Validate and consume voucher atomically
+    let voucherId: number | null = null
+    if (body.voucherId) {
+      const voucher = await tx.voucher.findUnique({ where: { id: body.voucherId } })
+      if (!voucher || voucher.status !== 'active') {
+        throw createError({ statusCode: 400, message: 'Voucher tidak valid atau sudah tidak aktif.' })
+      }
+      if (voucher.expiresAt && voucher.expiresAt < new Date()) {
+        throw createError({ statusCode: 400, message: 'Voucher sudah kadaluarsa.' })
+      }
+      if (voucher.usedCount >= voucher.quota) {
+        throw createError({ statusCode: 400, message: 'Kuota voucher sudah habis.' })
+      }
+      await tx.voucher.update({
+        where: { id: voucher.id },
+        data: { usedCount: { increment: 1 } },
+      })
+      voucherId = voucher.id
+    }
+
     const parent = await tx.parent.upsert({
       where: { phone: body.parentPhone },
-      update: { name: body.parentName },
-      create: { name: body.parentName, phone: body.parentPhone },
+      update: { name: body.parentName, ...(body.parentEmail ? { email: body.parentEmail } : {}) },
+      create: { name: body.parentName, phone: body.parentPhone, email: body.parentEmail || null },
     })
 
     const child = await tx.child.create({
@@ -43,6 +63,9 @@ export default defineEventHandler(async (event) => {
       data: {
         childId: child.id,
         parentId: parent.id,
+        voucherId,
+        schoolId: body.schoolId || null,
+        schoolCode: body.schoolCode || null,
         status: 'processing',
         completedAt: new Date(),
         answers: {
@@ -65,6 +88,20 @@ export default defineEventHandler(async (event) => {
     maxWait: 5000,
     timeout: 15000,
   })
+
+  // Link survey ke dashboard sekolah jika kode valid dan consent diberikan
+  if (body.schoolId && body.schoolConsent) {
+    // Cari kelas default (kelas pertama di sekolah, atau buat placeholder)
+    const schoolClass = await prisma.schoolClass.findFirst({
+      where: { schoolId: body.schoolId },
+      orderBy: { grade: 'asc' },
+    })
+    if (schoolClass) {
+      await prisma.surveyStudent.create({
+        data: { surveyId: survey.id, schoolClassId: schoolClass.id, consentGiven: true },
+      }).catch(() => { /* ignore duplicate */ })
+    }
+  }
 
   // waitUntil memberi tahu Vercel untuk tidak freeze event loop sampai AI selesai,
   // meski response sudah dikirim ke client.
@@ -178,7 +215,7 @@ async function notifyParentAsync(surveyId: number, parentPhone: string, childNam
   if (existing) return
 
   const config = useRuntimeConfig()
-  const baseUrl = config.public?.siteUrl || process.env.NUXT_PUBLIC_SITE_URL || 'https://petabakat.id'
+  const baseUrl = config.public?.siteUrl || process.env.NUXT_PUBLIC_SITE_URL || 'https://petaminatbakat.id'
   const historyUrl = `${baseUrl}/history`
 
   const message = `Assalamu'alaikum,\n\nHasil analisis Peta Bakat untuk ${childName} sudah selesai.\n\nSilakan lihat di Riwayat: ${historyUrl}\n\nTerima kasih.`

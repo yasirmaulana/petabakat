@@ -44,7 +44,7 @@ export function buildPdfBuffer(result: any): Buffer {
   doc.rect(0, 0, W, 38, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(22); doc.setFont('helvetica', 'bold')
-  doc.text('PetaBakat', W / 2, 16, { align: 'center' })
+  doc.text('PetaMinatBakat', W / 2, 16, { align: 'center' })
   doc.setFontSize(9); doc.setFont('helvetica', 'normal')
   doc.text('Laporan Potensi Anak Berbasis Nasab & Hasab', W / 2, 26, { align: 'center' })
 
@@ -144,6 +144,57 @@ export function buildPdfBuffer(result: any): Buffer {
     y += 10
   }
 
+  // ── Kekuatan Utama ───────────────────────────────────────
+  const les = result.lesRecommendations
+  const kekuatan: string[] = les?.kekuatanUtama || []
+  const profesi: { nama: string; alasan: string }[] = les?.potensiProfesi || []
+
+  if (kekuatan.length) {
+    if (y > 220) { doc.addPage(); y = 20 }
+    color(doc, GREEN); doc.setFontSize(13); doc.setFont('helvetica', 'bold')
+    doc.text('Kekuatan Utama', M, y)
+    stroke(doc, AMBER); doc.setLineWidth(0.8)
+    doc.line(M, y + 2, M + 38, y + 2)
+    y += 10
+
+    kekuatan.slice(0, 5).forEach((k, i) => {
+      const kLines = wrap(doc, `${i + 1}. ${k}`, CW - 8)
+      const rowH = kLines.length * 5 + 6
+      if (y + rowH > 272) { doc.addPage(); y = 20 }
+      fill(doc, CREAM); stroke(doc, LIGHT); doc.setLineWidth(0.3)
+      doc.roundedRect(M, y, CW, rowH, 2, 2, 'FD')
+      color(doc, DARK); doc.setFontSize(9); doc.setFont('helvetica', 'normal')
+      doc.text(kLines, M + 4, y + 5)
+      y += rowH + 2
+    })
+    y += 8
+  }
+
+  // ── Potensi Profesi ──────────────────────────────────────
+  if (profesi.length) {
+    if (y > 220) { doc.addPage(); y = 20 }
+    color(doc, GREEN); doc.setFontSize(13); doc.setFont('helvetica', 'bold')
+    doc.text('Peluang di Dunia Nyata', M, y)
+    stroke(doc, AMBER); doc.setLineWidth(0.8)
+    doc.line(M, y + 2, M + 50, y + 2)
+    y += 10
+
+    profesi.slice(0, 3).forEach((p) => {
+      const namaLines = wrap(doc, p.nama, CW - 8)
+      const alasanLines = wrap(doc, p.alasan || '', CW - 8)
+      const rowH = namaLines.length * 5 + alasanLines.length * 4.5 + 8
+      if (y + rowH > 272) { doc.addPage(); y = 20 }
+      fill(doc, CREAM); stroke(doc, AMBER); doc.setLineWidth(0.4)
+      doc.roundedRect(M, y, CW, rowH, 2, 2, 'FD')
+      color(doc, DARK); doc.setFontSize(9); doc.setFont('helvetica', 'bold')
+      doc.text(namaLines, M + 4, y + 6)
+      color(doc, GRAY); doc.setFontSize(8); doc.setFont('helvetica', 'normal')
+      doc.text(alasanLines, M + 4, y + 6 + namaLines.length * 5)
+      y += rowH + 3
+    })
+    y += 6
+  }
+
   // ── Catatan Orang Tua ────────────────────────────────────
   if (y > 230) { doc.addPage(); y = 20 }
   y += 4
@@ -156,7 +207,6 @@ export function buildPdfBuffer(result: any): Buffer {
   doc.text(notesLines, M, y)
 
   // ── Rekomendasi Aktivitas & Les ──────────────────────────
-  const les = result.lesRecommendations
   if (les && (les.jalurUtama?.length || les.jalurPendukung?.length)) {
     y += notesLines.length * 5 + 8
     if (y > 230) { doc.addPage(); y = 20 }

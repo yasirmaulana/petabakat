@@ -31,7 +31,7 @@ export function buildPdfHtml(result: any) {
 </head>
 <body>
   <div class="header">
-    <h1>PetaBakat</h1>
+    <h1>PetaMinatBakat</h1>
     <p>Laporan Potensi Anak Berbasis Nasab & Hasab</p>
   </div>
 
@@ -93,7 +93,7 @@ export function buildPdfHtml(result: any) {
   </div>
 
   <div class="footer">
-    Dibuat oleh aplikasi PetaBakat — www.petabakat.id
+    Dibuat oleh aplikasi PetaMinatBakat — www.petaminatbakat.id
   </div>
 </body>
 </html>

@@ -1,9 +1,15 @@
 import { prisma } from '~/server/utils/prisma'
+import { verifyHistoryToken } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
-  const phone = getCookie(event, 'history_session')
+  const rawToken = getCookie(event, 'history_session')
+  if (!rawToken) return { authenticated: false, found: false, surveys: [] }
 
-  if (!phone) {
+  let phone: string
+  try {
+    phone = await verifyHistoryToken(rawToken)
+  } catch {
+    deleteCookie(event, 'history_session', { path: '/' })
     return { authenticated: false, found: false, surveys: [] }
   }
 

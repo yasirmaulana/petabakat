@@ -1,4 +1,4 @@
-# Database Schema — PetaBakat
+# Database Schema — PetaMinatBakat
 
 ## ERD Overview
 

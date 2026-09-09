@@ -1,12 +1,12 @@
-# Komparasi Laporan Metode TECCA vs. Metode Hasab (PetaBakat)
+# Komparasi Laporan Metode TECCA vs. Metode Hasab (PetaMinatBakat)
 
-Dokumen ini menyajikan analisis komparatif mendalam antara dua metode pemetaan potensi anak yang digunakan dalam platform **PetaBakat**: **Metode TECCA** (non-Hasab / gaya belajar dan perilaku harian) dan **Metode Hasab** (berbasis rumpun potensi Islami & rekam jejak keluarga).
+Dokumen ini menyajikan analisis komparatif mendalam antara dua metode pemetaan potensi anak yang digunakan dalam platform **PetaMinatBakat**: **Metode TECCA** (non-Hasab / gaya belajar dan perilaku harian) dan **Metode Hasab** (berbasis rumpun potensi Islami & rekam jejak keluarga).
 
 ---
 
 ## 1. Ringkasan Metode
 
-| Parameter | Metode TECCA (Non-Hasab) | Metode Hasab (PetaBakat) |
+| Parameter | Metode TECCA (Non-Hasab) | Metode Hasab (PetaMinatBakat) |
 | :--- | :--- | :--- |
 | **Fokus Utama** | Gaya belajar, preferensi aktivitas, dan rekomendasi les/ekstrakurikuler. | Pemetaan karakter holistik, gaya berpikir, dan stimulasi rumah berbasis nilai Islami. |
 | **Dimensi Utama** | 5 Dimensi: Si Pencipta, Si Petualang, Si Penyesuai, Si Penghubung, Si Penalar. | 4 Rumpun Hasab: Asyiha, Ilmi, Amali, Wajdan + Elemen Nasab. |
@@ -17,7 +17,7 @@ Dokumen ini menyajikan analisis komparatif mendalam antara dua metode pemetaan p
 
 ## 2. Analisis Kelebihan & Kekurangan (Plus - Minus)
 
-### 2.1. Metode TECCA (petabakat-bukan-hasab.png)
+### 2.1. Metode TECCA (petaminatbakat-bukan-hasab.png)
 
 #### **Kelebihan (+)**
 1. **Rekomendasi Aplikatif & Taktis:** Directly menyarankan jenis les atau ekstrakurikuler spesifik (seperti *Sanggar Lukis & Gambar Manga*, *Martial Arts*, atau *Trial Mix Les*) lengkap dengan porsi uji coba (*trial session*).
@@ -31,7 +31,7 @@ Dokumen ini menyajikan analisis komparatif mendalam antara dua metode pemetaan p
 
 ---
 
-### 2.2. Metode Hasab (petabakat-hasab.png)
+### 2.2. Metode Hasab (petaminatbakat-hasab.png)
 
 #### **Kelebihan (+)**
 1. **Diferensiasi Produk (USP) Sangat Kuat:** Mengintegrasikan kerangka pengasuhan Islami (**Nasab & Hasab**) dengan Generative AI, menciptakan *Unique Selling Proposition* yang membedakannya dari seluruh tes bakat di pasaran.
@@ -48,7 +48,7 @@ Dokumen ini menyajikan analisis komparatif mendalam antara dua metode pemetaan p
 
 ## 3. Rencana Implementsi & Kombinasi Ideal (Hybrid Strategy)
 
-Untuk memaksimalkan nilai produk **PetaBakat**, direkomendasikan mengadopsi beberapa elemen terbaik dari Metode TECCA ke dalam Laporan Metode Hasab:
+Untuk memaksimalkan nilai produk **PetaMinatBakat**, direkomendasikan mengadopsi beberapa elemen terbaik dari Metode TECCA ke dalam Laporan Metode Hasab:
 
 1. **Integrasi Generator Story 9:16:** Menambahkan tombol *"Unduh Card Story (9:16)"* yang berisi grafik radar Hasab dan gelar Persona Anak untuk keperluan media sosial orang tua.
 2. **Rekomendasi Les Berbasis Rumpun Hasab:** Menambahkan satu blok khusus di bagian bawah laporan yang memberikan saran aktivitas/les eksternal sesuai dengan rumpun dominan anak (misalnya: Dominasi *Amali + Ilmi* -> Les Robotik / Keterampilan Teknis).
@@ -56,4 +56,4 @@ Untuk memaksimalkan nilai produk **PetaBakat**, direkomendasikan mengadopsi bebe
 
 ---
 
-*Dokumen dihitung dan disusun berdasarkan analisis UI/UX serta alur produk PetaBakat.*
+*Dokumen dihitung dan disusun berdasarkan analisis UI/UX serta alur produk PetaMinatBakat.*
