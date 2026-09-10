@@ -31,7 +31,14 @@
 
       <!-- ───────── RINGKASAN ───────── -->
       <section v-if="activeTab === 'ringkasan'">
-        <div v-if="statsPending" class="py-16 text-center text-sm text-gray-400">Memuat statistik...</div>
+        <div v-if="statsPending" class="py-16 text-center text-sm text-gray-400">
+          Memuat statistik...
+          <button class="ml-2 text-xs underline text-gray-500" @click="refreshStats()">refresh manual</button>
+        </div>
+        <div v-else-if="statsError" class="py-8 rounded-xl border border-red-200 bg-red-50 px-4 text-center text-sm text-red-600">
+          Gagal memuat data: {{ statsError?.data?.message || statsError?.message }} —
+          <button class="underline" @click="refreshStats()">coba lagi</button>
+        </div>
         <template v-else-if="stats">
           <!-- KPI cards -->
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -58,6 +65,34 @@
               <p class="text-xs text-gray-400">Komisi Pending</p>
               <p class="mt-1 text-lg font-bold text-gray-900">{{ fmtRp(stats.commissions.pendingTotal) }}</p>
               <p class="text-xs text-gray-400">{{ stats.commissions.pendingCount }} transaksi</p>
+            </div>
+          </div>
+
+          <!-- Hasab Keluarga stats -->
+          <div v-if="stats.familyAssessments" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="card p-4">
+              <p class="text-xs text-gray-400">Hasab Keluarga</p>
+              <p class="mt-1 text-2xl font-bold text-gray-900">{{ stats.familyAssessments.total }}</p>
+              <p class="text-xs text-gray-500">assessment dimulai</p>
+            </div>
+            <div class="card p-4">
+              <p class="text-xs text-gray-400">Selesai</p>
+              <p class="mt-1 text-2xl font-bold text-gray-900">{{ stats.familyAssessments.completed }}</p>
+              <p class="text-xs text-gray-500">
+                {{ stats.familyAssessments.total > 0 ? Math.round(stats.familyAssessments.completed / stats.familyAssessments.total * 100) : 0 }}% completion rate
+              </p>
+            </div>
+            <div class="card p-4 border-emerald-200 bg-emerald-50">
+              <p class="text-xs text-emerald-600">OPTIMAL</p>
+              <p class="mt-1 text-2xl font-bold text-emerald-700">{{ stats.familyAssessments.optimal }}</p>
+              <p class="text-xs text-emerald-600">
+                {{ stats.familyAssessments.completed > 0 ? Math.round(stats.familyAssessments.optimal / stats.familyAssessments.completed * 100) : 0 }}% dari selesai
+              </p>
+            </div>
+            <div class="card p-4 border-amber-200 bg-amber-50">
+              <p class="text-xs text-amber-600">GAP</p>
+              <p class="mt-1 text-2xl font-bold text-amber-700">{{ stats.familyAssessments.gap }}</p>
+              <p class="text-xs text-amber-600">perlu intervensi</p>
             </div>
           </div>
 
@@ -310,6 +345,7 @@
                   <th class="px-4 py-3 font-medium">Persona</th>
                   <th class="px-4 py-3 font-medium">Voucher</th>
                   <th class="px-4 py-3 font-medium">Status</th>
+                  <th class="px-4 py-3 font-medium">Fit-Gap</th>
                   <th class="px-4 py-3 font-medium">Tanggal</th>
                   <th class="px-4 py-3"></th>
                 </tr>
@@ -332,6 +368,17 @@
                         'bg-emerald-100 text-emerald-700': s.status === 'completed',
                         'bg-red-100 text-red-600': s.status === 'failed',
                       }">{{ s.status }}</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span v-if="s.familyAssessment?.result?.fitGapStatus"
+                      class="rounded-full px-2 py-0.5 text-xs font-semibold"
+                      :class="s.familyAssessment.result.fitGapStatus === 'OPTIMAL'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-amber-100 text-amber-700'">
+                      {{ s.familyAssessment.result.fitGapStatus }}
+                    </span>
+                    <span v-else-if="s.familyAssessment" class="text-xs text-gray-400">Belum selesai</span>
+                    <span v-else class="text-xs text-gray-300">—</span>
                   </td>
                   <td class="px-4 py-3 text-xs text-gray-400">{{ fmtDate(s.createdAt) }}</td>
                   <td class="px-4 py-3">
@@ -488,7 +535,8 @@ const TABS = [
 const activeTab = ref<string>('ringkasan')
 
 // ── Stats ──
-const { data: stats, pending: statsPending } = useFetch('/api/owner/stats', { server: false })
+const { data: stats, pending: statsPending, error: statsError, refresh: refreshStats } = useFetch('/api/owner/stats', { server: false })
+watch(statsError, (e) => { if (e) console.error('[owner/stats]', e) })
 
 const trendWidth = 600
 const trendCoords = computed(() => {

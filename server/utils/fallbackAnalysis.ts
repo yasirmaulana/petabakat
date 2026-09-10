@@ -3,7 +3,7 @@ export function fallbackAnalysis(
   orderedHasab: string[],
   naturalResponses: string[]
 ) {
-  const top = orderedHasab[0]
+  const top = orderedHasab[0] ?? 'ilmi'
   const top2 = orderedHasab.slice(0, 2).sort().join('+')
 
   const personas: Record<string, { label: string; description: string }> = {
@@ -31,9 +31,11 @@ export function fallbackAnalysis(
   }
 
   return {
+    _fallback: true,
     personaLabel: persona.label,
     personaDescription: persona.description,
     scoreNarrative: `Skor tertinggi ada pada rumpun ${top}. Hasab ini mencerminkan warisan karakter keluarga yang paling kuat dan menjadi landasan utama pengembangan anak.`,
+    fitGapNarrative: '',
     parentNotes: `Dorong anak melalui aktivitas yang memperkuat ${top}. Hindari memaksakan pola belajar yang tidak sesuai dengan kecenderungan alaminya.`,
     microdosingPlan: {
       title: `Rencana Stimulasi ${persona.label}`,
@@ -43,6 +45,8 @@ export function fallbackAnalysis(
         { day: 'Hari Sekolah', activity: 'Tantangan kecil yang mengasah kekuatan dominan', durationMinutes: 20 },
       ],
     },
+    bridgingActions: [],
+    lesRecommendations: null,
   }
 }
 

@@ -24,6 +24,9 @@ export default defineEventHandler(async (event) => {
           createdAt: true,
           child: { select: { name: true, gender: true, birthDate: true } },
           result: { select: { personaLabel: true, dominantCategory: true, pctAsyiha: true, pctIlmi: true, pctAmali: true, pctWajdan: true } },
+          familyAssessment: {
+            select: { status: true, result: { select: { fitGapStatus: true, fitGapScore: true } } },
+          },
         },
       },
       schoolClass: { select: { id: true, name: true, grade: true } },

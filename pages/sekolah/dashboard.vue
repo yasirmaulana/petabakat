@@ -59,6 +59,39 @@
           </div>
         </div>
 
+        <!-- Fit-Gap Summary -->
+        <div v-if="stats.fitGapSummary?.total > 0" class="card p-5 mb-6">
+          <h3 class="font-semibold text-gray-900 mb-1">Hasab Keluarga — Fit-Gap Ratio</h3>
+          <p class="text-xs text-gray-400 mb-4">{{ stats.fitGapSummary.total }} siswa sudah menyelesaikan analisis keluarga</p>
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-center">
+              <p class="text-2xl font-bold text-emerald-700">{{ stats.fitGapSummary.optimal }}</p>
+              <p class="text-xs text-emerald-600 mt-0.5">OPTIMAL</p>
+              <p class="text-xs text-gray-400">{{ stats.fitGapSummary.total > 0 ? Math.round(stats.fitGapSummary.optimal / stats.fitGapSummary.total * 100) : 0 }}%</p>
+            </div>
+            <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-center">
+              <p class="text-2xl font-bold text-amber-700">{{ stats.fitGapSummary.gap }}</p>
+              <p class="text-xs text-amber-600 mt-0.5">GAP</p>
+              <p class="text-xs text-gray-400">{{ stats.fitGapSummary.total > 0 ? Math.round(stats.fitGapSummary.gap / stats.fitGapSummary.total * 100) : 0 }}%</p>
+            </div>
+          </div>
+          <!-- Per kelas -->
+          <div v-if="stats.fitGapSummary.perKelas.length > 1" class="space-y-2">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Per Kelas</p>
+            <div v-for="k in stats.fitGapSummary.perKelas" :key="k.kelasId"
+              class="flex items-center gap-3 text-sm">
+              <span class="w-24 shrink-0 truncate text-gray-700">{{ k.kelasName }}</span>
+              <div class="flex-1 flex gap-1 items-center">
+                <div class="h-2 rounded-full bg-emerald-400 transition-all"
+                  :style="{ width: k.total > 0 ? `${Math.round(k.optimal / k.total * 100)}%` : '0%' }" />
+                <div class="h-2 rounded-full bg-amber-300 transition-all"
+                  :style="{ width: k.total > 0 ? `${Math.round(k.gap / k.total * 100)}%` : '0%' }" />
+              </div>
+              <span class="shrink-0 text-xs text-gray-400">{{ k.total }} siswa</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Kode Sekolah info -->
         <div class="rounded-xl border border-brand-100 bg-brand-50 p-4 flex items-start gap-3">
           <div class="text-2xl">📋</div>
@@ -99,6 +132,7 @@
                   <th class="px-4 py-3 text-left">Nama Anak</th>
                   <th class="px-4 py-3 text-left">Kelas</th>
                   <th class="px-4 py-3 text-left">Rumpun</th>
+                  <th class="px-4 py-3 text-left">Fit-Gap</th>
                   <th class="px-4 py-3 text-left">Persona</th>
                   <th class="px-4 py-3 text-left">Tanggal</th>
                   <th class="px-4 py-3 text-left"></th>
@@ -111,6 +145,16 @@
                   <td class="px-4 py-3">
                     <span v-if="s.survey.result?.dominantCategory" class="rounded-full px-2 py-0.5 text-xs font-medium bg-brand-100 text-brand-700 capitalize">{{ s.survey.result.dominantCategory }}</span>
                     <span v-else class="text-gray-300">—</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span v-if="s.survey.familyAssessment?.result?.fitGapStatus"
+                      class="rounded-full px-2 py-0.5 text-xs font-semibold"
+                      :class="s.survey.familyAssessment.result.fitGapStatus === 'OPTIMAL'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-amber-100 text-amber-700'">
+                      {{ s.survey.familyAssessment.result.fitGapStatus }}
+                    </span>
+                    <span v-else class="text-xs text-gray-300">—</span>
                   </td>
                   <td class="px-4 py-3 text-gray-600 text-xs">{{ s.survey.result?.personaLabel || '—' }}</td>
                   <td class="px-4 py-3 text-gray-400 text-xs">{{ new Date(s.survey.createdAt).toLocaleDateString('id-ID') }}</td>

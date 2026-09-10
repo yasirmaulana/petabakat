@@ -72,9 +72,10 @@ model Survey {
   answers     SurveyAnswer[]
   responses   ChildNaturalResponse[]
   result      SurveyResult?
-  pdfReports  PdfReport[]
-  notifications NotificationLog[]
-  schoolStudent SurveyStudent?
+  pdfReports        PdfReport[]
+  notifications     NotificationLog[]
+  schoolStudent     SurveyStudent?
+  familyAssessment  FamilyAssessment?
 
   @@map("surveys")
 }
@@ -221,6 +222,8 @@ model SurveyResult {
   scoreNarrative     String?  @map("score_narrative")
   parentNotes        String?  @map("parent_notes")
   microdosingPlan    Json?    @map("microdosing_plan")
+  fitGapNarrative    String?  @map("fit_gap_narrative")
+  bridgingActions    Json?    @map("bridging_actions")
   lesRecommendations Json?    @map("les_recommendations")
   aiRawResponse      Json?    @map("ai_raw_response")
   aiModel            String?  @map("ai_model") @db.VarChar(50)
@@ -264,4 +267,80 @@ model PdfReport {
   survey    Survey    @relation(fields: [surveyId], references: [id])
 
   @@map("pdf_reports")
+}
+
+// ─── Modul Hasab Keluarga (Phase 0) ───────────────────────────────────────────
+
+/// Soal untuk penilaian Hasab Keluarga (5 dimensi × 6 opsi = 30 soal)
+model FamilyQuestion {
+  id        Int            @id @default(autoincrement())
+  dimension String         @db.VarChar(20) // ilmi | qiyadah | amali | wajdan | tarbiyah
+  order     Int            // 1–6 dalam dimensi
+  code      String         @unique @db.VarChar(10) // D1_O1 … D5_O6
+  text      String
+  answers   FamilyAnswer[]
+
+  @@map("family_questions")
+}
+
+/// Satu sesi penilaian Hasab Keluarga, terhubung ke survey anak (opsional)
+model FamilyAssessment {
+  id          Int            @id @default(autoincrement())
+  publicId    String         @unique @default(uuid()) @map("public_id")
+  surveyId    Int            @unique @map("survey_id") // 1-to-1 dengan Survey
+  status      String         @default("draft") @db.VarChar(20) // draft | completed
+  createdAt   DateTime       @default(now()) @map("created_at")
+  completedAt DateTime?      @map("completed_at")
+  survey      Survey         @relation(fields: [surveyId], references: [id])
+  figures     FamilyFigure[]
+  result      FamilyResult?
+
+  @@map("family_assessments")
+}
+
+/// Satu figur keluarga dalam satu sesi assessment
+model FamilyFigure {
+  id           Int              @id @default(autoincrement())
+  assessmentId Int              @map("assessment_id")
+  role         String           @db.VarChar(20) // kakek_ayah | nenek_ayah | kakek_ibu | nenek_ibu | ayah | ibu
+  isKnown      Boolean          @default(true) @map("is_known") // false = figur tidak dikenal / sudah meninggal
+  completedAt  DateTime?        @map("completed_at")
+  assessment   FamilyAssessment @relation(fields: [assessmentId], references: [id])
+  answers      FamilyAnswer[]
+
+  @@unique([assessmentId, role])
+  @@map("family_figures")
+}
+
+/// Satu jawaban Likert (1–5) untuk satu soal dari satu figur
+model FamilyAnswer {
+  id         Int            @id @default(autoincrement())
+  figureId   Int            @map("figure_id")
+  questionId Int            @map("question_id")
+  value      Int            @db.SmallInt // 1–5
+  figure     FamilyFigure   @relation(fields: [figureId], references: [id])
+  question   FamilyQuestion @relation(fields: [questionId], references: [id])
+
+  @@unique([figureId, questionId])
+  @@map("family_answers")
+}
+
+/// Hasil kalkulasi deterministik Hasab Keluarga
+model FamilyResult {
+  id              Int              @id @default(autoincrement())
+  assessmentId    Int              @unique @map("assessment_id")
+  scoreIlmi       Decimal          @map("score_ilmi") @db.Decimal(6, 2)
+  scoreQiyadah    Decimal          @map("score_qiyadah") @db.Decimal(6, 2)
+  scoreAmali      Decimal          @map("score_amali") @db.Decimal(6, 2)
+  scoreWajdan     Decimal          @map("score_wajdan") @db.Decimal(6, 2)
+  scoreTarbiyah   Decimal          @map("score_tarbiyah") @db.Decimal(6, 2)
+  top3Hasab       String[]         @map("top3_hasab") // ['ilmi','qiyadah','amali']
+  fitGapStatus    String           @map("fit_gap_status") @db.VarChar(20) // OPTIMAL | GAP
+  fitGapScore     Decimal          @map("fit_gap_score") @db.Decimal(4, 2) // 0.00–1.00
+  recommendation  String           @map("recommendation")
+  figuresIncluded Int              @map("figures_included") // jumlah figur yang is_known = true
+  createdAt       DateTime         @default(now()) @map("created_at")
+  assessment      FamilyAssessment @relation(fields: [assessmentId], references: [id])
+
+  @@map("family_results")
 }

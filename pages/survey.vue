@@ -94,20 +94,47 @@
             </div>
           </div>
 
-          <div class="card p-5">
-            <label class="label-text mb-3 block">Minat / Respon Alami Anak <span class="font-normal text-gray-400">(pilih semua yang sesuai)</span></label>
-            <div class="grid gap-2.5 sm:grid-cols-2">
-              <label
-                v-for="option in naturalResponseOptions"
-                :key="option"
-                class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 transition-colors hover:border-brand-300 hover:bg-brand-25"
-                :class="{ 'border-brand-400 bg-brand-50': form.naturalResponses.includes(option) }"
-              >
-                <input v-model="form.naturalResponses" type="checkbox" :value="option" class="h-4 w-4 accent-black shrink-0" />
-                <span class="text-sm text-gray-700">{{ option }}</span>
-              </label>
+          <div class="card p-5 space-y-5">
+            <div class="flex items-baseline justify-between gap-2">
+              <label class="label-text">Minat / Respon Alami Anak <span class="font-normal text-gray-400">(pilih semua yang sesuai, min. 3)</span></label>
+              <span class="shrink-0 text-xs font-medium" :class="form.naturalResponses.length < 3 ? 'text-gray-400' : 'text-brand-600'">{{ form.naturalResponses.length }} dipilih</span>
             </div>
-            <input v-model="form.naturalResponseOther" placeholder="Lainnya..." class="input-field mt-3" />
+
+            <div v-for="group in dimensionGroups" :key="group.key" class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ group.label }}</p>
+              <div class="grid gap-2 sm:grid-cols-2">
+                <label
+                  v-for="option in optionsByDimension[group.key]"
+                  :key="option.label"
+                  class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 transition-colors hover:border-brand-300 hover:bg-brand-25"
+                  :class="{ 'border-brand-400 bg-brand-50': form.naturalResponses.includes(option.label) }"
+                >
+                  <input v-model="form.naturalResponses" type="checkbox" :value="option.label" class="h-4 w-4 accent-black shrink-0" />
+                  <span class="text-sm text-gray-700">{{ option.label }}</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Custom additions -->
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Tambahan</p>
+              <div v-for="(item, i) in form.customResponses" :key="i" class="flex gap-2">
+                <select v-model="item.dimension" class="input-field w-52 shrink-0 text-sm">
+                  <option value="qiyadah">Kepemimpinan &amp; Sosial</option>
+                  <option value="ilmi">Intelektual &amp; Keilmuan</option>
+                  <option value="amali">Praktikal &amp; Teknis</option>
+                  <option value="wajdan">Seni &amp; Spiritual</option>
+                </select>
+                <input v-model="item.text" placeholder="Tulis minat spesifik..." class="input-field flex-1" />
+                <button type="button" class="shrink-0 p-2 text-gray-400 hover:text-red-500 transition-colors" @click="removeCustomResponse(i)">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+              <button type="button" class="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors" @click="addCustomResponse">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Tambah minat lainnya
+              </button>
+            </div>
           </div>
 
           <div class="card p-5">
@@ -230,6 +257,14 @@
             <p class="mt-1 text-sm text-gray-500">Menggali kejelasan garis keturunan dan silaturahim keluarga.</p>
           </div>
 
+          <div v-if="questionsPending" class="flex items-center gap-2 py-8 text-center text-sm text-gray-400">
+            <svg class="h-4 w-4 animate-spin text-brand-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            Memuat soal...
+          </div>
+
           <div
             v-for="question in data?.nasabQuestions || []"
             :key="question.id"
@@ -245,36 +280,6 @@
                 <input v-model="form.nasabAnswers[question.id]" type="radio" :name="`nasab-${question.id}`" :value="0" required class="accent-black" />
                 <span class="text-sm font-medium text-gray-700">Tidak</span>
               </label>
-            </div>
-          </div>
-        </section>
-
-        <!-- STEP 3+: Satu pertanyaan Hasab per step -->
-        <section v-else-if="currentHasabQuestion" class="space-y-5">
-          <div>
-            <div class="mb-2 flex items-center gap-2">
-              <span class="rounded-full border border-brand-300 bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
-                {{ currentHasabQuestion.categoryName }}
-              </span>
-            </div>
-            <h2 class="text-xl font-bold text-gray-950">{{ currentHasabQuestion.text }}</h2>
-            <p class="mt-2 text-sm text-gray-500">Nilai 1 = sangat tidak setuju &nbsp;·&nbsp; 5 = sangat setuju</p>
-          </div>
-
-          <div class="card p-6">
-            <div class="flex items-center justify-center gap-2">
-              <div class="flex gap-3">
-                <button
-                  v-for="score in [1, 2, 3, 4, 5]"
-                  :key="score"
-                  type="button"
-                  class="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 transition-all hover:border-brand-400 hover:bg-brand-50 active:scale-95"
-                  :class="{ 'border-brand-400 bg-brand-400 text-black shadow-xs scale-105': form.hasabAnswers[currentHasabQuestion.id] === score }"
-                  @click="selectHasabScore(currentHasabQuestion.id, score)"
-                >
-                  {{ score }}
-                </button>
-              </div>
             </div>
           </div>
         </section>
@@ -296,14 +301,9 @@
           </button>
           <div v-else />
 
-          <!-- Hasab steps: auto-advance hint -->
-          <p v-if="currentHasabQuestion && currentStep < totalSteps - 1" class="text-xs text-gray-400">
-            Pilih untuk lanjut otomatis
-          </p>
-
-          <!-- Step 0, 1, 2: tombol manual Lanjut -->
+          <!-- Step 0, 1: tombol Lanjut -->
           <button
-            v-else-if="!currentHasabQuestion && currentStep < totalSteps - 1"
+            v-if="currentStep < totalSteps - 1"
             type="button"
             class="btn-primary px-5 py-2.5 disabled:cursor-not-allowed disabled:opacity-50"
             :disabled="currentStep === 1 && voucherStatus !== 'valid'"
@@ -312,9 +312,9 @@
             Lanjut →
           </button>
 
-          <!-- Submit step terakhir -->
+          <!-- Submit step terakhir (nasab) -->
           <button
-            v-else-if="currentStep === totalSteps - 1"
+            v-else
             type="submit"
             :disabled="loading || submitting"
             class="btn-primary px-5 py-2.5 disabled:cursor-not-allowed disabled:opacity-50"
@@ -323,7 +323,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            {{ loading || submitting ? 'Memproses...' : 'Lihat Hasil' }}
+            {{ loading || submitting ? 'Memproses...' : 'Lanjut ke Penilaian Keluarga →' }}
           </button>
         </div>
 
@@ -333,41 +333,53 @@
 </template>
 
 <script setup>
-const { data } = await useFetch('/api/questions')
+const { data, pending: questionsPending } = await useFetch('/api/questions', { key: 'survey-questions', dedupe: 'cancel' })
 const router = useRouter()
 
+// { label, dimension } — 6 item per dimensi, 24 total
 const naturalResponseOptions = [
   // Kepemimpinan & Sosial (Qiyadah)
-  'Suka bercerita atau berpidato di depan orang',
-  'Suka menjadi pemimpin dalam permainan kelompok',
-  'Senang membantu dan peduli terhadap teman',
-  'Suka mengorganisir kegiatan atau acara',
-  'Mudah bergaul dan cepat punya teman baru',
+  { label: 'Suka bercerita atau berpidato di depan orang', dimension: 'qiyadah' },
+  { label: 'Suka menjadi pemimpin dalam permainan kelompok', dimension: 'qiyadah' },
+  { label: 'Senang membantu dan peduli terhadap teman', dimension: 'qiyadah' },
+  { label: 'Suka mengorganisir kegiatan atau acara', dimension: 'qiyadah' },
+  { label: 'Mudah bergaul dan cepat punya teman baru', dimension: 'qiyadah' },
+  { label: 'Pandai meyakinkan atau mengajak orang lain', dimension: 'qiyadah' },
   // Intelektual & Keilmuan (Ilmi)
-  'Kritis dan banyak bertanya "kenapa"',
-  'Senang membaca atau mencari tahu hal baru',
-  'Suka teka-teki, strategi, atau permainan logika',
-  'Suka berdebat atau berargumentasi',
-  'Senang menghafal (Quran, fakta, data)',
-  // Bisnis & Teknis (Amali)
-  'Suka bongkar-pasang atau merakit barang',
-  'Suka membuat sesuatu dengan tangan (prakarya, masak, berkebun)',
-  'Semangat kalau ada proyek atau tantangan nyata',
-  'Suka berdagang / jual-beli kecil-kecilan',
-  'Teliti dan suka merapikan barang atau jadwal',
+  { label: 'Kritis dan banyak bertanya "kenapa"', dimension: 'ilmi' },
+  { label: 'Senang membaca atau mencari tahu hal baru', dimension: 'ilmi' },
+  { label: 'Suka teka-teki, strategi, atau permainan logika', dimension: 'ilmi' },
+  { label: 'Suka berdebat atau berargumentasi', dimension: 'ilmi' },
+  { label: 'Senang menghafal (Quran, fakta, data)', dimension: 'ilmi' },
+  { label: 'Tertarik dengan komputer, robotik, atau coding', dimension: 'ilmi' },
+  // Praktikal & Teknis (Amali)
+  { label: 'Suka bongkar-pasang atau merakit barang', dimension: 'amali' },
+  { label: 'Suka membuat sesuatu dengan tangan (prakarya, masak, berkebun)', dimension: 'amali' },
+  { label: 'Semangat kalau ada proyek atau tantangan nyata', dimension: 'amali' },
+  { label: 'Suka berdagang / jual-beli kecil-kecilan', dimension: 'amali' },
+  { label: 'Teliti dan suka merapikan barang atau jadwal', dimension: 'amali' },
+  { label: 'Aktif bergerak dan suka olahraga atau tantangan fisik', dimension: 'amali' },
   // Seni & Spiritual (Wajdan)
-  'Suka menggambar, mewarnai, atau berkarya visual',
-  'Peka dengan musik, suara, atau irama',
-  'Mudah merasakan suasana hati orang lain / peka secara emosi',
-  'Suka bercerita lewat tulisan atau gambar komik',
-  'Senang dengan kegiatan rohani (mengaji, dzikir, doa)',
-  // Olahraga & Fisik
-  'Aktif bergerak dan suka olahraga tim',
-  'Suka tantangan fisik (panjat, lari, renang)',
-  // Teknologi & Digital
-  'Tertarik dengan komputer, robotik, atau coding',
-  'Suka bermain game strategi atau simulasi',
+  { label: 'Suka menggambar, mewarnai, atau berkarya visual', dimension: 'wajdan' },
+  { label: 'Peka dengan musik, suara, atau irama', dimension: 'wajdan' },
+  { label: 'Mudah merasakan suasana hati orang lain / peka secara emosi', dimension: 'wajdan' },
+  { label: 'Suka bercerita lewat tulisan atau gambar komik', dimension: 'wajdan' },
+  { label: 'Senang dengan kegiatan rohani (mengaji, dzikir, doa)', dimension: 'wajdan' },
+  { label: 'Peka dan mudah terbawa suasana saat menonton atau mendengar cerita', dimension: 'wajdan' },
 ]
+
+const dimensionGroups = [
+  { key: 'qiyadah', label: 'Kepemimpinan & Sosial' },
+  { key: 'ilmi', label: 'Intelektual & Keilmuan' },
+  { key: 'amali', label: 'Praktikal & Teknis' },
+  { key: 'wajdan', label: 'Seni & Spiritual' },
+]
+
+const optionsByDimension = computed(() =>
+  Object.fromEntries(
+    dimensionGroups.map(g => [g.key, naturalResponseOptions.filter(o => o.dimension === g.key)])
+  )
+)
 
 const form = reactive({
   // Step 0
@@ -375,7 +387,7 @@ const form = reactive({
   childBirthDate: '',
   childGender: '',
   naturalResponses: [],
-  naturalResponseOther: '',
+  customResponses: [], // [{ dimension: 'qiyadah'|'ilmi'|'amali'|'wajdan', text: string }]
   momentAntusias: '',
   // Step 1
   parentName: '',
@@ -386,7 +398,6 @@ const form = reactive({
   voucherCode: '',
   // Survey
   nasabAnswers: {},
-  hasabAnswers: {},
 })
 
 const currentStep = ref(0)
@@ -502,42 +513,31 @@ function stopLoadingAnimation() {
 
 onUnmounted(stopLoadingAnimation)
 
-// Flatten & shuffle all hasab questions, order fixed for the session
-const shuffledHasabQuestions = ref([])
-watch(data, (val) => {
-  if (!val?.categories) return
-  const all = val.categories.flatMap(cat =>
-    cat.questions.map(q => ({ ...q, categoryName: cat.name, categoryCode: cat.code }))
-  )
-  for (let i = all.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [all[i], all[j]] = [all[j], all[i]]
-  }
-  shuffledHasabQuestions.value = all
-}, { immediate: true })
-
-// Step 0 = child data, step 1 = parent+voucher, step 2 = nasab, step 3..N = hasab
-const totalSteps = computed(() => 3 + shuffledHasabQuestions.value.length)
-
-const currentHasabQuestion = computed(() => {
-  if (currentStep.value < 3) return null
-  return shuffledHasabQuestions.value[currentStep.value - 3] || null
-})
+// Step 0 = data anak, step 1 = data ortu+voucher, step 2 = nasab → submit
+const totalSteps = 3
 
 const stepTitle = computed(() => {
   if (currentStep.value === 0) return 'Data Anak'
   if (currentStep.value === 1) return 'Data Orang Tua & Voucher'
-  if (currentStep.value === 2) return 'Pertanyaan Nasab'
-  return currentHasabQuestion.value?.categoryName || 'Pertanyaan Hasab'
+  return 'Pertanyaan Nasab'
 })
 
 const validationError = ref('')
+
+function addCustomResponse() {
+  form.customResponses.push({ dimension: 'qiyadah', text: '' })
+}
+
+function removeCustomResponse(index) {
+  form.customResponses.splice(index, 1)
+}
 
 function validateCurrentStep() {
   if (currentStep.value === 0) {
     if (!form.childName.trim()) return 'Nama anak wajib diisi.'
     if (!form.childBirthDate) return 'Tanggal lahir anak wajib diisi.'
     if (!form.childGender) return 'Jenis kelamin anak wajib dipilih.'
+    if (form.naturalResponses.length < 3) return 'Pilih minimal 3 minat/respon alami anak.'
     return ''
   }
   if (currentStep.value === 1) {
@@ -572,15 +572,6 @@ function prevStep() {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-function selectHasabScore(questionId, score) {
-  form.hasabAnswers[questionId] = score
-  setTimeout(() => {
-    if (currentStep.value < totalSteps.value - 1) {
-      nextStep()
-    }
-  }, 300)
-}
-
 async function submitSurvey() {
   if (submitting.value) return
   submitting.value = true
@@ -601,14 +592,13 @@ async function submitSurvey() {
       childGender: form.childGender,
       naturalResponses: [
         ...form.naturalResponses,
-        form.naturalResponseOther,
+        ...form.customResponses.filter(c => c.text.trim()).map(c => `[${c.dimension}] ${c.text.trim()}`),
         form.momentAntusias ? `Momen antusias: ${form.momentAntusias}` : '',
       ].filter(Boolean),
       nasabAnswers: form.nasabAnswers,
-      hasabAnswers: form.hasabAnswers,
     }
     const { surveyId } = await $fetch('/api/surveys', { method: 'POST', body: payload })
-    await router.push(`/results/${surveyId}`)
+    await router.push(`/family-survey/${surveyId}`)
   } catch (err) {
     const message = err?.statusMessage || err?.message || 'Gagal menyimpan survey. Silakan coba lagi.'
     alert(message)

@@ -41,6 +41,12 @@ export default defineEventHandler(async (event) => {
         voucher: { select: { code: true } },
         school: { select: { name: true } },
         result: { select: { personaLabel: true } },
+        familyAssessment: {
+          select: {
+            status: true,
+            result: { select: { fitGapStatus: true, fitGapScore: true } },
+          },
+        },
       },
     }),
     prisma.survey.count({ where }),

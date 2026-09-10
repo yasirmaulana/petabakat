@@ -20,6 +20,9 @@ export default defineEventHandler(async (event) => {
           createdAt: true,
           child: { select: { name: true, gender: true, birthDate: true } },
           result: { select: { personaLabel: true, dominantCategory: true, pctAsyiha: true, pctIlmi: true, pctAmali: true, pctWajdan: true } },
+          familyAssessment: {
+            select: { status: true, result: { select: { fitGapStatus: true, fitGapScore: true } } },
+          },
         },
       },
       schoolClass: { select: { id: true, name: true, grade: true } },
@@ -44,6 +47,29 @@ export default defineEventHandler(async (event) => {
     .slice(0, 10)
     .map(s => ({ ...s.survey, kelas: s.schoolClass.name }))
 
+  // Agregat Fit-Gap per kelas
+  const fitGapByKelas: Record<string, { kelasId: number; kelasName: string; optimal: number; gap: number; total: number }> = {}
+  for (const s of students) {
+    const fg = s.survey.familyAssessment?.result
+    if (!fg) continue
+    const kId = s.schoolClass.id
+    if (!fitGapByKelas[kId]) {
+      fitGapByKelas[kId] = { kelasId: kId, kelasName: s.schoolClass.name, optimal: 0, gap: 0, total: 0 }
+    }
+    fitGapByKelas[kId].total++
+    if (fg.fitGapStatus === 'OPTIMAL') fitGapByKelas[kId].optimal++
+    else fitGapByKelas[kId].gap++
+  }
+
+  // Ringkasan Fit-Gap sekolah keseluruhan
+  const allCompleted = students.filter(s => s.survey.familyAssessment?.result)
+  const fitGapSummary = {
+    total: allCompleted.length,
+    optimal: allCompleted.filter(s => s.survey.familyAssessment?.result?.fitGapStatus === 'OPTIMAL').length,
+    gap: allCompleted.filter(s => s.survey.familyAssessment?.result?.fitGapStatus === 'GAP').length,
+    perKelas: Object.values(fitGapByKelas).sort((a, b) => a.kelasName.localeCompare(b.kelasName)),
+  }
+
   return {
     school,
     totalSiswa,
@@ -51,5 +77,6 @@ export default defineEventHandler(async (event) => {
     belumSurvei: totalSiswa - sudahSurvei,
     sebaranRumpun,
     recentSiswa,
+    fitGapSummary,
   }
 })

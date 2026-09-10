@@ -397,8 +397,8 @@ const categories = [
 const claimRows = [
   { yes: 'Merapikan pengamatan Anda tentang karakter keluarga besar', no: 'Mengklaim ini setara tes psikologi formal' },
   { yes: 'Memberikan gambaran kecenderungan potensi anak saat ini', no: 'Menjanjikan deteksi bakat yang pasti akurat' },
-  { yes: 'Menyarankan aktivitas dan les yang sesuai persona anak', no: 'Menentukan jurusan, karier, atau masa depan anak' },
-  { yes: 'Membantu memilih les sebagai titik awal trial', no: 'Menggantikan asesmen psikolog atau dokter anak' },
+  { yes: 'Menyarankan aktivitas dan bimbingan belajar yang sesuai persona anak', no: 'Menentukan jurusan, karier, atau masa depan anak' },
+  { yes: 'Membantu memilih bimbingan belajar sebagai titik awal trial', no: 'Menggantikan asesmen psikolog atau dokter anak' },
   { yes: 'Bisa diisi ulang jika pola keluarga/anak berubah', no: 'Menilai bakat dari tanggal lahir atau zodiak' },
 ]
 

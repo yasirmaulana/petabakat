@@ -10,6 +10,16 @@ export interface AiAnalysisInput {
   childName: string
   childAgeYears: number
   childGender: string
+  /** Opsional — diisi setelah family assessment selesai */
+  familyFitGap?: {
+    fitGapStatus: 'OPTIMAL' | 'GAP'
+    fitGapScore: number   // 0.00–1.00
+    top3Hasab: string[]   // nama dimensi keluarga dominan
+    figuresIncluded: number
+    recommendation: string
+    /** Figur yang di-skip karena tidak dikenal atau sudah meninggal */
+    skippedFigures?: string[]
+  }
 }
 
 export interface LesItem {
@@ -26,15 +36,26 @@ export interface LesRecommendations {
   belumPrioritas: string[]
 }
 
+export interface BridgingAction {
+  target: 'ayah' | 'ibu' | 'kakek' | 'nenek' | 'keluarga' | 'anak'
+  action: string
+  frequency: string
+  rationale: string
+}
+
 export interface AiAnalysisOutput {
   personaLabel: string
   personaDescription: string
   scoreNarrative: string
+  /** Narasi 2–3 kalimat tentang makna Fit-Gap ratio dan implikasinya bagi pengasuhan */
+  fitGapNarrative: string
   parentNotes: string
   microdosingPlan: {
     title: string
-    schedule: { day: string; activity: string; durationMinutes: number }[]
+    schedule: { day: string; activity: string; durationMinutes: number; figureInvolved?: string }[]
   }
+  /** Action items yang ditujukan ke figur keluarga, bukan hanya anak. Kosong jika familyFitGap tidak ada. */
+  bridgingActions: BridgingAction[]
   lesRecommendations: LesRecommendations
 }
 
@@ -62,13 +83,17 @@ Output HARUS berupa JSON valid dengan struktur:
   "personaLabel": "label persona kontekstual (contoh: The Innovator Leader)",
   "personaDescription": "paragraf deskripsi persona anak ini, personal dan spesifik",
   "scoreNarrative": "narasi penjelasan skor tiap rumpun dan hubungannya",
+  "fitGapNarrative": "narasi 2–3 kalimat tentang keselarasan ekosistem keluarga dengan potensi anak dan implikasinya bagi pengasuhan. Jika tidak ada data keluarga, tulis string kosong.",
   "parentNotes": "saran pola asuh spesifik, hal yang didorong dan dihindari",
   "microdosingPlan": {
     "title": "Judul rencana stimulasi",
     "schedule": [
-      { "day": "Sabtu Pagi", "activity": "aktivitas konkret", "durationMinutes": 60 }
+      { "day": "Sabtu Pagi", "activity": "aktivitas konkret", "durationMinutes": 60, "figureInvolved": "ayah" }
     ]
   },
+  "bridgingActions": [
+    { "target": "ayah", "action": "tindakan spesifik yang bisa dilakukan figur ini", "frequency": "2x/minggu", "rationale": "alasan singkat berdasarkan data hasab keluarga" }
+  ],
   "lesRecommendations": {
     "kekuatanUtama": [
       "Kalimat pendek (max 10 kata) menggambarkan kekuatan/karakter spesifik dari kombinasi skor — bukan generik",
@@ -104,6 +129,11 @@ Aturan lesRecommendations:
 - jalurPendukung: 1 rekomendasi dari rumpun ke-2.
 - belumPrioritas: 3 aktivitas yang tidak cocok sekarang (sesuai skor terendah), nama konkret.
 - Semua dalam Bahasa Indonesia.
+
+Aturan fitGapNarrative & bridgingActions:
+- fitGapNarrative: jika ada data keluarga → tulis 2–3 kalimat yang menjelaskan keselarasan, mana yang sudah sinergi, mana yang perlu jembatan. Jika tidak ada data keluarga → tulis string kosong "".
+- bridgingActions: jika ada data keluarga → 2–4 action item ditujukan ke figur spesifik (ayah/ibu/kakek/nenek/keluarga/anak). target "keluarga" untuk kegiatan bersama. Jika tidak ada data → array kosong [].
+- figureInvolved di schedule: isi hanya jika aktivitas melibatkan figur spesifik (ayah/ibu/kakek/nenek). Boleh dihilangkan jika anak melakukan sendiri.
 
 Pastikan JSON valid tanpa komentar dan tanpa teks di luar JSON.`
 
@@ -227,7 +257,7 @@ function ageGroup(years: number): string {
 }
 
 function buildUserPrompt(input: AiAnalysisInput): string {
-  return `Data anak:
+  let prompt = `Data anak:
 - Nama: ${input.childName}
 - Usia: ${input.childAgeYears} tahun — ${ageGroup(input.childAgeYears)}
 - Jenis kelamin: ${input.childGender === 'L' ? 'Laki-laki' : 'Perempuan'}
@@ -242,7 +272,53 @@ Urutan rumpun dari dominan ke lemah: ${input.orderedHasab.join(' > ')}
 
 Respon alami / minat dominan anak saat ini: ${input.naturalResponses.join(', ') || 'tidak ada'}
 
-Jawaban nasab (1=ya, 0=tidak): ${Object.entries(input.nasabAnswers).map(([qid, val]) => `Q${qid}:${val}`).join(', ')}
+Jawaban nasab (1=ya, 0=tidak): ${Object.entries(input.nasabAnswers).map(([qid, val]) => `Q${qid}:${val}`).join(', ')}`
 
-Buatkan analisis dalam format JSON sesuai instruksi.`
+  if (input.familyFitGap) {
+    const fg = input.familyFitGap
+    const pct = Math.round(fg.fitGapScore * 100)
+    const dimLabels: Record<string, string> = {
+      ilmi: 'Ilmi', qiyadah: 'Al-Qiyadah', amali: 'Amali', wajdan: 'Wajdan', tarbiyah: 'Tarbiyah',
+    }
+    const top3 = fg.top3Hasab.map((d) => dimLabels[d] ?? d).join(', ')
+    const isOptimal = fg.fitGapStatus === 'OPTIMAL'
+
+    const FIGURE_LABELS: Record<string, string> = {
+      kakek_ayah: 'Kakek (pihak Ayah)',
+      nenek_ayah: 'Nenek (pihak Ayah)',
+      kakek_ibu:  'Kakek (pihak Ibu)',
+      nenek_ibu:  'Nenek (pihak Ibu)',
+      ayah: 'Ayah',
+      ibu:  'Ibu',
+    }
+    const skippedLabels = (fg.skippedFigures ?? []).map((r) => FIGURE_LABELS[r] ?? r)
+
+    prompt += `
+
+---
+DATA EKOSISTEM KELUARGA (Hasab Keluarga — ${fg.figuresIncluded} figur diisi):
+- Status Fit-Gap: ${fg.fitGapStatus} — Skor ${pct}%
+- Top-3 Hasab Keluarga (dimensi terkuat): ${top3}
+- Analisis sistem: ${fg.recommendation}${
+  skippedLabels.length > 0
+    ? `\n- Figur yang di-skip (tidak dikenal / sudah meninggal): ${skippedLabels.join(', ')}`
+    : ''
+}
+
+INSTRUKSI TAMBAHAN:
+Gunakan konteks keluarga di atas untuk MEMPERKAYA parentNotes, microdosingPlan, fitGapNarrative, dan bridgingActions:
+${isOptimal
+  ? `- Keluarga MENDUKUNG potensi anak (Fit-Gap OPTIMAL). Dorong sinergi antara kekuatan anak dan tradisi keluarga. Sebutkan secara eksplisit bagaimana keluarga bisa menjadi katalis.`
+  : `- Ada KESENJANGAN antara potensi anak dan ekosistem keluarga. Berikan strategi bridging yang konkret: bagaimana orang tua bisa secara sengaja mengisi celah tersebut, sambil tetap menghargai tradisi keluarga.`
+}${
+  skippedLabels.length > 0
+    ? `\n- Figur yang di-skip JANGAN dijadikan target langsung di bridgingActions. Untuk figur yang sudah meninggal: gunakan target "keluarga" dengan action berupa "ceritakan kisah/warisan [nama figur] kepada anak" — fokus pada transmisi nilai, bukan interaksi langsung.`
+    : ''
+}
+- Dalam microdosingPlan, setidaknya 1 aktivitas harus melibatkan figur yang AKTIF (tidak di-skip) secara eksplisit. Jangan cantumkan figureInvolved untuk figur yang di-skip.
+- Tetap pertahankan semua field JSON lainnya (persona, skor, les, dll.).`
+  }
+
+  prompt += `\n\nBuatkan analisis dalam format JSON sesuai instruksi.`
+  return prompt
 }

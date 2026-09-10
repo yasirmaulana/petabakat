@@ -19,6 +19,9 @@ export default defineEventHandler(async (event) => {
     pendingCommissions,
     totalSekolah,
     activeSekolah,
+    totalFamilyAssessments,
+    completedFamilyAssessments,
+    optimalFitGap,
   ] = await Promise.all([
     prisma.survey.count(),
     prisma.survey.count({ where: { createdAt: { gte: startOfMonth } } }),
@@ -34,6 +37,9 @@ export default defineEventHandler(async (event) => {
     }),
     prisma.school.count(),
     prisma.school.count({ where: { billingStatus: 'active' } }),
+    prisma.familyAssessment.count(),
+    prisma.familyAssessment.count({ where: { status: 'completed' } }),
+    prisma.familyResult.count({ where: { fitGapStatus: 'OPTIMAL' } }),
   ])
 
   // 30-day daily survey trend
@@ -66,6 +72,12 @@ export default defineEventHandler(async (event) => {
       pendingTotal: pendingCommissions._sum.amount ?? 0,
     },
     sekolah: { total: totalSekolah, active: activeSekolah },
+    familyAssessments: {
+      total: totalFamilyAssessments,
+      completed: completedFamilyAssessments,
+      optimal: optimalFitGap,
+      gap: completedFamilyAssessments - optimalFitGap,
+    },
     estimatedRevenue,
     trend,
   }

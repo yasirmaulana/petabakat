@@ -237,7 +237,12 @@
               :key="idx"
               class="rounded-xl border border-gray-100 bg-gray-25 px-4 py-3.5"
             >
-              <span class="inline-block rounded-lg bg-brand-400 px-2.5 py-1 text-xs font-semibold text-black">{{ item.day }}</span>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="inline-block rounded-lg bg-brand-400 px-2.5 py-1 text-xs font-semibold text-black">{{ item.day }}</span>
+                <span v-if="item.figureInvolved" class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">
+                  {{ FIGURE_ICONS[item.figureInvolved] ?? '👥' }} bersama {{ FIGURE_ACTION_LABELS[item.figureInvolved] ?? item.figureInvolved }}
+                </span>
+              </div>
               <p class="mt-2 text-sm font-medium text-gray-800">{{ item.activity }}</p>
               <p class="mt-0.5 text-xs text-gray-400">{{ item.durationMinutes }} menit</p>
             </div>
@@ -249,6 +254,49 @@
           <h2 class="mb-3 text-base font-semibold text-gray-900">Catatan untuk Orang Tua</h2>
           <p class="text-sm leading-relaxed text-gray-700">{{ result.parentNotes }}</p>
         </div>
+
+        <!-- Fit-Gap Narrative + Bridging Actions (muncul hanya jika ada data keluarga) -->
+        <template v-if="result.fitGapNarrative || bridgingActions.length">
+          <div class="card mt-6 overflow-hidden p-0">
+            <div class="border-b border-gray-100 bg-emerald-50 px-5 py-4">
+              <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Ekosistem Keluarga</p>
+              <h2 class="mt-0.5 text-base font-semibold text-gray-900">Keselarasan & Strategi Keluarga</h2>
+            </div>
+            <div class="p-5 space-y-5">
+              <!-- Narasi Fit-Gap -->
+              <p v-if="result.fitGapNarrative" class="text-sm leading-relaxed text-gray-700">
+                {{ result.fitGapNarrative }}
+              </p>
+              <!-- Bridging Actions per figur -->
+              <div v-if="bridgingActions.length">
+                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Action per Figur</p>
+                <div class="space-y-3">
+                  <div
+                    v-for="(action, i) in bridgingActions"
+                    :key="i"
+                    class="flex gap-3 rounded-xl border border-gray-100 bg-gray-25 px-4 py-3.5"
+                  >
+                    <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-base">
+                      {{ FIGURE_ICONS[action.target] ?? '👥' }}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">
+                          {{ FIGURE_ACTION_LABELS[action.target] ?? action.target }}
+                        </span>
+                        <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+                          {{ action.frequency }}
+                        </span>
+                      </div>
+                      <p class="mt-1 text-sm font-medium text-gray-800">{{ action.action }}</p>
+                      <p class="mt-0.5 text-xs leading-relaxed text-gray-500">{{ action.rationale }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
 
         <!-- Rekomendasi Les & Aktivitas (dari AI) -->
         <div v-if="lesRecs" class="card mt-6 p-6">
@@ -303,6 +351,152 @@
           </div>
         </div>
 
+        <!-- ── Fit-Gap Section ─────────────────────────────────────────────── -->
+        <div id="fit-gap" class="mt-8">
+
+          <!-- Sudah ada hasil Fit-Gap -->
+          <template v-if="familyResult">
+            <div class="rounded-2xl border p-6"
+              :class="familyResult.fitGapStatus === 'OPTIMAL'
+                ? 'border-emerald-200 bg-emerald-50'
+                : 'border-amber-200 bg-amber-50'">
+              <p class="text-xs font-semibold uppercase tracking-wider"
+                :class="familyResult.fitGapStatus === 'OPTIMAL' ? 'text-emerald-600' : 'text-amber-600'">
+                Analisis Hasab Keluarga
+              </p>
+              <div class="mt-2 flex items-center gap-3">
+                <span class="text-2xl">{{ familyResult.fitGapStatus === 'OPTIMAL' ? '✅' : '⚡' }}</span>
+                <h2 class="text-lg font-bold text-gray-950">
+                  {{ familyResult.fitGapStatus === 'OPTIMAL' ? 'Ekosistem OPTIMAL' : 'Ada Celah (GAP)' }}
+                </h2>
+              </div>
+
+              <!-- Fit-Gap meter -->
+              <div class="mt-4">
+                <div class="mb-1 flex justify-between text-xs text-gray-500">
+                  <span>Fit-Gap Score</span>
+                  <span class="font-semibold">{{ Math.round(Number(familyResult.fitGapScore) * 100) }}%</span>
+                </div>
+                <div class="h-2.5 w-full overflow-hidden rounded-full bg-white/60">
+                  <div class="h-2.5 rounded-full transition-all"
+                    :class="familyResult.fitGapStatus === 'OPTIMAL' ? 'bg-emerald-500' : 'bg-amber-400'"
+                    :style="{ width: `${Math.round(Number(familyResult.fitGapScore) * 100)}%` }" />
+                </div>
+              </div>
+
+              <!-- Top 3 badges keluarga -->
+              <div class="mt-4">
+                <p class="mb-2 text-xs font-medium text-gray-500">Top-3 Kekuatan Hasab Keluarga</p>
+                <div class="flex flex-wrap gap-2">
+                  <span v-for="(dim, i) in familyResult.top3Hasab" :key="dim"
+                    class="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-gray-800 shadow-sm">
+                    <span>{{ ['🥇','🥈','🥉'][i] }}</span>
+                    {{ DIM_SHORT_LABELS[dim] ?? dim }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Rekomendasi -->
+              <p class="mt-4 text-sm leading-relaxed text-gray-700">{{ familyResult.recommendation }}</p>
+
+              <p class="mt-3 text-xs text-gray-400">
+                Berdasarkan {{ familyResult.figuresIncluded }} figur keluarga yang diisi
+              </p>
+            </div>
+
+            <!-- Radar Chart 5 Arah Hasab Keluarga -->
+            <div class="card mt-4 p-5">
+              <p class="mb-1 text-sm font-semibold text-gray-800">Profil 5 Dimensi Hasab Keluarga</p>
+              <p class="mb-4 text-xs text-gray-400">Akumulasi tertimbang dari semua figur yang diisi</p>
+              <client-only>
+                <apexchart
+                  type="radar"
+                  height="300"
+                  :options="familyChartOptions"
+                  :series="familyChartSeries"
+                />
+              </client-only>
+            </div>
+
+            <!-- Comparison Card: Minat Anak vs Hasab Keluarga -->
+            <div class="card mt-4 overflow-hidden p-0">
+              <div class="border-b border-gray-100 px-5 py-4">
+                <p class="text-sm font-semibold text-gray-800">Perbandingan Potensi Anak vs Ekosistem Keluarga</p>
+              </div>
+              <div class="grid grid-cols-2 divide-x divide-gray-100">
+                <!-- Kolom kiri: Minat Anak -->
+                <div class="p-4">
+                  <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-brand-600">Minat Anak</p>
+                  <div class="space-y-2">
+                    <div v-for="(item, i) in childDimRanking" :key="item.code" class="flex items-center gap-2">
+                      <span class="w-4 shrink-0 text-center text-xs text-gray-400">{{ i + 1 }}</span>
+                      <div class="flex-1">
+                        <div class="mb-0.5 flex justify-between text-xs">
+                          <span class="font-medium text-gray-700">{{ item.label }}</span>
+                          <span class="text-gray-400">{{ item.pct }}%</span>
+                        </div>
+                        <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                          <div class="h-1.5 rounded-full bg-brand-400"
+                            :style="{ width: `${item.pct}%` }" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Kolom kanan: Hasab Keluarga -->
+                <div class="p-4">
+                  <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-emerald-600">Hasab Keluarga</p>
+                  <div class="space-y-2">
+                    <div v-for="(item, i) in familyDimRanking" :key="item.code" class="flex items-center gap-2">
+                      <span class="w-4 shrink-0 text-center text-xs text-gray-400">{{ i + 1 }}</span>
+                      <div class="flex-1">
+                        <div class="mb-0.5 flex justify-between text-xs">
+                          <span class="font-medium text-gray-700">{{ item.label }}</span>
+                          <span class="text-gray-400">{{ item.pct }}%</span>
+                        </div>
+                        <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                          <div class="h-1.5 rounded-full"
+                            :class="item.matched ? 'bg-emerald-500' : 'bg-gray-300'"
+                            :style="{ width: `${item.pct}%` }" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="mt-3 text-xs text-gray-400">
+                    <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
+                    = selaras dengan Top-2 minat anak
+                  </p>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Belum ada — CTA -->
+          <template v-else>
+            <div class="rounded-2xl border border-brand-200 bg-brand-50 p-6">
+              <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">Modul Tambahan</p>
+              <h2 class="mt-1 text-lg font-bold text-gray-950">Ukur Dukungan Keluarga</h2>
+              <p class="mt-2 text-sm leading-relaxed text-gray-700">
+                Seberapa kuat ekosistem keluarga mendukung potensi
+                <strong>{{ result?.survey?.child?.name || 'anak' }}</strong>?
+                Isi penilaian Hasab 6 figur keluarga untuk mendapatkan
+                <strong>Fit-Gap Ratio</strong> — gratis, ~15 menit.
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span v-for="d in ['Rekam jejak 6 figur keluarga','5 dimensi Hasab','Analisis deterministik']" :key="d"
+                  class="rounded-full border border-brand-200 bg-white px-3 py-1 text-xs text-brand-700">
+                  ✓ {{ d }}
+                </span>
+              </div>
+              <NuxtLink :to="`/family-survey/${resultId}`"
+                class="btn-primary mt-5 inline-flex w-full justify-center sm:w-auto">
+                Mulai Penilaian Hasab Keluarga →
+              </NuxtLink>
+            </div>
+          </template>
+
+        </div>
+
         <!-- Actions bottom -->
         <div class="mt-8 flex flex-col gap-3">
           <div class="flex flex-col gap-3 sm:flex-row">
@@ -340,6 +534,102 @@ const { data: result, pending, refresh } = await useFetch(`/api/results/${result
 const waSending = ref(false)
 const showWakafPopup = ref(false)
 const showDisclaimer = ref(false)
+
+// ── Hasab Keluarga / Fit-Gap ──────────────────────────────────────────────────
+const { data: familyData } = useFetch(`/api/family-assessment/${resultId}`, { server: false })
+const familyResult = computed(() => {
+  const d = familyData.value as { exists?: boolean; assessment?: { result: unknown; status: string } } | null
+  if (!d?.exists || !d.assessment?.result || d.assessment.status !== 'completed') return null
+  return d.assessment.result as {
+    fitGapStatus: string
+    fitGapScore: number
+    top3Hasab: string[]
+    recommendation: string
+    figuresIncluded: number
+  }
+})
+
+const DIM_SHORT_LABELS: Record<string, string> = {
+  ilmi: 'Hasab Ilmi',
+  qiyadah: 'Hasab Qiyadah',
+  amali: 'Hasab Amali',
+  wajdan: 'Hasab Wajdan',
+  tarbiyah: 'Hasab Tarbiyah',
+}
+
+// ── Chart & Comparison: Hasab Keluarga ───────────────────────────────────────
+const FAMILY_DIMS = ['ilmi', 'qiyadah', 'amali', 'wajdan', 'tarbiyah'] as const
+const FAMILY_DIM_LABELS = ['Ilmi', 'Qiyadah', 'Amali', 'Wajdan', 'Tarbiyah']
+
+const familyScores = computed(() => {
+  const r = familyResult.value
+  if (!r) return null
+  const full = r as typeof r & {
+    scoreIlmi?: number; scoreQiyadah?: number; scoreAmali?: number; scoreWajdan?: number; scoreTarbiyah?: number
+  }
+  return {
+    ilmi: Number(full.scoreIlmi ?? 0),
+    qiyadah: Number(full.scoreQiyadah ?? 0),
+    amali: Number(full.scoreAmali ?? 0),
+    wajdan: Number(full.scoreWajdan ?? 0),
+    tarbiyah: Number(full.scoreTarbiyah ?? 0),
+  }
+})
+
+const familyChartSeries = computed(() => {
+  const s = familyScores.value
+  if (!s) return []
+  return [{ name: 'Hasab Keluarga', data: FAMILY_DIMS.map((d) => +(s[d].toFixed(1))) }]
+})
+
+const familyChartOptions = computed(() => ({
+  chart: { type: 'radar', toolbar: { show: false }, fontFamily: '"Inter Tight", sans-serif' },
+  xaxis: { categories: FAMILY_DIM_LABELS },
+  yaxis: { show: false, min: 0 },
+  colors: ['#10b981'],
+  fill: { opacity: 0.18 },
+  markers: { size: 4 },
+  plotOptions: { radar: { polygons: { strokeColors: '#e9eaeb', fill: { colors: ['#f9fafb', '#fff'] } } } },
+  dataLabels: { enabled: true, style: { fontSize: '11px', colors: ['#374151'] } },
+  tooltip: { y: { formatter: (v: number) => v.toFixed(1) } },
+}))
+
+// Ranking untuk Comparison Card
+const CHILD_DIM_LABELS: Record<string, string> = {
+  asyiha: 'Al-Qiyadah', ilmi: 'Ilmi', amali: 'Amali', wajdan: 'Wajdan',
+}
+const childDimRanking = computed(() => {
+  const r = result.value as null | {
+    pctAsyiha?: number; pctIlmi?: number; pctAmali?: number; pctWajdan?: number
+  }
+  if (!r) return []
+  const raw = [
+    { code: 'asyiha', label: 'Al-Qiyadah', pct: Math.round(Number(r.pctAsyiha ?? 0)) },
+    { code: 'ilmi',   label: 'Ilmi',        pct: Math.round(Number(r.pctIlmi ?? 0)) },
+    { code: 'amali',  label: 'Amali',        pct: Math.round(Number(r.pctAmali ?? 0)) },
+    { code: 'wajdan', label: 'Wajdan',       pct: Math.round(Number(r.pctWajdan ?? 0)) },
+  ]
+  return raw.sort((a, b) => b.pct - a.pct)
+})
+
+const familyDimRanking = computed(() => {
+  const s = familyScores.value
+  if (!s) return []
+  // Max possible per dimensi = 6 soal × 5 skor × bobot max ≈ ~36; normalise ke 100
+  const MAX = Math.max(...FAMILY_DIMS.map((d) => s[d]), 1)
+  const top2ChildCodes = childDimRanking.value.slice(0, 2).map((x) => x.code)
+  // map child code → family dim
+  const childToFamily: Record<string, string> = { asyiha: 'qiyadah', ilmi: 'ilmi', amali: 'amali', wajdan: 'wajdan' }
+  const matchedFamilyDims = new Set(top2ChildCodes.map((c) => childToFamily[c]).filter(Boolean))
+
+  const raw = FAMILY_DIMS.map((d) => ({
+    code: d,
+    label: DIM_SHORT_LABELS[d] ?? d,
+    pct: Math.round((s[d] / MAX) * 100),
+    matched: matchedFamilyDims.has(d),
+  }))
+  return raw.sort((a, b) => b.pct - a.pct)
+})
 
 let pollTimer = null
 function startPolling() {
@@ -402,6 +692,21 @@ const chartSeries = computed(() => [{
 const lesRecs = computed(() => {
   if (!result.value) return null
   return result.value.lesRecommendations || null
+})
+
+const FIGURE_ICONS: Record<string, string> = {
+  ayah: '👨', ibu: '👩', kakek: '👴', nenek: '👵', keluarga: '🏠', anak: '🧒',
+}
+const FIGURE_ACTION_LABELS: Record<string, string> = {
+  ayah: 'Ayah', ibu: 'Ibu', kakek: 'Kakek', nenek: 'Nenek',
+  keluarga: 'Seluruh Keluarga', anak: 'Anak',
+}
+
+const bridgingActions = computed(() => {
+  if (!result.value) return []
+  const raw = (result.value as Record<string, unknown>).bridgingActions
+  if (!Array.isArray(raw)) return []
+  return raw as { target: string; action: string; frequency: string; rationale: string }[]
 })
 
 const kekuatanUtama = computed(() => (lesRecs.value?.kekuatanUtama as string[]) || [])
