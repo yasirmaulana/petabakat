@@ -1,4 +1,5 @@
 import { prisma } from '~/server/utils/prisma'
+import { verifyRecaptcha } from '~/server/utils/verifyRecaptcha'
 
 function makeSchoolCode(name: string, year: number): string {
   const slug = name.toUpperCase().replace(/[^A-Z0-9]/g, '-').replace(/-+/g, '-').slice(0, 15).replace(/-$/, '')
@@ -7,7 +8,8 @@ function makeSchoolCode(name: string, year: number): string {
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { name, npsn, city, estimatedStudents, adminEmail, adminPhone } = body
+  const { name, npsn, city, estimatedStudents, adminEmail, adminPhone, recaptchaToken } = body
+  await verifyRecaptcha(recaptchaToken, 'sekolah_daftar')
 
   if (!name || !adminEmail || !adminPhone) {
     throw createError({ statusCode: 400, message: 'Nama sekolah, email, dan nomor WA admin wajib diisi.' })

@@ -1,11 +1,13 @@
 import { prisma } from '~/server/utils/prisma'
 import { verifyPassword, signMitraToken } from '~/server/utils/auth'
 import { checkRateLimit } from '~/server/utils/rateLimiter'
+import { verifyRecaptcha } from '~/server/utils/verifyRecaptcha'
 
 export default defineEventHandler(async (event) => {
   checkRateLimit(event, { max: 5, windowMs: 60_000, keyPrefix: 'login-mitra' })
 
-  const { email, password } = await readBody(event)
+  const { email, password, recaptchaToken } = await readBody(event)
+  await verifyRecaptcha(recaptchaToken, 'mitra_login')
 
   if (!email || !password) {
     throw createError({ statusCode: 400, message: 'Email dan password wajib diisi.' })

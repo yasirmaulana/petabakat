@@ -20,7 +20,6 @@ export default defineEventHandler(async (event) => {
   })
   if (!survey) throw createError({ statusCode: 404, message: 'Survey tidak ditemukan.' })
   if (survey.parent.phone !== phone) throw createError({ statusCode: 403, message: 'Akses ditolak.' })
-  if (survey.status !== 'completed') throw createError({ statusCode: 400, message: 'Laporan anak belum selesai.' })
 
   // Cegah duplikasi
   if (survey.familyAssessment) {

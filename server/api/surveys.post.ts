@@ -3,12 +3,14 @@ import { prisma } from '~/server/utils/prisma'
 import { calculateNaturalResponseScores, calculatePercentages } from '~/server/utils/hasabCalculator'
 import { signHistoryToken } from '~/server/utils/auth'
 import { checkRateLimit } from '~/server/utils/rateLimiter'
+import { verifyRecaptcha } from '~/server/utils/verifyRecaptcha'
 
 export default defineEventHandler(async (event) => {
   // ponytail: per-IP limit 5 submissions per minute. Tune after real traffic analysis.
   checkRateLimit(event, { max: 5, windowMs: 60_000, keyPrefix: 'survey-submit' })
 
   const body = await readBody(event)
+  await verifyRecaptcha(body.recaptchaToken, 'survey_submit')
 
   const { survey, scores, percentages, orderedHasab } = await prisma.$transaction(async (tx) => {
     // Validate and consume voucher atomically
@@ -95,14 +97,14 @@ export default defineEventHandler(async (event) => {
   await prisma.surveyResult.create({
     data: {
       surveyId: survey.id,
-      scoreAsyiha: scores.asyiha,
+      scoreQiyadah: scores.qiyadah,
       scoreIlmi: scores.ilmi,
       scoreAmali: scores.amali,
-      scoreWajdan: scores.wajdan,
-      pctAsyiha: percentages.asyiha,
+      scoreKaram: scores.karam,
+      pctQiyadah: percentages.qiyadah,
       pctIlmi: percentages.ilmi,
       pctAmali: percentages.amali,
-      pctWajdan: percentages.wajdan,
+      pctKaram: percentages.karam,
       dominantHasab: orderedHasab[0] ?? '',
       source: 'pending',
       personaLabel: '',

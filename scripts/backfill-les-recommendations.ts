@@ -64,22 +64,22 @@ async function generateLesRecs(row: {
   childName: string
   ageYears: number
   gender: string
-  scoreAsyiha: number
+  scoreQiyadah: number
   scoreIlmi: number
   scoreAmali: number
-  scoreWajdan: number
-  pctAsyiha: number
+  scoreKaram: number
+  pctQiyadah: number
   pctIlmi: number
   pctAmali: number
-  pctWajdan: number
+  pctKaram: number
   dominantHasab: string
   naturalResponses: string[]
 }) {
   const ordered = [
-    { code: 'Asyiha', score: row.scoreAsyiha },
+    { code: 'Qiyadah', score: row.scoreQiyadah },
     { code: 'Ilmi',   score: row.scoreIlmi   },
     { code: 'Amali',  score: row.scoreAmali  },
-    { code: 'Wajdan', score: row.scoreWajdan },
+    { code: 'Karam', score: row.scoreKaram },
   ].sort((a, b) => b.score - a.score)
 
   const prompt = `Data anak:
@@ -88,10 +88,10 @@ async function generateLesRecs(row: {
 - Jenis kelamin: ${row.gender === 'L' ? 'Laki-laki' : 'Perempuan'}
 
 Skor Hasab (0-25):
-- Asyiha: ${row.scoreAsyiha} (${row.pctAsyiha}%)
+- Al-Qiyadah: ${row.scoreQiyadah} (${row.pctQiyadah}%)
 - Ilmi: ${row.scoreIlmi} (${row.pctIlmi}%)
 - Amali: ${row.scoreAmali} (${row.pctAmali}%)
-- Wajdan: ${row.scoreWajdan} (${row.pctWajdan}%)
+- Al-Karam: ${row.scoreKaram} (${row.pctKaram}%)
 
 Urutan dominan: ${ordered.map(x => x.code).join(' > ')}
 Minat alami anak: ${row.naturalResponses.join(', ') || 'tidak disebutkan'}
@@ -155,14 +155,14 @@ async function main() {
         childName: child.name,
         ageYears,
         gender: child.gender,
-        scoreAsyiha: r.scoreAsyiha,
+        scoreQiyadah: r.scoreQiyadah,
         scoreIlmi: r.scoreIlmi,
         scoreAmali: r.scoreAmali,
-        scoreWajdan: r.scoreWajdan,
-        pctAsyiha: parseFloat(String(r.pctAsyiha)),
+        scoreKaram: r.scoreKaram,
+        pctQiyadah: parseFloat(String(r.pctQiyadah)),
         pctIlmi: parseFloat(String(r.pctIlmi)),
         pctAmali: parseFloat(String(r.pctAmali)),
-        pctWajdan: parseFloat(String(r.pctWajdan)),
+        pctKaram: parseFloat(String(r.pctKaram)),
         dominantHasab: r.dominantHasab,
         naturalResponses,
       })

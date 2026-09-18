@@ -21,10 +21,15 @@ export default defineNuxtConfig({
     anthropicHaikuModel: process.env.ANTHROPIC_DEFAULT_HAIKU_MODEL,
     groqApiKey: process.env.GROQ_API_KEY,
     groqModel: process.env.GROQ_MODEL,
+    sumopodApiKey: process.env.SUMOPOD_API_KEY,
+    sumopodModel: process.env.SUMOPOD_MODEL,
     whatsappApiUrl: process.env.WHATSAPP_API_URL,
     whatsappFonnteToken: process.env.WHATSAPP_API_TOKEN_FONNTE,
+    recaptchaSecretKey: process.env.RECAPTCHA_SECRET_KEY,
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL,
+      demoResultId: process.env.DEMO_RESULT_ID,
+      recaptchaSiteKey: process.env.NUXT_PUBLIC_RECAPTCHA_SITE_KEY,
     },
   },
 })

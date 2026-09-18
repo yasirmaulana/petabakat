@@ -31,33 +31,33 @@ const prisma = new PrismaClient({ adapter: new PrismaPg(pool) })
 
 function categoryCodeByQuestionId(questionId: number): string | null {
   const index = (questionId - 1) % 20
-  if (index >= 0 && index <= 4) return 'asyiha'
+  if (index >= 0 && index <= 4) return 'qiyadah'
   if (index >= 5 && index <= 9) return 'ilmi'
   if (index >= 10 && index <= 14) return 'amali'
-  if (index >= 15 && index <= 19) return 'wajdan'
+  if (index >= 15 && index <= 19) return 'karam'
   return null
 }
 
 function calculateHasabScores(answers: { questionId: number; value: number }[]) {
   const total = answers.reduce((sum, a) => sum + a.value, 0)
-  if (total === 0) return { asyiha: 0, ilmi: 0, amali: 0, wajdan: 0 }
+  if (total === 0) return { qiyadah: 0, ilmi: 0, amali: 0, karam: 0 }
 
-  const scores: Record<string, number> = { asyiha: 0, ilmi: 0, amali: 0, wajdan: 0 }
+  const scores: Record<string, number> = { qiyadah: 0, ilmi: 0, amali: 0, karam: 0 }
   for (const a of answers) {
     const code = categoryCodeByQuestionId(a.questionId)
     if (code) scores[code] += a.value
   }
-  return { asyiha: scores.asyiha, ilmi: scores.ilmi, amali: scores.amali, wajdan: scores.wajdan }
+  return { qiyadah: scores.qiyadah, ilmi: scores.ilmi, amali: scores.amali, karam: scores.karam }
 }
 
 function calculatePercentages(scores: Record<string, number>) {
   const total = Object.values(scores).reduce((sum, v) => sum + v, 0)
-  if (total === 0) return { asyiha: 0, ilmi: 0, amali: 0, wajdan: 0 }
+  if (total === 0) return { qiyadah: 0, ilmi: 0, amali: 0, karam: 0 }
   return {
-    asyiha: Number(((scores.asyiha / total) * 100).toFixed(2)),
+    qiyadah: Number(((scores.qiyadah / total) * 100).toFixed(2)),
     ilmi: Number(((scores.ilmi / total) * 100).toFixed(2)),
     amali: Number(((scores.amali / total) * 100).toFixed(2)),
-    wajdan: Number(((scores.wajdan / total) * 100).toFixed(2)),
+    karam: Number(((scores.karam / total) * 100).toFixed(2)),
   }
 }
 
@@ -96,8 +96,8 @@ async function callAi(input: {
   childName: string
   childAgeYears: number
   childGender: string
-  scores: { asyiha: number; ilmi: number; amali: number; wajdan: number }
-  percentages: { asyiha: number; ilmi: number; amali: number; wajdan: number }
+  scores: { qiyadah: number; ilmi: number; amali: number; karam: number }
+  percentages: { qiyadah: number; ilmi: number; amali: number; karam: number }
   orderedHasab: string[]
   naturalResponses: string[]
 }) {
@@ -118,10 +118,10 @@ async function callAi(input: {
 - Jenis kelamin: ${input.childGender === 'L' ? 'Laki-laki' : 'Perempuan'}
 
 Skor Hasab (0-25 per rumpun):
-- Asyiha: ${input.scores.asyiha} (${input.percentages.asyiha}%)
+- Al-Qiyadah: ${input.scores.qiyadah} (${input.percentages.qiyadah}%)
 - Ilmi: ${input.scores.ilmi} (${input.percentages.ilmi}%)
 - Amali: ${input.scores.amali} (${input.percentages.amali}%)
-- Wajdan: ${input.scores.wajdan} (${input.percentages.wajdan}%)
+- Al-Karam: ${input.scores.karam} (${input.percentages.karam}%)
 
 Urutan rumpun dari dominan ke lemah: ${input.orderedHasab.join(' > ')}
 
@@ -144,21 +144,21 @@ Buatkan analisis dalam format JSON sesuai instruksi.`
 }
 
 function fallback(
-  scores: { asyiha: number; ilmi: number; amali: number; wajdan: number },
+  scores: { qiyadah: number; ilmi: number; amali: number; karam: number },
   orderedHasab: string[],
   naturalResponses: string[],
 ) {
-  const dominant = orderedHasab[0] ?? 'asyiha'
+  const dominant = orderedHasab[0] ?? 'qiyadah'
   const labels: Record<string, string> = {
-    asyiha: 'The Natural Leader',
+    qiyadah: 'The Natural Leader',
     ilmi: 'The Deep Thinker',
     amali: 'The Skilled Maker',
-    wajdan: 'The Creative Soul',
+    karam: 'The Compassionate Helper',
   }
   return {
     personaLabel: labels[dominant] ?? 'The Balanced Child',
     personaDescription: `Anak ini menunjukkan kecenderungan dominan di rumpun ${dominant} dengan skor ${scores[dominant as keyof typeof scores]}. Minat alami: ${naturalResponses.join(', ') || '-'}.`,
-    scoreNarrative: `Asyiha: ${scores.asyiha}, Ilmi: ${scores.ilmi}, Amali: ${scores.amali}, Wajdan: ${scores.wajdan}. Analisis ini dibuat secara otomatis karena AI tidak tersedia.`,
+    scoreNarrative: `Al-Qiyadah: ${scores.qiyadah}, Ilmi: ${scores.ilmi}, Amali: ${scores.amali}, Al-Karam: ${scores.karam}. Analisis ini dibuat secara otomatis karena AI tidak tersedia.`,
     parentNotes: 'Dukung kegiatan yang sesuai dengan kecenderungan dominan anak. Konsultasikan dengan ahli untuk analisis lebih mendalam.',
     microdosingPlan: {
       title: 'Stimulasi Dasar',
@@ -284,14 +284,14 @@ async function main() {
       await prisma.surveyResult.create({
         data: {
           surveyId: survey.id,
-          scoreAsyiha: scores.asyiha,
+          scoreQiyadah: scores.qiyadah,
           scoreIlmi: scores.ilmi,
           scoreAmali: scores.amali,
-          scoreWajdan: scores.wajdan,
-          pctAsyiha: percentages.asyiha,
+          scoreKaram: scores.karam,
+          pctQiyadah: percentages.qiyadah,
           pctIlmi: percentages.ilmi,
           pctAmali: percentages.amali,
-          pctWajdan: percentages.wajdan,
+          pctKaram: percentages.karam,
           dominantHasab: orderedHasab[0] ?? '',
           source,
           personaLabel: analysis.personaLabel,

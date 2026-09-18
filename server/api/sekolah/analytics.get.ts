@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
         include: {
           survey: {
             select: {
-              result: { select: { dominantCategory: true, personaLabel: true, pctAsyiha: true, pctIlmi: true, pctAmali: true, pctWajdan: true } },
+              result: { select: { dominantCategory: true, personaLabel: true, pctQiyadah: true, pctIlmi: true, pctAmali: true, pctKaram: true } },
             },
           },
         },
@@ -30,10 +30,10 @@ export default defineEventHandler(async (event) => {
       kelasName: kelas.name,
       grade: kelas.grade,
       totalSiswa: count,
-      avgQiyadah: count ? withResult.reduce((s, r) => s + (r.survey.result!.pctAsyiha ?? 0), 0) / count : 0,
+      avgQiyadah: count ? withResult.reduce((s, r) => s + (r.survey.result!.pctQiyadah ?? 0), 0) / count : 0,
       avgIlmi: count ? withResult.reduce((s, r) => s + (r.survey.result!.pctIlmi ?? 0), 0) / count : 0,
       avgAmali: count ? withResult.reduce((s, r) => s + (r.survey.result!.pctAmali ?? 0), 0) / count : 0,
-      avgWajdan: count ? withResult.reduce((s, r) => s + (r.survey.result!.pctWajdan ?? 0), 0) / count : 0,
+      avgKaram: count ? withResult.reduce((s, r) => s + (r.survey.result!.pctKaram ?? 0), 0) / count : 0,
     }
   })
 

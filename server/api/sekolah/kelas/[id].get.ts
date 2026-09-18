@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
               publicId: true,
               createdAt: true,
               child: { select: { name: true, gender: true, birthDate: true } },
-              result: { select: { personaLabel: true, dominantCategory: true, pctAsyiha: true, pctIlmi: true, pctAmali: true, pctWajdan: true } },
+              result: { select: { personaLabel: true, dominantCategory: true, pctQiyadah: true, pctIlmi: true, pctAmali: true, pctKaram: true } },
             },
           },
         },
@@ -29,10 +29,10 @@ export default defineEventHandler(async (event) => {
   // Rata-rata skor kelas
   const withResult = kelas.students.filter(s => s.survey.result)
   const avgScores = withResult.length > 0 ? {
-    qiyadah: withResult.reduce((s, r) => s + (r.survey.result!.pctAsyiha ?? 0), 0) / withResult.length,
+    qiyadah: withResult.reduce((s, r) => s + (r.survey.result!.pctQiyadah ?? 0), 0) / withResult.length,
     ilmi: withResult.reduce((s, r) => s + (r.survey.result!.pctIlmi ?? 0), 0) / withResult.length,
     amali: withResult.reduce((s, r) => s + (r.survey.result!.pctAmali ?? 0), 0) / withResult.length,
-    wajdan: withResult.reduce((s, r) => s + (r.survey.result!.pctWajdan ?? 0), 0) / withResult.length,
+    karam: withResult.reduce((s, r) => s + (r.survey.result!.pctKaram ?? 0), 0) / withResult.length,
   } : null
 
   return { ...kelas, avgScores }

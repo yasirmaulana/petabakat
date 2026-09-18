@@ -94,12 +94,16 @@ const form = reactive({ name: '', institution: '', type: route.query.type || 'in
 const loading = ref(false)
 const submitted = ref(false)
 const error = ref('')
+const { loadScript, executeRecaptcha } = useRecaptcha()
+
+onMounted(loadScript)
 
 async function submit() {
   loading.value = true
   error.value = ''
   try {
-    await $fetch('/api/mitra/daftar', { method: 'POST', body: form })
+    const recaptchaToken = await executeRecaptcha('mitra_daftar')
+    await $fetch('/api/mitra/daftar', { method: 'POST', body: { ...form, recaptchaToken } })
     submitted.value = true
   } catch (err) {
     error.value = err?.data?.message || err?.message || 'Gagal mengirim pendaftaran. Coba lagi.'

@@ -260,10 +260,10 @@ function exportCSV() {
       l.child.gender,
       l.voucher?.code || '',
       l.result?.personaLabel || '',
-      l.result?.pctAsyiha || '',
+      l.result?.pctQiyadah || '',
       l.result?.pctIlmi || '',
       l.result?.pctAmali || '',
-      l.result?.pctWajdan || '',
+      l.result?.pctKaram || '',
       new Date(l.createdAt).toLocaleDateString('id-ID'),
     ]),
   ]

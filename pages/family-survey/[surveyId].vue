@@ -226,12 +226,12 @@ const FIGURES = [
   { role: 'ibu',        label: 'Ibu',                      icon: '👩' },
 ]
 
-const DIMENSION_ORDER = ['ilmi', 'qiyadah', 'amali', 'wajdan', 'tarbiyah'] as const
+const DIMENSION_ORDER = ['ilmi', 'qiyadah', 'amali', 'karam', 'tarbiyah'] as const
 const DIM_LABELS: Record<string, string> = {
   ilmi:     'D1 · Hasab Ilmi — Tradisi Keilmuan',
   qiyadah:  'D2 · Hasab Qiyadah — Kepemimpinan & Ketahanan Mental',
   amali:    'D3 · Hasab Amali — Etos Kerja & Eksekusi',
-  wajdan:   'D4 · Hasab Wajdan — Nilai Moral, Empati & Spiritual',
+  karam:    'D4 · Hasab Al-Karam — Kedermawanan, Empati & Filantropi',
   nurture:  'D5 · Hasab Nurture — Atmosfer Rumah & Pengasuhan',
 }
 

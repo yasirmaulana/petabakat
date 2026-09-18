@@ -15,10 +15,10 @@ export default defineEventHandler(async (event) => {
       result: {
         select: {
           personaLabel: true,
-          pctAsyiha: true,
+          pctQiyadah: true,
           pctIlmi: true,
           pctAmali: true,
-          pctWajdan: true,
+          pctKaram: true,
         },
       },
     },

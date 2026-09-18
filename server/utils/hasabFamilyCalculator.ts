@@ -8,13 +8,13 @@ const FIGURE_WEIGHTS: Record<string, number> = {
   nenek_ibu: 1.0,
 }
 
-const DIMENSIONS = ['ilmi', 'qiyadah', 'amali', 'wajdan', 'tarbiyah'] as const
+const DIMENSIONS = ['ilmi', 'qiyadah', 'amali', 'karam', 'tarbiyah'] as const
 type Dimension = typeof DIMENSIONS[number]
 
-// Mapping kode soal → dimensi (D1=ilmi … D5=nurture)
+// Mapping kode soal → dimensi (D1=ilmi … D5=tarbiyah)
 function dimensionByCode(code: string): Dimension | null {
   const prefix = code.slice(0, 2)
-  const map: Record<string, Dimension> = { D1: 'ilmi', D2: 'qiyadah', D3: 'amali', D4: 'wajdan', D5: 'tarbiyah' }
+  const map: Record<string, Dimension> = { D1: 'ilmi', D2: 'qiyadah', D3: 'amali', D4: 'karam', D5: 'tarbiyah' }
   return map[prefix] ?? null
 }
 
@@ -28,7 +28,7 @@ export interface FamilyScores {
   ilmi: number
   qiyadah: number
   amali: number
-  wajdan: number
+  karam: number
   tarbiyah: number
 }
 
@@ -38,8 +38,13 @@ export interface FamilyCalcResult {
   figuresIncluded: number
 }
 
+const QUESTIONS_PER_DIM = 6   // soal per dimensi per figur
+const SCORE_MAX = 5            // nilai Likert maksimum
+const NORMALIZED_MAX = 100    // skala 0–100, sebanding dengan skor anak
+
 export function calculateFamilyScores(figures: FigureAnswers[]): FamilyCalcResult {
-  const totals: Record<Dimension, number> = { ilmi: 0, qiyadah: 0, amali: 0, wajdan: 0, tarbiyah: 0 }
+  const totals: Record<Dimension, number> = { ilmi: 0, qiyadah: 0, amali: 0, karam: 0, tarbiyah: 0 }
+  const weightSums: Record<Dimension, number> = { ilmi: 0, qiyadah: 0, amali: 0, karam: 0, tarbiyah: 0 }
   let figuresIncluded = 0
 
   for (const figure of figures) {
@@ -47,29 +52,49 @@ export function calculateFamilyScores(figures: FigureAnswers[]): FamilyCalcResul
     figuresIncluded++
     const weight = FIGURE_WEIGHTS[figure.role] ?? 1.0
 
+    // Hitung skor mentah per dimensi untuk figur ini
+    const figDimScores: Partial<Record<Dimension, number>> = {}
     for (const answer of figure.answers) {
       const dim = dimensionByCode(answer.questionCode)
-      if (dim) totals[dim] += answer.value * weight
+      if (dim) figDimScores[dim] = (figDimScores[dim] ?? 0) + answer.value
+    }
+
+    // Akumulasi ke totals dengan bobot — hanya dimensi yang ada jawaban
+    for (const dim of DIMENSIONS) {
+      if (figDimScores[dim] !== undefined) {
+        totals[dim] += figDimScores[dim] * weight
+        weightSums[dim] += weight
+      }
     }
   }
 
+  // Normalisasi ke skala 0–25 (sama dengan skor anak)
+  // max per dimensi per figur = QUESTIONS_PER_DIM × SCORE_MAX
+  const maxPerFigureDim = QUESTIONS_PER_DIM * SCORE_MAX
+  const normalized: Record<Dimension, number> = { ilmi: 0, qiyadah: 0, amali: 0, karam: 0, tarbiyah: 0 }
+  for (const dim of DIMENSIONS) {
+    if (weightSums[dim] === 0) continue
+    const maxPossible = maxPerFigureDim * weightSums[dim]
+    normalized[dim] = Math.round((totals[dim] / maxPossible) * NORMALIZED_MAX * 10) / 10
+  }
+
   // Ranking descending untuk Top-3, tiebreaker: urutan deklarasi DIMENSIONS
-  const ranked = (Object.entries(totals) as [Dimension, number][])
+  const ranked = (Object.entries(normalized) as [Dimension, number][])
     .sort((a, b) => b[1] - a[1] || DIMENSIONS.indexOf(a[0]) - DIMENSIONS.indexOf(b[0]))
 
   const top3Hasab = ranked.slice(0, 3).map(([dim]) => dim)
 
-  return { scores: totals as FamilyScores, top3Hasab, figuresIncluded }
+  return { scores: normalized as FamilyScores, top3Hasab, figuresIncluded }
 }
 
 // ─── Fit-Gap ──────────────────────────────────────────────────────────────────
 
 // Peta dari kode rumpun anak (survey) ke kode dimensi keluarga
 const CHILD_TO_FAMILY_DIM: Record<string, Dimension> = {
-  asyiha: 'qiyadah', // Al-Qiyadah → Hasab Qiyadah keluarga
+  qiyadah: 'qiyadah',
   ilmi: 'ilmi',
   amali: 'amali',
-  wajdan: 'wajdan',
+  karam: 'karam',
 }
 
 export interface FitGapResult {
@@ -100,14 +125,14 @@ export function calculateFitGap(childOrdered: string[], familyTop3: Dimension[])
     ilmi: 'Ilmi (tradisi keilmuan)',
     qiyadah: 'Qiyadah (kepemimpinan)',
     amali: 'Amali (etos kerja & eksekusi)',
-    wajdan: 'Wajdan (nilai moral & spiritual)',
-    nurture: 'Nurture (gaya pengasuhan)',
+    karam: 'Karam (kedermawanan & empati)',
+    tarbiyah: 'Tarbiyah (gaya pengasuhan)',
   }
   const childLabel: Record<string, string> = {
-    asyiha: 'Al-Qiyadah',
+    qiyadah: 'Al-Qiyadah',
     ilmi: 'Ilmi',
     amali: 'Amali',
-    wajdan: 'Wajdan',
+    karam: 'Al-Karam',
   }
 
   let recommendation: string

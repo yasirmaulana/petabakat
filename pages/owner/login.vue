@@ -47,12 +47,16 @@ useSeoMeta({ title: 'Owner Login — PetaMinatBakat', robots: 'noindex' })
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
+const { loadScript, executeRecaptcha } = useRecaptcha()
+
+onMounted(loadScript)
 
 async function submit() {
   loading.value = true
   error.value = ''
   try {
-    await $fetch('/api/owner/login', { method: 'POST', body: { password: password.value } })
+    const recaptchaToken = await executeRecaptcha('owner_login')
+    await $fetch('/api/owner/login', { method: 'POST', body: { password: password.value, recaptchaToken } })
     await navigateTo('/owner/dashboard')
   } catch (e: unknown) {
     error.value = (e as { data?: { message?: string } })?.data?.message ?? 'Terjadi kesalahan.'

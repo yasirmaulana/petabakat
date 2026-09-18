@@ -82,6 +82,6 @@ const rumpunList = [
   { key: 'qiyadah', label: 'Al-Qiyadah', color: 'bg-blue-400' },
   { key: 'ilmi', label: 'Al-Ilmi', color: 'bg-green-400' },
   { key: 'amali', label: 'Al-Amali', color: 'bg-amber-400' },
-  { key: 'wajdan', label: 'Al-Wajdan', color: 'bg-purple-400' },
+  { key: 'karam', label: 'Al-Karam', color: 'bg-teal-400' },
 ]
 </script>

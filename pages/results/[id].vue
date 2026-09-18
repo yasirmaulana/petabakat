@@ -84,7 +84,7 @@
 
       <template v-else-if="result && result.status === 'completed'">
 
-        <!-- Persona Banner -->
+        <!-- 1. Persona Banner -->
         <div class="mb-6 overflow-hidden rounded-2xl border border-brand-200 bg-brand-50">
           <div class="px-6 py-6 sm:flex sm:items-start sm:gap-6">
             <div class="mb-4 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-400 text-2xl sm:mb-0">
@@ -93,7 +93,6 @@
             <div class="flex-1">
               <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-600">Persona Potensi Anak</p>
               <h1 class="text-2xl font-bold text-gray-950 sm:text-3xl">{{ result.personaLabel }}</h1>
-              <!-- Karakter Menonjol badges -->
               <div v-if="karakterMenonjol.length" class="mt-2 flex flex-wrap gap-1.5">
                 <span
                   v-for="k in karakterMenonjol"
@@ -106,7 +105,7 @@
           </div>
         </div>
 
-        <!-- Kekuatan Utama -->
+        <!-- 2. Kekuatan Utama -->
         <div v-if="kekuatanUtama.length" class="mb-6 card p-6">
           <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-600">Kekuatan Utama</p>
           <h2 class="mb-4 text-base font-bold text-gray-900">
@@ -124,7 +123,7 @@
           </ol>
         </div>
 
-        <!-- Potensi Profesi -->
+        <!-- 3. Potensi Profesi -->
         <div v-if="potensiProfesi.length" class="mb-6 card p-6">
           <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-600">Peluang di Dunia Nyata</p>
           <h2 class="mb-4 text-base font-bold text-gray-900">Sehingga memberikan peluang untuk berkembang sebagai:</h2>
@@ -145,37 +144,8 @@
           </div>
         </div>
 
-        <!-- Disclaimer collapsible -->
-        <div class="mb-6 rounded-xl border border-gray-200 bg-gray-50">
-          <button
-            type="button"
-            class="flex w-full items-center justify-between px-4 py-3 text-left"
-            @click="showDisclaimer = !showDisclaimer"
-          >
-            <span class="text-xs font-medium text-gray-500">⚠️ Disclaimer — baca sebelum mengambil keputusan</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4 shrink-0 text-gray-400 transition-transform"
-              :class="{ 'rotate-180': showDisclaimer }"
-              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <div v-if="showDisclaimer" class="border-t border-gray-200 px-4 py-3">
-            <ul class="space-y-1.5 text-xs leading-relaxed text-gray-500">
-              <li>• Hasil ini <strong class="text-gray-600">bukan diagnosis profesional</strong> — bukan pengganti asesmen psikolog, dokter anak, atau konselor pendidikan.</li>
-              <li>• Analisis dihasilkan oleh <strong class="text-gray-600">AI</strong> berdasarkan framework Nasab &amp; Hasab, bukan oleh pakar bersertifikat.</li>
-              <li>• Hasil bersifat <strong class="text-gray-600">indikatif</strong> — gambaran awal, bukan vonis final tentang masa depan anak.</li>
-              <li>• Akurasi bergantung pada kejujuran pengisian. Orang tua tetap penentu terbaik dalam mengenali potensi anaknya.</li>
-              <li>• Data survei tidak dibagikan ke pihak ketiga dan hanya digunakan untuk menghasilkan laporan ini.</li>
-            </ul>
-          </div>
-        </div>
-
+        <!-- 4. Radar + Score Cards -->
         <div class="grid gap-6 lg:grid-cols-3">
-
-          <!-- Radar Chart -->
           <div class="card p-6 lg:col-span-2">
             <h2 class="mb-4 text-base font-semibold text-gray-900">Peta Hasab</h2>
             <ClientOnly>
@@ -185,8 +155,6 @@
               </template>
             </ClientOnly>
           </div>
-
-          <!-- Score Cards -->
           <div class="flex flex-col gap-3">
             <div
               v-for="item in scoreItems"
@@ -208,161 +176,78 @@
               </div>
               <div class="mt-3 flex items-end gap-2">
                 <span class="text-2xl font-bold text-gray-950">{{ result[item.scoreKey] }}</span>
-                <span class="mb-0.5 text-sm text-gray-400">/ 25</span>
+                <span class="mb-0.5 text-sm text-gray-400">/ 100</span>
                 <span class="mb-0.5 ml-auto text-sm font-semibold text-brand-600">{{ result[item.pctKey] }}%</span>
               </div>
               <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
                 <div
                   class="h-1.5 rounded-full bg-brand-400 transition-all"
-                  :style="{ width: `${(result[item.scoreKey] / 25) * 100}%` }"
+                  :style="{ width: `${result[item.scoreKey]}%` }"
                 />
               </div>
             </div>
           </div>
-
         </div>
 
-        <!-- Narasi Skor -->
+        <!-- 5. Narasi Skor — langsung setelah chart -->
         <div class="card mt-6 p-6">
           <h2 class="mb-3 text-base font-semibold text-gray-900">Penjelasan Skor</h2>
           <p class="text-sm leading-relaxed text-gray-700">{{ result.scoreNarrative }}</p>
         </div>
 
-        <!-- Micro-Dosing Plan -->
-        <div class="card mt-6 p-6">
-          <h2 class="mb-4 text-base font-semibold text-gray-900">{{ result.microdosingPlan?.title || 'Rencana Stimulasi Mingguan' }}</h2>
-          <div class="space-y-3">
-            <div
-              v-for="(item, idx) in result.microdosingPlan?.schedule || []"
-              :key="idx"
-              class="rounded-xl border border-gray-100 bg-gray-25 px-4 py-3.5"
-            >
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="inline-block rounded-lg bg-brand-400 px-2.5 py-1 text-xs font-semibold text-black">{{ item.day }}</span>
-                <span v-if="item.figureInvolved" class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">
-                  {{ FIGURE_ICONS[item.figureInvolved] ?? '👥' }} bersama {{ FIGURE_ACTION_LABELS[item.figureInvolved] ?? item.figureInvolved }}
-                </span>
-              </div>
-              <p class="mt-2 text-sm font-medium text-gray-800">{{ item.activity }}</p>
-              <p class="mt-0.5 text-xs text-gray-400">{{ item.durationMinutes }} menit</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Catatan Orang Tua -->
-        <div class="card mt-6 p-6">
-          <h2 class="mb-3 text-base font-semibold text-gray-900">Catatan untuk Orang Tua</h2>
-          <p class="text-sm leading-relaxed text-gray-700">{{ result.parentNotes }}</p>
-        </div>
-
-        <!-- Fit-Gap Narrative + Bridging Actions (muncul hanya jika ada data keluarga) -->
-        <template v-if="result.fitGapNarrative || bridgingActions.length">
-          <div class="card mt-6 overflow-hidden p-0">
-            <div class="border-b border-gray-100 bg-emerald-50 px-5 py-4">
-              <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Ekosistem Keluarga</p>
-              <h2 class="mt-0.5 text-base font-semibold text-gray-900">Keselarasan & Strategi Keluarga</h2>
-            </div>
-            <div class="p-5 space-y-5">
-              <!-- Narasi Fit-Gap -->
-              <p v-if="result.fitGapNarrative" class="text-sm leading-relaxed text-gray-700">
-                {{ result.fitGapNarrative }}
-              </p>
-              <!-- Bridging Actions per figur -->
-              <div v-if="bridgingActions.length">
-                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Action per Figur</p>
-                <div class="space-y-3">
-                  <div
-                    v-for="(action, i) in bridgingActions"
-                    :key="i"
-                    class="flex gap-3 rounded-xl border border-gray-100 bg-gray-25 px-4 py-3.5"
-                  >
-                    <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-base">
-                      {{ FIGURE_ICONS[action.target] ?? '👥' }}
-                    </span>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">
-                          {{ FIGURE_ACTION_LABELS[action.target] ?? action.target }}
-                        </span>
-                        <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
-                          {{ action.frequency }}
-                        </span>
-                      </div>
-                      <p class="mt-1 text-sm font-medium text-gray-800">{{ action.action }}</p>
-                      <p class="mt-0.5 text-xs leading-relaxed text-gray-500">{{ action.rationale }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-
-        <!-- Rekomendasi Les & Aktivitas (dari AI) -->
-        <div v-if="lesRecs" class="card mt-6 p-6">
-          <h2 class="mb-1 text-base font-semibold text-gray-900">Rekomendasi Aktivitas & Les</h2>
-          <p class="mb-5 text-xs text-gray-400">Dipilih AI berdasarkan rumpun dominan, usia, dan minat anak. Coba satu dulu — trial sebelum komitmen.</p>
-
-          <div class="mb-5">
-            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Jalur Utama</p>
-            <div class="space-y-2">
-              <div
-                v-for="(les, i) in lesRecs.jalurUtama"
-                :key="i"
-                class="flex gap-3 rounded-xl border border-gray-100 bg-gray-25 px-4 py-3"
-              >
-                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-black">
-                  {{ String.fromCharCode(65 + i) }}
-                </span>
-                <div>
-                  <p class="text-sm font-medium text-gray-800">{{ les.nama }}</p>
-                  <p class="text-xs leading-relaxed text-gray-500">{{ les.deskripsi }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="lesRecs.jalurPendukung?.length" class="mb-4">
-            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Pendukung</p>
-            <div class="space-y-1.5">
-              <div
-                v-for="(les, i) in lesRecs.jalurPendukung"
-                :key="i"
-                class="flex gap-3 rounded-xl border border-dashed border-gray-200 px-4 py-3"
-              >
-                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600">+</span>
-                <div>
-                  <p class="text-sm font-medium text-gray-700">{{ les.nama }}</p>
-                  <p class="text-xs leading-relaxed text-gray-400">{{ les.deskripsi }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="lesRecs.belumPrioritas?.length">
-            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Belum Prioritas</p>
-            <div class="flex flex-wrap gap-2">
-              <span
-                v-for="(s, i) in lesRecs.belumPrioritas"
-                :key="i"
-                class="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500"
-              >{{ s }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Fit-Gap Section ─────────────────────────────────────────────── -->
+        <!-- 6. Fit-Gap Section (konsolidasi: status + chart + perbandingan + narasi AI + bridging) -->
         <div id="fit-gap" class="mt-8">
 
-          <!-- Sudah ada hasil Fit-Gap -->
           <template v-if="familyResult">
-            <div class="rounded-2xl border p-6"
+
+            <!-- Pengenalan Hasab Keluarga — konteks sebelum angka -->
+            <div class="card p-6">
+              <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-emerald-600">Hasab Keluarga</p>
+              <h2 class="mb-2 text-base font-bold text-gray-900">Apa itu Hasab Keluarga?</h2>
+              <p class="text-sm leading-relaxed text-gray-700">
+                Hasab Keluarga adalah rekam jejak kolektif yang diwariskan oleh ekosistem keluarga — mencakup tradisi keilmuan, karakter kepemimpinan, etos kerja, nilai moral, dan cara mendidik anak.
+                Kombinasi dari 6 figur keluarga (ayah, ibu, kakek, nenek dari dua pihak) membentuk "tanah" tempat potensi anak tumbuh.
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  📚 Ilmi — Tradisi Keilmuan
+                </span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  👑 Qiyadah — Kepemimpinan
+                </span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  ⚙️ Amali — Etos Kerja
+                </span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  💚 Wajdan — Nilai & Empati
+                </span>
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                  🏠 Tarbiyah — Pola Asuh
+                </span>
+              </div>
+              <p class="mt-3 text-xs text-gray-400">
+                4 dimensi pertama (hijau) dapat dibandingkan langsung dengan 4 rumpun potensi anak.
+                Tarbiyah (amber) adalah dimensi tersendiri — mengukur atmosfer pengasuhan, bukan potensi bawaan.
+              </p>
+            </div>
+
+            <!-- Radar 5 dimensi keluarga -->
+            <div class="card mt-4 p-5">
+              <p class="mb-1 text-sm font-semibold text-gray-800">Profil 5 Dimensi Hasab Keluarga</p>
+              <p class="mb-1 text-xs text-gray-400">Akumulasi tertimbang dari semua figur yang diisi — {{ familyResult.figuresIncluded }} figur</p>
+              <client-only>
+                <apexchart type="radar" height="300" :options="familyChartOptions" :series="familyChartSeries" />
+              </client-only>
+            </div>
+
+            <!-- Status card Fit-Gap -->
+            <div class="mt-4 rounded-2xl border p-6"
               :class="familyResult.fitGapStatus === 'OPTIMAL'
                 ? 'border-emerald-200 bg-emerald-50'
                 : 'border-amber-200 bg-amber-50'">
               <p class="text-xs font-semibold uppercase tracking-wider"
                 :class="familyResult.fitGapStatus === 'OPTIMAL' ? 'text-emerald-600' : 'text-amber-600'">
-                Analisis Hasab Keluarga
+                Fit-Gap — Keselarasan Anak &amp; Keluarga
               </p>
               <div class="mt-2 flex items-center gap-3">
                 <span class="text-2xl">{{ familyResult.fitGapStatus === 'OPTIMAL' ? '✅' : '⚡' }}</span>
@@ -370,8 +255,6 @@
                   {{ familyResult.fitGapStatus === 'OPTIMAL' ? 'Ekosistem OPTIMAL' : 'Ada Celah (GAP)' }}
                 </h2>
               </div>
-
-              <!-- Fit-Gap meter -->
               <div class="mt-4">
                 <div class="mb-1 flex justify-between text-xs text-gray-500">
                   <span>Fit-Gap Score</span>
@@ -383,8 +266,6 @@
                     :style="{ width: `${Math.round(Number(familyResult.fitGapScore) * 100)}%` }" />
                 </div>
               </div>
-
-              <!-- Top 3 badges keluarga -->
               <div class="mt-4">
                 <p class="mb-2 text-xs font-medium text-gray-500">Top-3 Kekuatan Hasab Keluarga</p>
                 <div class="flex flex-wrap gap-2">
@@ -395,27 +276,13 @@
                   </span>
                 </div>
               </div>
-
-              <!-- Rekomendasi -->
               <p class="mt-4 text-sm leading-relaxed text-gray-700">{{ familyResult.recommendation }}</p>
-
-              <p class="mt-3 text-xs text-gray-400">
-                Berdasarkan {{ familyResult.figuresIncluded }} figur keluarga yang diisi
-              </p>
             </div>
 
-            <!-- Radar Chart 5 Arah Hasab Keluarga -->
-            <div class="card mt-4 p-5">
-              <p class="mb-1 text-sm font-semibold text-gray-800">Profil 5 Dimensi Hasab Keluarga</p>
-              <p class="mb-4 text-xs text-gray-400">Akumulasi tertimbang dari semua figur yang diisi</p>
-              <client-only>
-                <apexchart
-                  type="radar"
-                  height="300"
-                  :options="familyChartOptions"
-                  :series="familyChartSeries"
-                />
-              </client-only>
+            <!-- Narasi Fit-Gap AI -->
+            <div v-if="result.fitGapNarrative" class="card mt-4 p-5">
+              <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-emerald-600">Analisis AI</p>
+              <p class="text-sm leading-relaxed text-gray-700">{{ result.fitGapNarrative }}</p>
             </div>
 
             <!-- Comparison Card: Minat Anak vs Hasab Keluarga -->
@@ -424,7 +291,6 @@
                 <p class="text-sm font-semibold text-gray-800">Perbandingan Potensi Anak vs Ekosistem Keluarga</p>
               </div>
               <div class="grid grid-cols-2 divide-x divide-gray-100">
-                <!-- Kolom kiri: Minat Anak -->
                 <div class="p-4">
                   <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-brand-600">Minat Anak</p>
                   <div class="space-y-2">
@@ -436,16 +302,14 @@
                           <span class="text-gray-400">{{ item.pct }}%</span>
                         </div>
                         <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                          <div class="h-1.5 rounded-full bg-brand-400"
-                            :style="{ width: `${item.pct}%` }" />
+                          <div class="h-1.5 rounded-full bg-brand-400" :style="{ width: `${item.pct}%` }" />
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <!-- Kolom kanan: Hasab Keluarga -->
                 <div class="p-4">
-                  <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-emerald-600">Hasab Keluarga</p>
+                  <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-emerald-600">Potensi Hasab Keluarga</p>
                   <div class="space-y-2">
                     <div v-for="(item, i) in familyDimRanking" :key="item.code" class="flex items-center gap-2">
                       <span class="w-4 shrink-0 text-center text-xs text-gray-400">{{ i + 1 }}</span>
@@ -466,6 +330,64 @@
                     <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
                     = selaras dengan Top-2 minat anak
                   </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Tarbiyah — terpisah, bukan bagian dari perbandingan 4 rumpun -->
+            <div class="card mt-4 overflow-hidden p-0">
+              <div class="border-b border-amber-100 bg-amber-50 px-5 py-4">
+                <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">Atmosfer Pengasuhan</p>
+                <h2 class="mt-0.5 text-base font-semibold text-gray-900">Tarbiyah — Pola Asuh Keluarga</h2>
+              </div>
+              <div class="p-5">
+                <p class="mb-4 text-sm leading-relaxed text-gray-700">
+                  Tarbiyah mengukur seberapa kondusif cara keluarga dalam mendidik dan mengasuh anak — menghargai usaha, memberi ruang eksplorasi, konsisten dalam aturan, dan hangat dalam komunikasi.
+                  Ini bukan potensi bawaan anak, melainkan <strong>kualitas tanah</strong> tempat potensinya tumbuh.
+                </p>
+                <div class="flex items-center gap-4">
+                  <div class="flex-1">
+                    <div class="mb-1 flex justify-between text-xs text-gray-500">
+                      <span>Skor Tarbiyah</span>
+                      <span class="font-semibold text-amber-700">{{ tarbiyahPct }}%</span>
+                    </div>
+                    <div class="h-3 w-full overflow-hidden rounded-full bg-amber-100">
+                      <div class="h-3 rounded-full bg-amber-400 transition-all" :style="{ width: `${tarbiyahPct}%` }" />
+                    </div>
+                  </div>
+                  <span class="shrink-0 rounded-full px-3 py-1 text-sm font-bold"
+                    :class="tarbiyahPct >= 70 ? 'bg-amber-100 text-amber-700' : tarbiyahPct >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'">
+                    {{ tarbiyahPct >= 70 ? 'Kondusif' : tarbiyahPct >= 40 ? 'Berkembang' : 'Perlu Perhatian' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bridging Actions — aksi konkret per figur -->
+            <div v-if="bridgingActions.length" class="card mt-4 overflow-hidden p-0">
+              <div class="border-b border-gray-100 bg-emerald-50 px-5 py-4">
+                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Strategi Bridging</p>
+                <h2 class="mt-0.5 text-base font-semibold text-gray-900">Aksi Konkret per Figur Keluarga</h2>
+              </div>
+              <div class="space-y-3 p-5">
+                <div
+                  v-for="(action, i) in bridgingActions"
+                  :key="i"
+                  class="flex gap-3 rounded-xl border border-gray-100 bg-gray-25 px-4 py-3.5"
+                >
+                  <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-base">
+                    {{ FIGURE_ICONS[action.target] ?? '👥' }}
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">
+                        {{ FIGURE_ACTION_LABELS[action.target] ?? action.target }}
+                      </span>
+                      <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">{{ action.frequency }}</span>
+                    </div>
+                    <p class="mt-1 text-sm font-medium text-gray-800">{{ action.action }}</p>
+                    <p class="mt-0.5 text-xs leading-relaxed text-gray-500">{{ action.rationale }}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -497,7 +419,112 @@
 
         </div>
 
-        <!-- Actions bottom -->
+        <!-- 7. Rekomendasi Les — setelah konteks keluarga jelas -->
+        <div v-if="lesRecs" class="card mt-6 p-6">
+          <h2 class="mb-1 text-base font-semibold text-gray-900">Rekomendasi Aktivitas & Les</h2>
+          <p class="mb-5 text-xs text-gray-400">Dipilih AI berdasarkan rumpun dominan, usia, dan minat anak. Coba satu dulu — trial sebelum komitmen.</p>
+          <div class="mb-5">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Jalur Utama</p>
+            <div class="space-y-2">
+              <div
+                v-for="(les, i) in lesRecs.jalurUtama"
+                :key="i"
+                class="flex gap-3 rounded-xl border border-gray-100 bg-gray-25 px-4 py-3"
+              >
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-black">
+                  {{ String.fromCharCode(65 + i) }}
+                </span>
+                <div>
+                  <p class="text-sm font-medium text-gray-800">{{ les.nama }}</p>
+                  <p class="text-xs leading-relaxed text-gray-500">{{ les.deskripsi }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="lesRecs.jalurPendukung?.length" class="mb-4">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Pendukung</p>
+            <div class="space-y-1.5">
+              <div
+                v-for="(les, i) in lesRecs.jalurPendukung"
+                :key="i"
+                class="flex gap-3 rounded-xl border border-dashed border-gray-200 px-4 py-3"
+              >
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600">+</span>
+                <div>
+                  <p class="text-sm font-medium text-gray-700">{{ les.nama }}</p>
+                  <p class="text-xs leading-relaxed text-gray-400">{{ les.deskripsi }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="lesRecs.belumPrioritas?.length">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Belum Prioritas</p>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="(s, i) in lesRecs.belumPrioritas"
+                :key="i"
+                class="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500"
+              >{{ s }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Micro-Dosing Plan -->
+        <div class="card mt-6 p-6">
+          <h2 class="mb-4 text-base font-semibold text-gray-900">{{ result.microdosingPlan?.title || 'Rencana Stimulasi Mingguan' }}</h2>
+          <div class="space-y-3">
+            <div
+              v-for="(item, idx) in result.microdosingPlan?.schedule || []"
+              :key="idx"
+              class="rounded-xl border border-gray-100 bg-gray-25 px-4 py-3.5"
+            >
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="inline-block rounded-lg bg-brand-400 px-2.5 py-1 text-xs font-semibold text-black">{{ item.day }}</span>
+                <span v-if="item.figureInvolved" class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">
+                  {{ FIGURE_ICONS[item.figureInvolved] ?? '👥' }} bersama {{ FIGURE_ACTION_LABELS[item.figureInvolved] ?? item.figureInvolved }}
+                </span>
+              </div>
+              <p class="mt-2 text-sm font-medium text-gray-800">{{ item.activity }}</p>
+              <p class="mt-0.5 text-xs text-gray-400">{{ item.durationMinutes }} menit</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9. Catatan Orang Tua -->
+        <div class="card mt-6 p-6">
+          <h2 class="mb-3 text-base font-semibold text-gray-900">Catatan untuk Orang Tua</h2>
+          <p class="text-sm leading-relaxed text-gray-700">{{ result.parentNotes }}</p>
+        </div>
+
+        <!-- 10. Disclaimer — sebelum actions, tidak memotong momentum baca -->
+        <div class="mt-6 rounded-xl border border-gray-200 bg-gray-50">
+          <button
+            type="button"
+            class="flex w-full items-center justify-between px-4 py-3 text-left"
+            @click="showDisclaimer = !showDisclaimer"
+          >
+            <span class="text-xs font-medium text-gray-500">⚠️ Disclaimer — baca sebelum mengambil keputusan</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 shrink-0 text-gray-400 transition-transform"
+              :class="{ 'rotate-180': showDisclaimer }"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div v-if="showDisclaimer" class="border-t border-gray-200 px-4 py-3">
+            <ul class="space-y-1.5 text-xs leading-relaxed text-gray-500">
+              <li>• Hasil ini <strong class="text-gray-600">bukan diagnosis profesional</strong> — bukan pengganti asesmen psikolog, dokter anak, atau konselor pendidikan.</li>
+              <li>• Analisis dihasilkan oleh <strong class="text-gray-600">AI</strong> berdasarkan framework Nasab &amp; Hasab, bukan oleh pakar bersertifikat.</li>
+              <li>• Hasil bersifat <strong class="text-gray-600">indikatif</strong> — gambaran awal, bukan vonis final tentang masa depan anak.</li>
+              <li>• Akurasi bergantung pada kejujuran pengisian. Orang tua tetap penentu terbaik dalam mengenali potensi anaknya.</li>
+              <li>• Data survei tidak dibagikan ke pihak ketiga dan hanya digunakan untuk menghasilkan laporan ini.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 11. Actions -->
         <div class="mt-8 flex flex-col gap-3">
           <div class="flex flex-col gap-3 sm:flex-row">
             <button class="btn-primary-full sm:flex-1" @click="downloadPdf">
@@ -553,25 +580,25 @@ const DIM_SHORT_LABELS: Record<string, string> = {
   ilmi: 'Hasab Ilmi',
   qiyadah: 'Hasab Qiyadah',
   amali: 'Hasab Amali',
-  wajdan: 'Hasab Wajdan',
+  karam: 'Hasab Al-Karam',
   tarbiyah: 'Hasab Tarbiyah',
 }
 
 // ── Chart & Comparison: Hasab Keluarga ───────────────────────────────────────
-const FAMILY_DIMS = ['ilmi', 'qiyadah', 'amali', 'wajdan', 'tarbiyah'] as const
+const FAMILY_DIMS = ['ilmi', 'qiyadah', 'amali', 'karam', 'tarbiyah'] as const
 const FAMILY_DIM_LABELS = ['Ilmi', 'Qiyadah', 'Amali', 'Wajdan', 'Tarbiyah']
 
 const familyScores = computed(() => {
   const r = familyResult.value
   if (!r) return null
   const full = r as typeof r & {
-    scoreIlmi?: number; scoreQiyadah?: number; scoreAmali?: number; scoreWajdan?: number; scoreTarbiyah?: number
+    scoreIlmi?: number; scoreQiyadah?: number; scoreAmali?: number; scoreKaram?: number; scoreTarbiyah?: number
   }
   return {
     ilmi: Number(full.scoreIlmi ?? 0),
     qiyadah: Number(full.scoreQiyadah ?? 0),
     amali: Number(full.scoreAmali ?? 0),
-    wajdan: Number(full.scoreWajdan ?? 0),
+    karam: Number(full.scoreKaram ?? 0),
     tarbiyah: Number(full.scoreTarbiyah ?? 0),
   }
 })
@@ -596,39 +623,46 @@ const familyChartOptions = computed(() => ({
 
 // Ranking untuk Comparison Card
 const CHILD_DIM_LABELS: Record<string, string> = {
-  asyiha: 'Al-Qiyadah', ilmi: 'Ilmi', amali: 'Amali', wajdan: 'Wajdan',
+  qiyadah: 'Al-Qiyadah', ilmi: 'Ilmi', amali: 'Amali', karam: 'Al-Karam',
 }
 const childDimRanking = computed(() => {
   const r = result.value as null | {
-    pctAsyiha?: number; pctIlmi?: number; pctAmali?: number; pctWajdan?: number
+    pctQiyadah?: number; pctIlmi?: number; pctAmali?: number; pctKaram?: number
   }
   if (!r) return []
   const raw = [
-    { code: 'asyiha', label: 'Al-Qiyadah', pct: Math.round(Number(r.pctAsyiha ?? 0)) },
-    { code: 'ilmi',   label: 'Ilmi',        pct: Math.round(Number(r.pctIlmi ?? 0)) },
-    { code: 'amali',  label: 'Amali',        pct: Math.round(Number(r.pctAmali ?? 0)) },
-    { code: 'wajdan', label: 'Wajdan',       pct: Math.round(Number(r.pctWajdan ?? 0)) },
+    { code: 'qiyadah', label: 'Al-Qiyadah', pct: Math.round(Number(r.pctQiyadah ?? 0)) },
+    { code: 'ilmi',    label: 'Ilmi',         pct: Math.round(Number(r.pctIlmi ?? 0)) },
+    { code: 'amali',   label: 'Amali',         pct: Math.round(Number(r.pctAmali ?? 0)) },
+    { code: 'karam',   label: 'Al-Karam',      pct: Math.round(Number(r.pctKaram ?? 0)) },
   ]
   return raw.sort((a, b) => b.pct - a.pct)
 })
 
+// Hanya 4 dimensi yang sebanding dengan rumpun anak (tanpa Tarbiyah)
+const OVERLAP_DIMS = ['ilmi', 'qiyadah', 'amali', 'karam'] as const
+
 const familyDimRanking = computed(() => {
   const s = familyScores.value
   if (!s) return []
-  // Max possible per dimensi = 6 soal × 5 skor × bobot max ≈ ~36; normalise ke 100
-  const MAX = Math.max(...FAMILY_DIMS.map((d) => s[d]), 1)
+  const MAX = Math.max(...OVERLAP_DIMS.map((d) => s[d]), 1)
   const top2ChildCodes = childDimRanking.value.slice(0, 2).map((x) => x.code)
-  // map child code → family dim
-  const childToFamily: Record<string, string> = { asyiha: 'qiyadah', ilmi: 'ilmi', amali: 'amali', wajdan: 'wajdan' }
-  const matchedFamilyDims = new Set(top2ChildCodes.map((c) => childToFamily[c]).filter(Boolean))
+  // Nama rumpun anak dan keluarga sudah seragam — langsung 1:1
+  const matchedFamilyDims = new Set(top2ChildCodes.filter(Boolean))
 
-  const raw = FAMILY_DIMS.map((d) => ({
+  return OVERLAP_DIMS.map((d) => ({
     code: d,
     label: DIM_SHORT_LABELS[d] ?? d,
     pct: Math.round((s[d] / MAX) * 100),
     matched: matchedFamilyDims.has(d),
-  }))
-  return raw.sort((a, b) => b.pct - a.pct)
+  })).sort((a, b) => b.pct - a.pct)
+})
+
+// Tarbiyah dipisah — bukan potensi bawaan, tapi gaya pengasuhan keluarga
+const tarbiyahPct = computed(() => {
+  const s = familyScores.value
+  if (!s) return 0
+  return Math.round(s.tarbiyah)  // sudah 0–100 dari normalisasi server
 })
 
 let pollTimer = null
@@ -658,10 +692,10 @@ watch(pending, (val) => {
 })
 
 const scoreItems = [
-  { code: 'asyiha', label: 'Qiyadah', icon: '🤝', scoreKey: 'scoreAsyiha', pctKey: 'pctAsyiha' },
-  { code: 'ilmi',   label: 'Ilmi',   icon: '📚', scoreKey: 'scoreIlmi',   pctKey: 'pctIlmi'   },
-  { code: 'amali',  label: 'Amali',  icon: '🛠️', scoreKey: 'scoreAmali',  pctKey: 'pctAmali'  },
-  { code: 'wajdan', label: 'Wajdan', icon: '🎨', scoreKey: 'scoreWajdan', pctKey: 'pctWajdan' },
+  { code: 'qiyadah', label: 'Al-Qiyadah', icon: '🤝', scoreKey: 'scoreQiyadah', pctKey: 'pctQiyadah' },
+  { code: 'ilmi',    label: 'Ilmi',       icon: '📚', scoreKey: 'scoreIlmi',    pctKey: 'pctIlmi'    },
+  { code: 'amali',   label: 'Amali',      icon: '🛠️', scoreKey: 'scoreAmali',   pctKey: 'pctAmali'   },
+  { code: 'karam',   label: 'Al-Karam',   icon: '🤲', scoreKey: 'scoreKaram',   pctKey: 'pctKaram'   },
 ]
 
 const chartOptions = computed(() => ({
@@ -685,7 +719,7 @@ const chartOptions = computed(() => ({
 const chartSeries = computed(() => [{
   name: 'Skor Hasab',
   data: result.value
-    ? [result.value.scoreAsyiha, result.value.scoreIlmi, result.value.scoreAmali, result.value.scoreWajdan]
+    ? [result.value.scoreQiyadah, result.value.scoreIlmi, result.value.scoreAmali, result.value.scoreKaram]
     : [0, 0, 0, 0],
 }])
 
@@ -815,13 +849,13 @@ function downloadStoryCard() {
   const cy = afterPersona + 340
   const maxR = 280
   const scores = [
-    rv.scoreAsyiha || 0,
-    rv.scoreIlmi   || 0,
-    rv.scoreAmali  || 0,
-    rv.scoreWajdan || 0,
+    rv.scoreQiyadah || 0,
+    rv.scoreIlmi    || 0,
+    rv.scoreAmali   || 0,
+    rv.scoreKaram   || 0,
   ]
-  const labels = ['Al-Qiyadah', 'Ilmi', 'Amali', 'Wajdan']
-  const icons  = ['🤝', '📚', '🛠️', '🎨']
+  const labels = ['Al-Qiyadah', 'Ilmi', 'Amali', 'Al-Karam']
+  const icons  = ['🤝', '📚', '🛠️', '🤲']
   const angles = [Math.PI * 1.5, 0, Math.PI * 0.5, Math.PI] // top, right, bottom, left
 
   // Grid rings
@@ -850,7 +884,7 @@ function downloadStoryCard() {
   ctx.lineWidth = 4
   ctx.beginPath()
   for (let i = 0; i < 4; i++) {
-    const r = (scores[i] / 25) * maxR
+    const r = (scores[i] / 100) * maxR
     const x = cx + Math.cos(angles[i]) * r
     const y = cy + Math.sin(angles[i]) * r
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
@@ -860,7 +894,7 @@ function downloadStoryCard() {
   ctx.stroke()
   // Dots
   for (let i = 0; i < 4; i++) {
-    const r = (scores[i] / 25) * maxR
+    const r = (scores[i] / 100) * maxR
     ctx.fillStyle = '#e4ab39'
     ctx.beginPath()
     ctx.arc(cx + Math.cos(angles[i]) * r, cy + Math.sin(angles[i]) * r, 10, 0, Math.PI * 2)
@@ -888,7 +922,7 @@ function downloadStoryCard() {
   const sortedScores = scores
     .map((s, i) => {
       const key = `pct${['Asyiha','Ilmi','Amali','Wajdan'][i]}`
-      return { label: labels[i], icon: icons[i], score: s, pct: parseFloat(rv[key]) || (s / 25) * 100 }
+      return { label: labels[i], icon: icons[i], score: s, pct: parseFloat(rv[key]) || s }
     })
     .sort((a, b) => b.score - a.score)
 

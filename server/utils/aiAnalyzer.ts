@@ -1,9 +1,8 @@
-import Anthropic from '@anthropic-ai/sdk'
-import Groq from 'groq-sdk'
+import OpenAI from 'openai'
 
 export interface AiAnalysisInput {
-  scores: { asyiha: number; ilmi: number; amali: number; wajdan: number }
-  percentages: { asyiha: number; ilmi: number; amali: number; wajdan: number }
+  scores: { qiyadah: number; ilmi: number; amali: number; karam: number }
+  percentages: { qiyadah: number; ilmi: number; amali: number; karam: number }
   orderedHasab: string[]
   naturalResponses: string[]
   nasabAnswers: Record<number, number>
@@ -67,7 +66,7 @@ Framework:
   1. Al-Qiyadah: kepemimpinan, komunikasi, empati sosial, pengaruh positif.
   2. Ilmi: intelektual, analitis, ingin tahu, pencinta ilmu.
   3. Amali: teknis, praktis, bisnis, eksekusi, keterampilan tangan.
-  4. Wajdan: estetika, rasa, intuisi, spiritual, ekspresi diri.
+  4. Al-Karam: kedermawanan, empati sosial, filantropi, kepekaan terhadap sesama, dan kerelaan berkorban.
 
 Tugas:
 Berdasarkan skor 4 rumpun Hasab, respon alami anak, dan data nasab, berikan analisis dalam bahasa Indonesia yang hangat, memberdayakan orang tua, berbasis nilai Islam, dan praktis.
@@ -138,18 +137,11 @@ Aturan fitGapNarrative & bridgingActions:
 Pastikan JSON valid tanpa komentar dan tanpa teks di luar JSON.`
 
 const RATE_LIMIT_CODES = new Set([429, 529])
-// ponytail: 3 minutes per provider allows slow models to finish; tune down if UX degrades.
+// ponytail: 3 minutes allows slow models to finish; tune down if UX degrades.
 const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 180_000)
 
 export interface AiAnalysisResult extends AiAnalysisOutput {
   _model: string
-}
-
-async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error(`AI request timed out after ${ms}ms`)), ms)
-  )
-  return Promise.race([promise, timeout])
 }
 
 async function parseAiResponse(raw: string, model: string): Promise<AiAnalysisResult> {
@@ -157,41 +149,33 @@ async function parseAiResponse(raw: string, model: string): Promise<AiAnalysisRe
   return { ...JSON.parse(cleaned), _model: model }
 }
 
-async function callAnthropic(anthropic: Anthropic, model: string, userPrompt: string): Promise<AiAnalysisResult> {
-  const response = await withTimeout(
-    anthropic.messages.create({
-      model,
-      max_tokens: 3000,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-    }),
-    AI_TIMEOUT_MS,
-  )
-  const raw = response.content.find((c) => c.type === 'text')?.text || '{}'
-  return parseAiResponse(raw, model)
-}
-
-async function callGroq(groq: Groq, model: string, userPrompt: string): Promise<AiAnalysisResult> {
-  const completion = await withTimeout(
-    groq.chat.completions.create({
-      model,
-      temperature: 0.7,
-      max_completion_tokens: 3000,
-      stream: false,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-    }),
-    AI_TIMEOUT_MS,
-  )
-  const raw = completion.choices[0]?.message?.content || '{}'
-  return parseAiResponse(raw, model)
+async function callSumoPod(client: OpenAI, model: string, userPrompt: string): Promise<AiAnalysisResult> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS)
+  try {
+    const completion = await client.chat.completions.create(
+      {
+        model,
+        temperature: 0.7,
+        max_tokens: 8000,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+      },
+      { signal: controller.signal },
+    )
+    const raw = completion.choices[0]?.message?.content || '{}'
+    return parseAiResponse(raw, model)
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 function isRetryableError(err: any): boolean {
   const status = err?.status ?? err?.statusCode
-  return RATE_LIMIT_CODES.has(status) || status >= 500 || err?.code === 'ECONNRESET' || err?.code === 'ETIMEDOUT'
+  if (!status) return err?.code === 'ECONNRESET' || err?.code === 'ETIMEDOUT' || err?.name === 'AbortError'
+  return RATE_LIMIT_CODES.has(status) || status >= 500
 }
 
 async function delay(ms: number): Promise<void> {
@@ -201,53 +185,45 @@ async function delay(ms: number): Promise<void> {
 export async function analyzeWithAi(input: AiAnalysisInput): Promise<AiAnalysisResult> {
   const config = useRuntimeConfig()
 
-  const anthropic = new Anthropic({
-    apiKey: config.anthropicAuthToken || config.anthropicApiKey,
-    baseURL: config.anthropicBaseUrl || undefined,
-    defaultHeaders: { 'User-Agent': 'anthropic-typescript/0.36.0' },
+  const sumopodKey = config.sumopodApiKey as string | undefined
+  if (!sumopodKey) throw new Error('SUMOPOD_API_KEY not configured')
+
+  const client = new OpenAI({
+    apiKey: sumopodKey,
+    baseURL: 'https://ai.sumopod.com/v1',
   })
 
-  const groq = config.groqApiKey
-    ? new Groq({ apiKey: config.groqApiKey })
-    : null
-
+  const model = (config.sumopodModel as string | undefined) || 'gpt-4o-mini'
   const userPrompt = buildUserPrompt(input)
 
   const attempts: Array<{ fn: () => Promise<AiAnalysisResult>; retries: number; backoffMs: number }> = [
-    { fn: () => callAnthropic(anthropic, config.anthropicSonnetModel || 'cc/claude-sonnet-4-6', userPrompt), retries: 2, backoffMs: 500 },
-    { fn: () => callAnthropic(anthropic, config.anthropicHaikuModel || 'ocg/kimi-k2.7-code', userPrompt), retries: 2, backoffMs: 750 },
+    { fn: () => callSumoPod(client, model, userPrompt), retries: 3, backoffMs: 500 },
   ]
-
-  if (groq) {
-    attempts.push({ fn: () => callGroq(groq, config.groqModel || 'openai/gpt-oss-120b', userPrompt), retries: 2, backoffMs: 1000 })
-  }
 
   const errors: string[] = []
 
   for (const { fn, retries, backoffMs } of attempts) {
-    let lastAttempt = 0
-    while (lastAttempt <= retries) {
+    let attempt = 0
+    while (attempt <= retries) {
       try {
         return await fn()
       } catch (err: any) {
         const msg = err?.message || String(err)
         errors.push(msg)
-
-        if (isRetryableError(err) && lastAttempt < retries) {
-          const wait = backoffMs * 2 ** lastAttempt
-          console.warn(`AI provider failed (${msg}), retrying in ${wait}ms...`)
+        if (isRetryableError(err) && attempt < retries) {
+          const wait = backoffMs * 2 ** attempt
+          console.warn(`[aiAnalyzer] failed (${msg}), retry in ${wait}ms...`)
           await delay(wait)
-          lastAttempt++
+          attempt++
           continue
         }
-
-        console.warn(`AI provider failed (${msg}), trying next fallback...`)
+        console.warn(`[aiAnalyzer] failed (${msg}), no more retries`)
         break
       }
     }
   }
 
-  throw new Error(`All AI providers failed: ${errors.join(' | ')}`)
+  throw new Error(`AI failed: ${errors.join(' | ')}`)
 }
 
 function ageGroup(years: number): string {
@@ -263,10 +239,10 @@ function buildUserPrompt(input: AiAnalysisInput): string {
 - Jenis kelamin: ${input.childGender === 'L' ? 'Laki-laki' : 'Perempuan'}
 
 Skor Hasab (0-25 per rumpun):
-- Al-Qiyadah: ${input.scores.asyiha} (${input.percentages.asyiha}%)
+- Al-Qiyadah: ${input.scores.qiyadah} (${input.percentages.qiyadah}%)
 - Ilmi: ${input.scores.ilmi} (${input.percentages.ilmi}%)
 - Amali: ${input.scores.amali} (${input.percentages.amali}%)
-- Wajdan: ${input.scores.wajdan} (${input.percentages.wajdan}%)
+- Al-Karam: ${input.scores.karam} (${input.percentages.karam}%)
 
 Urutan rumpun dari dominan ke lemah: ${input.orderedHasab.join(' > ')}
 
@@ -278,7 +254,7 @@ Jawaban nasab (1=ya, 0=tidak): ${Object.entries(input.nasabAnswers).map(([qid, v
     const fg = input.familyFitGap
     const pct = Math.round(fg.fitGapScore * 100)
     const dimLabels: Record<string, string> = {
-      ilmi: 'Ilmi', qiyadah: 'Al-Qiyadah', amali: 'Amali', wajdan: 'Wajdan', tarbiyah: 'Tarbiyah',
+      ilmi: 'Ilmi', qiyadah: 'Al-Qiyadah', amali: 'Amali', karam: 'Al-Karam', tarbiyah: 'Tarbiyah',
     }
     const top3 = fg.top3Hasab.map((d) => dimLabels[d] ?? d).join(', ')
     const isOptimal = fg.fitGapStatus === 'OPTIMAL'

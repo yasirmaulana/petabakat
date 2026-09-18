@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     where: { publicId: surveyPublicId },
     include: {
       parent: { select: { phone: true } },
-      result: { select: { dominantHasab: true, scoreAsyiha: true, scoreIlmi: true, scoreAmali: true, scoreWajdan: true } },
+      result: { select: { dominantHasab: true, scoreQiyadah: true, scoreIlmi: true, scoreAmali: true, scoreKaram: true } },
       familyAssessment: {
         include: {
           figures: {
@@ -62,8 +62,8 @@ export default defineEventHandler(async (event) => {
   // Ambil urutan rumpun anak dari SurveyResult yang sudah ada
   const childResult = survey.result
   const childOrdered = childResult
-    ? (['asyiha', 'ilmi', 'amali', 'wajdan'] as const)
-        .map((k) => ({ k, v: childResult[`score${k.charAt(0).toUpperCase() + k.slice(1)}` as 'scoreAsyiha'] }))
+    ? (['qiyadah', 'ilmi', 'amali', 'karam'] as const)
+        .map((k) => ({ k, v: childResult[`score${k.charAt(0).toUpperCase() + k.slice(1)}` as 'scoreQiyadah'] }))
         .sort((a, b) => b.v - a.v)
         .map((x) => x.k)
     : []
@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
         scoreIlmi: scores.ilmi,
         scoreQiyadah: scores.qiyadah,
         scoreAmali: scores.amali,
-        scoreWajdan: scores.wajdan,
+        scoreKaram: scores.karam,
         scoreTarbiyah: scores.tarbiyah,
         top3Hasab,
         fitGapStatus,
@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
         scoreIlmi: scores.ilmi,
         scoreQiyadah: scores.qiyadah,
         scoreAmali: scores.amali,
-        scoreWajdan: scores.wajdan,
+        scoreKaram: scores.karam,
         scoreTarbiyah: scores.tarbiyah,
         top3Hasab,
         fitGapStatus,
@@ -161,18 +161,18 @@ async function enrichSurveyResultWithFamily(params: {
   )
 
   const scores = {
-    asyiha: Number(existing.scoreAsyiha),
+    qiyadah: Number(existing.scoreQiyadah),
     ilmi: Number(existing.scoreIlmi),
     amali: Number(existing.scoreAmali),
-    wajdan: Number(existing.scoreWajdan),
+    karam: Number(existing.scoreKaram),
   }
   const percentages = {
-    asyiha: Number(existing.pctAsyiha),
+    qiyadah: Number(existing.pctQiyadah),
     ilmi: Number(existing.pctIlmi),
     amali: Number(existing.pctAmali),
-    wajdan: Number(existing.pctWajdan),
+    karam: Number(existing.pctKaram),
   }
-  const orderedHasab = (['asyiha', 'ilmi', 'amali', 'wajdan'] as const)
+  const orderedHasab = (['qiyadah', 'ilmi', 'amali', 'karam'] as const)
     .map((k) => ({ k, v: scores[k] }))
     .sort((a, b) => b.v - a.v)
     .map((x) => x.k as string)

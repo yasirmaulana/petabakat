@@ -10,10 +10,10 @@ const prisma = new PrismaClient({ adapter })
 async function main() {
   await prisma.hasabCategory.createMany({
     data: [
-      { code: 'asyiha', name: 'Hasab Al-Asyiha', description: 'Kepemimpinan, komunikasi, empati sosial, dan pengaruh positif' },
+      { code: 'qiyadah', name: 'Hasab Al-Qiyadah', description: 'Kepemimpinan, komunikasi, empati sosial, dan pengaruh positif' },
       { code: 'ilmi', name: 'Hasab Al-Ilmi', description: 'Kecerdasan intelektual, analitis, ingin tahu, dan pencinta ilmu' },
       { code: 'amali', name: 'Hasab Al-Amali', description: 'Teknis, praktis, bisnis, eksekusi, dan keterampilan tangan' },
-      { code: 'wajdan', name: 'Hasab Al-Wajdan', description: 'Estetika, rasa, intuisi, spiritual, dan ekspresi diri' },
+      { code: 'karam', name: 'Hasab Al-Karam', description: 'Kedermawanan, empati sosial, filantropi, dan kepekaan terhadap sesama' },
     ],
     skipDuplicates: true,
   })
@@ -23,12 +23,12 @@ async function main() {
 
   await prisma.question.createMany({
     data: [
-      // Asyiha
-      { categoryId: findId('asyiha'), order: 1, text: 'Di keluarga besar, ada sosok yang kerap dijadikan panutan dalam kepemimpinan atau mediasi konflik.', type: 'hasab' },
-      { categoryId: findId('asyiha'), order: 2, text: 'Anak terlihat nyaman saat berbicara di depan orang banyak atau memimpin permainan kelompok.', type: 'hasab' },
-      { categoryId: findId('asyiha'), order: 3, text: 'Dalam keluarga, tradisi saling menjenguk dan membantu tetangga/kerabat masih kuat dijaga.', type: 'hasab' },
-      { categoryId: findId('asyiha'), order: 4, text: 'Anak mudah merasakan perasaan orang lain dan menawarkan bantuan.', type: 'hasab' },
-      { categoryId: findId('asyiha'), order: 5, text: 'Keluarga memiliki jejak pengabdian sosial atau kegiatan keumatan yang dilakukan bersama.', type: 'hasab' },
+      // Qiyadah
+      { categoryId: findId('qiyadah'), order: 1, text: 'Di keluarga besar, ada sosok yang kerap dijadikan panutan dalam kepemimpinan atau mediasi konflik.', type: 'hasab' },
+      { categoryId: findId('qiyadah'), order: 2, text: 'Anak terlihat nyaman saat berbicara di depan orang banyak atau memimpin permainan kelompok.', type: 'hasab' },
+      { categoryId: findId('qiyadah'), order: 3, text: 'Dalam keluarga, tradisi saling menjenguk dan membantu tetangga/kerabat masih kuat dijaga.', type: 'hasab' },
+      { categoryId: findId('qiyadah'), order: 4, text: 'Anak mudah merasakan perasaan orang lain dan menawarkan bantuan.', type: 'hasab' },
+      { categoryId: findId('qiyadah'), order: 5, text: 'Keluarga memiliki jejak pengabdian sosial atau kegiatan keumatan yang dilakukan bersama.', type: 'hasab' },
 
       // Ilmi
       { categoryId: findId('ilmi'), order: 1, text: 'Ada anggota keluarga (kakek/nenek/orang tua/paman) yang dikenal sebagai guru, penulis, atau ahli di bidangnya.', type: 'hasab' },
@@ -44,12 +44,12 @@ async function main() {
       { categoryId: findId('amali'), order: 4, text: 'Keluarga terbiasa bekerja keras, tepat waktu, dan menyelesaikan tugas sampai tuntas.', type: 'hasab' },
       { categoryId: findId('amali'), order: 5, text: 'Anak lebih suka belajar dengan praktik langsung dibaca teori panjang.', type: 'hasab' },
 
-      // Wajdan
-      { categoryId: findId('wajdan'), order: 1, text: 'Ada keluarga yang dikenal berbakat seni, musik, sastra, atau spiritual.', type: 'hasab' },
-      { categoryId: findId('wajdan'), order: 2, text: 'Anak sering melamun, menggambar, bercerita, atau menciptakan sesuatu dari imajinasinya.', type: 'hasab' },
-      { categoryId: findId('wajdan'), order: 3, text: 'Anak peka terhadap suasana, musik, warna, atau ketidakadilan sosial.', type: 'hasab' },
-      { categoryId: findId('wajdan'), order: 4, text: 'Keluarga memiliki rutinitas spiritual bersama yang membentuk kedalaman rasa.', type: 'hasab' },
-      { categoryId: findId('wajdan'), order: 5, text: 'Anak mengekspresikan perasaan melalui seni, tulisan, atau aktivitas kreatif.', type: 'hasab' },
+      // Karam
+      { categoryId: findId('karam'), order: 1, text: 'Dalam keluarga, ada sosok yang dikenal ringan tangan membantu orang lain tanpa pamrih.', type: 'hasab' },
+      { categoryId: findId('karam'), order: 2, text: 'Anak senang berbagi dan memberikan sesuatu kepada teman atau orang yang membutuhkan.', type: 'hasab' },
+      { categoryId: findId('karam'), order: 3, text: 'Anak mudah merasakan kesedihan orang lain dan tergerak untuk membantu.', type: 'hasab' },
+      { categoryId: findId('karam'), order: 4, text: 'Keluarga aktif dalam kegiatan sosial, donasi, atau pengabdian masyarakat.', type: 'hasab' },
+      { categoryId: findId('karam'), order: 5, text: 'Anak sering menjadi penengah saat teman-temannya berselisih atau sedih.', type: 'hasab' },
 
       // Nasab
       { order: 1, text: 'Apakah garis keturunan anak diketahui dengan jelas sesuai syariat?', type: 'nasab' },

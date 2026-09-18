@@ -1,6 +1,7 @@
 import { prisma } from '~/server/utils/prisma'
 import { hashPassword } from '~/server/utils/auth'
 import { randomBytes } from 'node:crypto'
+import { verifyRecaptcha } from '~/server/utils/verifyRecaptcha'
 
 function makeReferralCode(name: string, type: string): string {
   const prefix = type === 'institutional' ? 'INST' : 'REF'
@@ -11,7 +12,8 @@ function makeReferralCode(name: string, type: string): string {
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { name, institution, type, email, phone } = body
+  const { name, institution, type, email, phone, recaptchaToken } = body
+  await verifyRecaptcha(recaptchaToken, 'mitra_daftar')
 
   if (!name || !type || !email || !phone) {
     throw createError({ statusCode: 400, message: 'Nama, jenis mitra, email, dan nomor WA wajib diisi.' })

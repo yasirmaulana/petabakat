@@ -113,25 +113,19 @@
                   <span class="text-sm text-gray-700">{{ option.label }}</span>
                 </label>
               </div>
-            </div>
 
-            <!-- Custom additions -->
-            <div class="space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Tambahan</p>
-              <div v-for="(item, i) in form.customResponses" :key="i" class="flex gap-2">
-                <select v-model="item.dimension" class="input-field w-52 shrink-0 text-sm">
-                  <option value="qiyadah">Kepemimpinan &amp; Sosial</option>
-                  <option value="ilmi">Intelektual &amp; Keilmuan</option>
-                  <option value="amali">Praktikal &amp; Teknis</option>
-                  <option value="wajdan">Seni &amp; Spiritual</option>
-                </select>
-                <input v-model="item.text" placeholder="Tulis minat spesifik..." class="input-field flex-1" />
-                <button type="button" class="shrink-0 p-2 text-gray-400 hover:text-red-500 transition-colors" @click="removeCustomResponse(i)">
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-              </div>
-              <button type="button" class="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors" @click="addCustomResponse">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              <!-- Custom inputs untuk grup ini -->
+              <template v-for="(item, i) in form.customResponses" :key="`c-${i}`">
+                <div v-if="item.dimension === group.key" class="flex gap-2">
+                  <input v-model="item.text" placeholder="Tulis minat spesifik..." class="input-field flex-1 text-sm" />
+                  <button type="button" class="shrink-0 p-2 text-gray-400 hover:text-red-500 transition-colors" @click="removeCustomResponse(i)">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              </template>
+
+              <button type="button" class="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 transition-colors" @click="addCustomResponse(group.key)">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                 Tambah minat lainnya
               </button>
             </div>
@@ -289,8 +283,8 @@
           {{ validationError }}
         </p>
 
-        <!-- Navigation -->
-        <div class="mt-4 flex items-center justify-between">
+        <!-- Navigation — hanya untuk steps 0-2 -->
+        <div v-if="currentStep <= 2" class="mt-4 flex items-center justify-between">
           <button
             v-if="currentStep > 0"
             type="button"
@@ -301,9 +295,9 @@
           </button>
           <div v-else />
 
-          <!-- Step 0, 1: tombol Lanjut -->
+          <!-- Steps 0-1: tombol Lanjut -->
           <button
-            v-if="currentStep < totalSteps - 1"
+            v-if="currentStep < 2"
             type="button"
             class="btn-primary px-5 py-2.5 disabled:cursor-not-allowed disabled:opacity-50"
             :disabled="currentStep === 1 && voucherStatus !== 'valid'"
@@ -312,9 +306,9 @@
             Lanjut →
           </button>
 
-          <!-- Submit step terakhir (nasab) -->
+          <!-- Step 2 (nasab): submit ke server lalu lanjut family -->
           <button
-            v-else
+            v-else-if="currentStep === 2"
             type="submit"
             :disabled="loading || submitting"
             class="btn-primary px-5 py-2.5 disabled:cursor-not-allowed disabled:opacity-50"
@@ -328,6 +322,158 @@
         </div>
 
       </form>
+
+      <!-- ══ STEP 3: Intro Penilaian Keluarga ══════════════════════════════════ -->
+      <section v-if="currentStep === 3" class="space-y-5">
+        <div class="rounded-2xl border border-brand-200 bg-brand-50 p-6">
+          <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">Modul Tambahan</p>
+          <h1 class="mt-1 text-xl font-bold text-gray-950">Analisis Hasab Keluarga</h1>
+          <p class="mt-3 text-sm leading-relaxed text-gray-700">
+            Seberapa kuat ekosistem keluarga mendukung potensi anak? Modul ini menilai rekam jejak 6 figur keluarga
+            untuk menghasilkan <strong>Fit-Gap Ratio</strong> antara kecenderungan alami anak dan kapasitas Hasab keluarga.
+          </p>
+        </div>
+        <div class="card p-5 space-y-3 text-sm text-gray-700">
+          <p class="font-semibold text-gray-900">Yang perlu Anda lakukan:</p>
+          <div v-for="fig in FIGURES" :key="fig.role" class="flex items-center gap-3">
+            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm">{{ fig.icon }}</span>
+            <span>{{ fig.label }}</span>
+          </div>
+          <p class="pt-2 text-xs text-gray-400">
+            Estimasi waktu: <strong>15–20 menit</strong> · Figur yang tidak dikenal atau sudah meninggal dapat di-skip · Jawaban disimpan otomatis
+          </p>
+        </div>
+        <button
+          @click="currentStep = 4; $nextTick(() => window.scrollTo({ top: 0, behavior: 'smooth' }))"
+          class="btn-primary w-full justify-center"
+        >
+          Mulai Penilaian →
+        </button>
+      </section>
+
+      <!-- ══ STEPS 4–9: Satu figur per step ════════════════════════════════════ -->
+      <section v-else-if="currentStep >= 4 && currentStep <= 9">
+        <div class="mb-5 flex items-center gap-3">
+
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-400 text-xl">
+            {{ currentFigure.icon }}
+          </span>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Figur {{ currentStep - 3 }} dari 6</p>
+            <h2 class="text-lg font-bold text-gray-900">{{ currentFigure.label }}</h2>
+          </div>
+        </div>
+
+        <!-- Tombol skip figur -->
+        <div v-if="!figureSkipped[currentFigure.role]" class="mb-4">
+          <button type="button" @click="skipFigure(currentFigure.role)"
+            class="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600">
+            Figur ini tidak dikenal / sudah meninggal — lewati
+          </button>
+        </div>
+        <div v-else class="mb-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500">
+          Figur ini di-skip.
+          <button type="button" @click="unskipFigure(currentFigure.role)" class="ml-2 text-brand-600 underline">Batalkan</button>
+        </div>
+
+        <!-- Soal per dimensi -->
+        <template v-if="!figureSkipped[currentFigure.role]">
+          <div v-if="familyQuestionsPending" class="flex items-center justify-center py-12 text-sm text-gray-400">
+            <svg class="mr-2 h-4 w-4 animate-spin text-brand-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            Memuat soal...
+          </div>
+          <div v-for="dim in DIMENSION_ORDER" :key="dim" class="mb-6">
+            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+              {{ DIM_LABELS[dim] }}
+            </p>
+            <div class="space-y-4">
+              <div v-for="q in questionsByDim[dim]" :key="q.id" class="card p-4">
+                <p class="mb-3 text-sm leading-relaxed text-gray-800">{{ q.text }}</p>
+                <div class="space-y-2">
+                  <div class="flex gap-2">
+                    <button
+                      v-for="score in [1, 2, 3, 4, 5]" :key="score"
+                      type="button"
+                      @click="setAnswer(currentFigure.role, q.id, score)"
+                      class="flex h-9 w-9 items-center justify-center rounded-xl border text-sm font-semibold transition-all"
+                      :class="getDraftAnswer(currentFigure.role, q.id) === score
+                        ? 'border-brand-400 bg-brand-400 text-black shadow-sm scale-110'
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-brand-300'">
+                      {{ score }}
+                    </button>
+                  </div>
+                  <div class="flex flex-wrap justify-between gap-x-2 text-xs text-gray-400">
+                    <span>1 = Sangat tidak sesuai</span>
+                    <span>5 = Sangat sesuai</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- Navigasi figur -->
+        <div class="mt-6 flex gap-3">
+          <button @click="currentStep--; $nextTick(() => window.scrollTo({ top: 0, behavior: 'smooth' }))" type="button"
+            class="rounded-xl border border-gray-200 px-5 py-2.5 text-sm text-gray-600 hover:bg-gray-50">
+            ← Kembali
+          </button>
+          <button @click="saveFigureAndNext" :disabled="familySaving"
+            class="btn-primary flex-1 justify-center">
+            <svg v-if="familySaving" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            <span>{{ currentStep < 9 ? 'Simpan & Lanjut →' : 'Simpan Figur Terakhir →' }}</span>
+          </button>
+        </div>
+        <p v-if="familySaveError" class="mt-2 text-xs text-red-500">{{ familySaveError }}</p>
+      </section>
+
+      <!-- ══ STEP 10: Review & Submit ═══════════════════════════════════════════ -->
+      <section v-else-if="currentStep === 10" class="space-y-5">
+        <div class="card p-5">
+          <h2 class="mb-4 text-base font-bold text-gray-900">Ringkasan Pengisian</h2>
+          <div class="space-y-2">
+            <div v-for="fig in FIGURES" :key="fig.role"
+              class="flex items-center justify-between rounded-lg px-3 py-2"
+              :class="figureSummary[fig.role]?.done ? 'bg-emerald-50' : figureSummary[fig.role]?.skipped ? 'bg-gray-50' : 'bg-amber-50'">
+              <div class="flex items-center gap-2">
+                <span>{{ fig.icon }}</span>
+                <span class="text-sm text-gray-800">{{ fig.label }}</span>
+              </div>
+              <span class="text-xs font-semibold"
+                :class="figureSummary[fig.role]?.done ? 'text-emerald-600' : figureSummary[fig.role]?.skipped ? 'text-gray-400' : 'text-amber-600'">
+                {{ figureSummary[fig.role]?.done ? '✓ Selesai' : figureSummary[fig.role]?.skipped ? 'Di-skip' : '● Belum' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-700">
+          Pastikan minimal 1 figur telah diisi sebelum submit. Hasil tidak dapat diubah setelah dikirim.
+        </div>
+
+        <div class="flex gap-3">
+          <button @click="currentStep = 9" type="button"
+            class="rounded-xl border border-gray-200 px-5 py-2.5 text-sm text-gray-600 hover:bg-gray-50">
+            ← Kembali
+          </button>
+          <button @click="submitAssessment" :disabled="familySubmitting || !hasAnyFigureDone"
+            class="btn-primary flex-1 justify-center disabled:opacity-40">
+            <svg v-if="familySubmitting" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            <span>{{ familySubmitting ? 'Menghitung Fit-Gap...' : 'Submit & Lihat Hasil' }}</span>
+          </button>
+        </div>
+        <p v-if="familySubmitError" class="text-xs text-red-500">{{ familySubmitError }}</p>
+      </section>
+
     </main>
   </div>
 </template>
@@ -335,6 +481,169 @@
 <script setup>
 const { data, pending: questionsPending } = await useFetch('/api/questions', { key: 'survey-questions', dedupe: 'cancel' })
 const router = useRouter()
+const { loadScript, executeRecaptcha } = useRecaptcha()
+
+onMounted(loadScript)
+
+// ── Family Assessment Constants ──────────────────────────────────────────────
+const FIGURES = [
+  { role: 'kakek_ayah', label: 'Kakek (dari pihak Ayah)', icon: '👴' },
+  { role: 'nenek_ayah', label: 'Nenek (dari pihak Ayah)', icon: '👵' },
+  { role: 'kakek_ibu',  label: 'Kakek (dari pihak Ibu)',  icon: '👴' },
+  { role: 'nenek_ibu',  label: 'Nenek (dari pihak Ibu)',  icon: '👵' },
+  { role: 'ayah',       label: 'Ayah',                     icon: '👨' },
+  { role: 'ibu',        label: 'Ibu',                      icon: '👩' },
+]
+const DIMENSION_ORDER = ['ilmi', 'qiyadah', 'amali', 'karam', 'tarbiyah']
+const DIM_LABELS = {
+  ilmi:     'D1 · Hasab Ilmi — Tradisi Keilmuan',
+  qiyadah:  'D2 · Hasab Qiyadah — Kepemimpinan & Ketahanan Mental',
+  amali:    'D3 · Hasab Amali — Etos Kerja & Eksekusi',
+  karam:    'D4 · Hasab Al-Karam — Kedermawanan, Empati & Filantropi',
+  tarbiyah: 'D5 · Hasab Tarbiyah — Atmosfer Rumah & Pengasuhan',
+}
+
+// ── Family Assessment State ───────────────────────────────────────────────────
+const RESUME_KEY = 'survey_resume_id'
+// Init dari localStorage synchronous — cegah flash step 0 saat resume
+const _storedId = import.meta.client ? (localStorage.getItem(RESUME_KEY) ?? '') : ''
+const surveyPublicId = ref(_storedId)
+const currentStep = ref(_storedId ? 3 : 0)
+
+// ── Resume recovery ───────────────────────────────────────────────────────────
+onMounted(async () => {
+  if (!surveyPublicId.value) return
+  // Restore draft figur dari localStorage
+  const draftKey = `family-draft-${surveyPublicId.value}`
+  const saved = localStorage.getItem(draftKey)
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved)
+      Object.assign(familyDraft, parsed.draft ?? {})
+      Object.assign(figureSkipped, parsed.skipped ?? {})
+    } catch {}
+  }
+  // Verifikasi cookie masih valid; kalau sudah expired → reset ke step 0
+  try {
+    await $fetch(`/api/family-assessment/${surveyPublicId.value}/start`, { method: 'POST' })
+  } catch (e) {
+    const status = e?.response?.status ?? e?.statusCode
+    if (status === 401 || status === 403 || status === 404) {
+      localStorage.removeItem(RESUME_KEY)
+      localStorage.removeItem(draftKey)
+      surveyPublicId.value = ''
+      currentStep.value = 0
+    }
+    // error lain (jaringan) — biarkan tetap di step 3, bisa retry
+  }
+})
+
+const familyDraft = reactive({})  // { [role]: { [questionId]: score } }
+const figureSkipped = reactive({})
+const familySaving = ref(false)
+const familySaveError = ref('')
+const familySubmitting = ref(false)
+const familySubmitError = ref('')
+const familyIsDone = ref(false)
+// Fetch family questions (client-side only, lazy)
+const { data: familyQuestions, pending: familyQuestionsPending } = useFetch(
+  '/api/family-assessment/questions',
+  { server: false, lazy: true },
+)
+
+const questionsByDim = computed(() => {
+  const qs = familyQuestions.value ?? []
+  const map = {}
+  for (const dim of DIMENSION_ORDER) map[dim] = qs.filter(q => q.dimension === dim)
+  return map
+})
+
+const currentFigure = computed(() => FIGURES[currentStep.value - 4] ?? FIGURES[0])
+
+const figureSummary = computed(() => {
+  const result = {}
+  for (const fig of FIGURES) {
+    const skipped = !!figureSkipped[fig.role]
+    const answered = Object.keys(familyDraft[fig.role] ?? {}).length
+    result[fig.role] = { done: !skipped && answered > 0, skipped }
+  }
+  return result
+})
+
+const hasAnyFigureDone = computed(() => FIGURES.some(f => figureSummary.value[f.role]?.done))
+
+function getDraftAnswer(role, questionId) {
+  return familyDraft[role]?.[questionId]
+}
+
+function setAnswer(role, questionId, value) {
+  if (!familyDraft[role]) familyDraft[role] = {}
+  familyDraft[role][questionId] = value
+  saveFamilyDraftToLocal()
+}
+
+function saveFamilyDraftToLocal() {
+  if (!surveyPublicId.value) return
+  localStorage.setItem(`family-draft-${surveyPublicId.value}`, JSON.stringify({
+    draft: { ...familyDraft },
+    skipped: { ...figureSkipped },
+  }))
+}
+
+function skipFigure(role) {
+  figureSkipped[role] = true
+  saveFamilyDraftToLocal()
+}
+
+function unskipFigure(role) {
+  figureSkipped[role] = false
+  saveFamilyDraftToLocal()
+}
+
+async function saveFigureAndNext() {
+  familySaveError.value = ''
+  familySaving.value = true
+  const role = currentFigure.value.role
+  try {
+    if (figureSkipped[role]) {
+      await $fetch(`/api/family-assessment/${surveyPublicId.value}/figure/${role}`, {
+        method: 'PUT',
+        body: { isKnown: false, answers: [] },
+      })
+    } else {
+      const answers = Object.entries(familyDraft[role] ?? {}).map(([qId, value]) => ({
+        questionId: Number(qId),
+        value,
+      }))
+      await $fetch(`/api/family-assessment/${surveyPublicId.value}/figure/${role}`, {
+        method: 'PUT',
+        body: { isKnown: true, answers },
+      })
+    }
+    currentStep.value++
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } catch (e) {
+    familySaveError.value = e?.data?.message ?? 'Gagal menyimpan. Coba lagi.'
+  } finally {
+    familySaving.value = false
+  }
+}
+
+async function submitAssessment() {
+  familySubmitError.value = ''
+  familySubmitting.value = true
+  try {
+    await $fetch(`/api/family-assessment/${surveyPublicId.value}/submit`, { method: 'POST' })
+    localStorage.removeItem(`family-draft-${surveyPublicId.value}`)
+    localStorage.removeItem(RESUME_KEY)
+    familyIsDone.value = true
+    await router.push(`/results/${surveyPublicId.value}#fit-gap`)
+  } catch (e) {
+    familySubmitError.value = e?.data?.message ?? 'Gagal submit. Coba lagi.'
+  } finally {
+    familySubmitting.value = false
+  }
+}
 
 // { label, dimension } — 6 item per dimensi, 24 total
 const naturalResponseOptions = [
@@ -360,19 +669,19 @@ const naturalResponseOptions = [
   { label: 'Teliti dan suka merapikan barang atau jadwal', dimension: 'amali' },
   { label: 'Aktif bergerak dan suka olahraga atau tantangan fisik', dimension: 'amali' },
   // Seni & Spiritual (Wajdan)
-  { label: 'Suka menggambar, mewarnai, atau berkarya visual', dimension: 'wajdan' },
-  { label: 'Peka dengan musik, suara, atau irama', dimension: 'wajdan' },
-  { label: 'Mudah merasakan suasana hati orang lain / peka secara emosi', dimension: 'wajdan' },
-  { label: 'Suka bercerita lewat tulisan atau gambar komik', dimension: 'wajdan' },
-  { label: 'Senang dengan kegiatan rohani (mengaji, dzikir, doa)', dimension: 'wajdan' },
-  { label: 'Peka dan mudah terbawa suasana saat menonton atau mendengar cerita', dimension: 'wajdan' },
+  { label: 'Senang membantu teman yang kesusahan tanpa diminta', dimension: 'karam' },
+  { label: 'Suka berbagi makanan, mainan, atau barang miliknya', dimension: 'karam' },
+  { label: 'Mudah merasakan sedih atau senang bersama orang lain (empati)', dimension: 'karam' },
+  { label: 'Sering menjadi penengah saat teman-temannya berselisih', dimension: 'karam' },
+  { label: 'Senang berkontribusi dalam kegiatan sosial atau bakti sosial', dimension: 'karam' },
+  { label: 'Rela mengalah demi menjaga kerukunan bersama', dimension: 'karam' },
 ]
 
 const dimensionGroups = [
   { key: 'qiyadah', label: 'Kepemimpinan & Sosial' },
   { key: 'ilmi', label: 'Intelektual & Keilmuan' },
   { key: 'amali', label: 'Praktikal & Teknis' },
-  { key: 'wajdan', label: 'Seni & Spiritual' },
+  { key: 'karam', label: 'Empati & Filantropi' },
 ]
 
 const optionsByDimension = computed(() =>
@@ -387,7 +696,7 @@ const form = reactive({
   childBirthDate: '',
   childGender: '',
   naturalResponses: [],
-  customResponses: [], // [{ dimension: 'qiyadah'|'ilmi'|'amali'|'wajdan', text: string }]
+  customResponses: [], // [{ dimension: 'qiyadah'|'ilmi'|'amali'|'karam', text: string }]
   momentAntusias: '',
   // Step 1
   parentName: '',
@@ -400,7 +709,6 @@ const form = reactive({
   nasabAnswers: {},
 })
 
-const currentStep = ref(0)
 const loading = ref(false)
 const submitting = ref(false)
 
@@ -513,19 +821,22 @@ function stopLoadingAnimation() {
 
 onUnmounted(stopLoadingAnimation)
 
-// Step 0 = data anak, step 1 = data ortu+voucher, step 2 = nasab → submit
-const totalSteps = 3
+// Step 0-2 = survey form, step 3 = family intro, step 4-9 = 6 figur, step 10 = review & submit
+const totalSteps = 11
 
 const stepTitle = computed(() => {
   if (currentStep.value === 0) return 'Data Anak'
   if (currentStep.value === 1) return 'Data Orang Tua & Voucher'
-  return 'Pertanyaan Nasab'
+  if (currentStep.value === 2) return 'Pertanyaan Nasab'
+  if (currentStep.value === 3) return 'Analisis Hasab Keluarga'
+  if (currentStep.value >= 4 && currentStep.value <= 9) return `Figur ${currentStep.value - 3} dari 6`
+  return 'Ringkasan & Submit'
 })
 
 const validationError = ref('')
 
-function addCustomResponse() {
-  form.customResponses.push({ dimension: 'qiyadah', text: '' })
+function addCustomResponse(dimension) {
+  form.customResponses.push({ dimension, text: '' })
 }
 
 function removeCustomResponse(index) {
@@ -574,6 +885,12 @@ function prevStep() {
 
 async function submitSurvey() {
   if (submitting.value) return
+  // Survey sudah dibuat — langsung lanjut ke family assessment tanpa re-submit
+  if (surveyPublicId.value) {
+    currentStep.value = 3
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
   submitting.value = true
   loading.value = true
   startLoadingAnimation()
@@ -597,13 +914,21 @@ async function submitSurvey() {
       ].filter(Boolean),
       nasabAnswers: form.nasabAnswers,
     }
-    const { surveyId } = await $fetch('/api/surveys', { method: 'POST', body: payload })
-    await router.push(`/family-survey/${surveyId}`)
+    const recaptchaToken = await executeRecaptcha('survey_submit')
+    const { surveyId } = await $fetch('/api/surveys', { method: 'POST', body: { ...payload, recaptchaToken } })
+    surveyPublicId.value = surveyId
+    localStorage.setItem(RESUME_KEY, surveyId)
+    // Start family assessment on the server (same session, no redirect needed)
+    await $fetch(`/api/family-assessment/${surveyId}/start`, { method: 'POST' })
+    stopLoadingAnimation()
+    loading.value = false
+    submitting.value = false
+    currentStep.value = 3
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch (err) {
-    const message = err?.statusMessage || err?.message || 'Gagal menyimpan survey. Silakan coba lagi.'
+    const message = err?.data?.message || err?.statusMessage || err?.message || 'Gagal menyimpan survey. Silakan coba lagi.'
+    console.error('[submitSurvey]', err)
     alert(message)
-    console.error(err)
-  } finally {
     stopLoadingAnimation()
     loading.value = false
     submitting.value = false

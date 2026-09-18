@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
           publicId: true,
           createdAt: true,
           child: { select: { name: true, gender: true, birthDate: true } },
-          result: { select: { personaLabel: true, dominantCategory: true, pctAsyiha: true, pctIlmi: true, pctAmali: true, pctWajdan: true } },
+          result: { select: { personaLabel: true, dominantCategory: true, pctQiyadah: true, pctIlmi: true, pctAmali: true, pctKaram: true } },
           familyAssessment: {
             select: { status: true, result: { select: { fitGapStatus: true, fitGapScore: true } } },
           },

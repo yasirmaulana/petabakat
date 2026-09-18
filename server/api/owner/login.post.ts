@@ -1,10 +1,12 @@
 import { verifyAdminPassword, signOwnerToken } from '~/server/utils/ownerAuth'
 import { checkRateLimit } from '~/server/utils/rateLimiter'
+import { verifyRecaptcha } from '~/server/utils/verifyRecaptcha'
 
 export default defineEventHandler(async (event) => {
   checkRateLimit(event, { max: 5, windowMs: 60_000, keyPrefix: 'owner-login' })
 
-  const { password } = await readBody(event)
+  const { password, recaptchaToken } = await readBody(event)
+  await verifyRecaptcha(recaptchaToken, 'owner_login')
   if (!password || !verifyAdminPassword(String(password))) {
     throw createError({ statusCode: 401, message: 'Password salah.' })
   }

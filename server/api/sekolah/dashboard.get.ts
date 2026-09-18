@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
           publicId: true,
           createdAt: true,
           child: { select: { name: true, gender: true, birthDate: true } },
-          result: { select: { personaLabel: true, dominantCategory: true, pctAsyiha: true, pctIlmi: true, pctAmali: true, pctWajdan: true } },
+          result: { select: { personaLabel: true, dominantCategory: true, pctQiyadah: true, pctIlmi: true, pctAmali: true, pctKaram: true } },
           familyAssessment: {
             select: { status: true, result: { select: { fitGapStatus: true, fitGapScore: true } } },
           },
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
   const sudahSurvei = students.filter(s => s.survey.result).length
 
   // Sebaran rumpun dominan
-  const sebaranRumpun: Record<string, number> = { qiyadah: 0, ilmi: 0, amali: 0, wajdan: 0, seimbang: 0 }
+  const sebaranRumpun: Record<string, number> = { qiyadah: 0, ilmi: 0, amali: 0, karam: 0, seimbang: 0 }
   for (const s of students) {
     const cat = s.survey.result?.dominantCategory?.toLowerCase()
     if (cat && cat in sebaranRumpun) sebaranRumpun[cat]++

@@ -25,9 +25,11 @@
           Kenali Potensi Anak dari<br><span class="text-brand-500">Akar Keluarganya</span>
         </h1>
         <p class="mt-6 text-lg leading-relaxed text-gray-600">
-          Bukan zodiak, bukan tebakan. PetaMinatBakat memetakan kecenderungan potensi anak berdasarkan
+          Bukan zodiak, bukan tebakan. PetaMinatBakat memetakan potensi anak berdasarkan
           rekam jejak karakter keluarga besar (<strong class="text-gray-900">Nasab &amp; Hasab</strong>) —
-          framework pengasuhan Islami yang menghasilkan persona, skor 4 rumpun, dan rekomendasi bimbingan belajar yang personal.
+          framework pengasuhan Islami yang menganalisis <strong class="text-gray-900">6 figur keluarga</strong>,
+          menghasilkan persona, skor 4 rumpun, status keselarasan ekosistem keluarga (<strong class="text-gray-900">Fit-Gap</strong>),
+          dan rekomendasi bimbingan belajar yang personal.
         </p>
 
         <!-- Benefit pills -->
@@ -175,6 +177,47 @@
       </div>
     </section>
 
+    <!-- Hasab Keluarga & Fit-Gap -->
+    <section class="border-t border-gray-100 bg-amber-50/40 px-6 py-16">
+      <div class="mx-auto max-w-3xl">
+        <div class="mb-10 text-center">
+          <p class="text-xs font-semibold uppercase tracking-widest text-amber-700">Keunggulan Utama</p>
+          <h2 class="mt-2 text-2xl font-bold text-gray-950">Bukan Cuma Anak — Ekosistem Keluarganya Pun Dianalisis</h2>
+          <p class="mt-3 text-sm text-gray-500">
+            Hampir semua platform hanya menilai anak. PetaMinatBakat melangkah lebih jauh:<br>
+            6 figur keluarga (Ayah, Ibu, 2 Kakek, 2 Nenek) dinilai lalu dicocokkan dengan potensi anak.
+          </p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div class="rounded-2xl border border-amber-200 bg-white p-5">
+            <div class="mb-3 text-2xl">👨‍👩‍👧</div>
+            <h3 class="text-sm font-semibold text-gray-900">Penilaian 6 Figur</h3>
+            <p class="mt-1 text-xs leading-relaxed text-gray-500">Ayah, Ibu, Kakek &amp; Nenek dari kedua pihak — masing-masing dinilai 5 dimensi Hasab secara terpisah.</p>
+          </div>
+          <div class="rounded-2xl border border-amber-200 bg-white p-5">
+            <div class="mb-3 text-2xl">⚡</div>
+            <h3 class="text-sm font-semibold text-gray-900">Skor Fit-Gap Keluarga</h3>
+            <p class="mt-1 text-xs leading-relaxed text-gray-500">Sistem menghitung keselarasan antara Top-3 Hasab keluarga dengan rumpun dominan anak — hasilnya <strong>OPTIMAL</strong> atau <strong>GAP</strong>.</p>
+          </div>
+          <div class="rounded-2xl border border-amber-200 bg-white p-5">
+            <div class="mb-3 text-2xl">🎯</div>
+            <h3 class="text-sm font-semibold text-gray-900">Bridging Action</h3>
+            <p class="mt-1 text-xs leading-relaxed text-gray-500">AI merekomendasikan tindakan konkret per figur: siapa yang bisa menjadi mentor, kegiatan apa yang perlu difasilitasi.</p>
+          </div>
+        </div>
+        <div class="mt-6 rounded-2xl border border-amber-200 bg-white px-6 py-4">
+          <p class="text-center text-sm text-gray-600 italic">
+            "Apakah ekosistem keluarga Anda adalah <strong class="text-green-700">katalis</strong> atau justru membutuhkan <strong class="text-amber-700">jembatan</strong> bagi potensi ananda?"
+          </p>
+          <p class="mt-3 text-center">
+            <NuxtLink :to="`/results/${demoResultId}`" class="text-xs font-semibold text-brand-600 hover:text-brand-700 underline underline-offset-2">
+              Lihat contoh laporan Fit-Gap →
+            </NuxtLink>
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- Cara Kerja -->
     <section class="border-t border-gray-100 bg-gray-25 px-6 py-16">
       <div class="mx-auto max-w-3xl">
@@ -183,7 +226,7 @@
           <h2 class="mt-2 text-2xl font-bold text-gray-950">Bagaimana Cara Kerjanya?</h2>
         </div>
 
-        <div class="mb-8 grid gap-4 sm:grid-cols-3">
+        <div class="mb-8 grid gap-4 sm:grid-cols-4">
           <div class="card p-5 text-center">
             <div class="mb-3 text-2xl">🔍</div>
             <h3 class="mb-1 text-sm font-semibold text-gray-900">Anda Mengamati</h3>
@@ -195,9 +238,14 @@
             <p class="text-xs leading-relaxed text-gray-500">Skor 4 rumpun Hasab dihitung deterministik dari jawaban Anda — transparan, bukan black box.</p>
           </div>
           <div class="card p-5 text-center">
+            <div class="mb-3 text-2xl">👨‍👩‍👧</div>
+            <h3 class="mb-1 text-sm font-semibold text-gray-900">Nilai 6 Figur Keluarga</h3>
+            <p class="text-xs leading-relaxed text-gray-500">Jawab pertanyaan untuk Ayah, Ibu, Kakek &amp; Nenek. Sistem menghitung Fit-Gap antara Hasab keluarga dan potensi anak.</p>
+          </div>
+          <div class="card p-5 text-center">
             <div class="mb-3 text-2xl">🎯</div>
-            <h3 class="mb-1 text-sm font-semibold text-gray-900">Terima Hasil Peta Bakat</h3>
-            <p class="text-xs leading-relaxed text-gray-500">Terima laporan hasil persona, narasi, dan rekomendasi bimbingan belajar yang personal. Akurasi bergantung pada kejujuran pengisian.</p>
+            <h3 class="mb-1 text-sm font-semibold text-gray-900">Terima Laporan Lengkap</h3>
+            <p class="text-xs leading-relaxed text-gray-500">Persona, narasi Fit-Gap, bridging action per figur, micro-dosing mingguan, dan rekomendasi les personal.</p>
           </div>
         </div>
 
@@ -318,15 +366,18 @@
 </template>
 
 <script setup>
+const config = useRuntimeConfig()
+const demoResultId = config.public.demoResultId || '4d943584-3b2d-48e8-8098-60749837950e'
+
 useHead({
   title: 'Cek Bakat Anak Online Berbasis Nasab & Hasab — PetaMinatBakat',
   meta: [
     {
       name: 'description',
-      content: 'Kenali potensi anak dari rekam jejak karakter keluarga besar menggunakan framework Nasab & Hasab. Analisis AI menghasilkan persona, skor 4 rumpun, micro-dosing mingguan, dan rekomendasi bimbingan belajar yang personal. Rp 99.000.',
+      content: 'Kenali potensi anak dari rekam jejak karakter keluarga besar menggunakan framework Nasab & Hasab. Analisis 6 figur keluarga, laporan Fit-Gap ekosistem, persona AI, micro-dosing mingguan & rekomendasi les personal. Rp 99.000.',
     },
-    { property: 'og:title', content: 'PetaMinatBakat — Peta Potensi Anak dari Nasab & Hasab' },
-    { property: 'og:description', content: 'Framework pengasuhan Islami berbasis AI. Kenali rumpun kecerdasan dominan anak dan dapatkan rekomendasi aktivitas yang personal.' },
+    { property: 'og:title', content: 'PetaMinatBakat — Analisis Potensi Anak + Ekosistem 6 Figur Keluarga' },
+    { property: 'og:description', content: 'Bukan cuma anak yang dianalisis — ekosistem keluarganya pun dianalisis. Framework Nasab & Hasab menghasilkan laporan Fit-Gap, persona AI, dan rekomendasi pengasuhan yang personal.' },
   ],
 })
 
@@ -351,6 +402,8 @@ const openFaq = ref(null)
 
 const pills = [
   '✓ Rp 99.000 · 1 laporan',
+  '✓ Analisis 6 Figur Keluarga',
+  '✓ Laporan Fit-Gap Ekosistem Keluarga',
   '✓ Berbasis Al-Qur\'an & Sunnah',
   '✓ Laporan PDF',
   '✓ Rekomendasi bimbingan belajar yang personal',
@@ -375,10 +428,10 @@ const testimonials = [
 ]
 
 const elshaSkor = [
-  { code: 'ilmi',   icon: '📚', label: 'Al-Ilmi',    pct: 26.51, dominant: true  },
-  { code: 'wajdan', icon: '🎨', label: 'Al-Wajdan',  pct: 26.51, dominant: false },
-  { code: 'amali',  icon: '🛠️', label: 'Al-Amali',   pct: 24.10, dominant: false },
-  { code: 'asyiha', icon: '🤝', label: 'Al-Qiyadah', pct: 22.89, dominant: false },
+  { code: 'ilmi',    icon: '📚', label: 'Al-Ilmi',    pct: 26.51, dominant: true  },
+  { code: 'karam',   icon: '🤲', label: 'Al-Karam',   pct: 26.51, dominant: false },
+  { code: 'amali',   icon: '🛠️', label: 'Al-Amali',   pct: 24.10, dominant: false },
+  { code: 'qiyadah', icon: '🤝', label: 'Al-Qiyadah', pct: 22.89, dominant: false },
 ]
 
 const elshaLes = [
@@ -388,10 +441,10 @@ const elshaLes = [
 ]
 
 const categories = [
-  { code: 'asyiha', name: 'Hasab Al-Qiyadah', description: 'Kepemimpinan, komunikasi, empati sosial, dan pengaruh positif', icon: '🤝' },
-  { code: 'ilmi',   name: 'Hasab Al-Ilmi',   description: 'Kecerdasan intelektual, analitis, ingin tahu, dan pencinta ilmu', icon: '📚' },
-  { code: 'amali',  name: 'Hasab Al-Amali',  description: 'Teknis, praktis, bisnis, eksekusi, dan keterampilan tangan', icon: '🛠️' },
-  { code: 'wajdan', name: 'Hasab Al-Wajdan', description: 'Estetika, rasa, intuisi, spiritual, dan ekspresi diri', icon: '🎨' },
+  { code: 'qiyadah', name: 'Hasab Al-Qiyadah', description: 'Kepemimpinan, komunikasi, empati sosial, dan pengaruh positif', icon: '🤝' },
+  { code: 'ilmi',    name: 'Hasab Al-Ilmi',    description: 'Kecerdasan intelektual, analitis, ingin tahu, dan pencinta ilmu', icon: '📚' },
+  { code: 'amali',   name: 'Hasab Al-Amali',   description: 'Teknis, praktis, bisnis, eksekusi, dan keterampilan tangan', icon: '🛠️' },
+  { code: 'karam',   name: 'Hasab Al-Karam',   description: 'Kedermawanan, empati sosial, filantropi, dan kerelaan berkorban', icon: '🤲' },
 ]
 
 const claimRows = [
@@ -422,6 +475,14 @@ const faqs = [
   {
     q: 'Bagaimana rekomendasi bimbingan belajar dihasilkan?',
     a: 'Sistem menganalisis kombinasi skor 4 rumpun, usia, jenis kelamin, dan minat alami anak yang Anda isi. Hasilnya berupa 3 rekomendasi jalur utama yang spesifik dan bisa langsung dicari, plus 1 aktivitas pendukung dari rumpun ke-2.',
+  },
+  {
+    q: 'Apa itu penilaian 6 figur keluarga dan Fit-Gap?',
+    a: 'Setelah mengisi data anak, Anda diminta menilai karakter 6 figur keluarga: Ayah, Ibu, Kakek dan Nenek dari pihak Ayah, serta Kakek dan Nenek dari pihak Ibu. Sistem menghitung Top-3 Hasab dominan keluarga lalu membandingkannya dengan rumpun dominan anak. Hasilnya adalah status OPTIMAL (keluarga sudah menjadi katalis alami) atau GAP (butuh strategi bridging agar ekosistem mendukung potensi anak). Figur yang sudah meninggal atau tidak dikenal bisa dilewati.',
+  },
+  {
+    q: 'Apakah bridging action bisa saya terapkan sendiri?',
+    a: 'Ya. AI menghasilkan 2–4 tindakan konkret yang ditujukan ke figur spesifik (Ayah, Ibu, atau keluarga besar) lengkap dengan frekuensi dan alasan singkat. Tindakan ini dirancang praktis — bisa langsung diterapkan tanpa perlu pelatihan khusus.',
   },
 ]
 

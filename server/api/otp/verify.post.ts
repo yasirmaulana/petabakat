@@ -30,10 +30,10 @@ export default defineEventHandler(async (event) => {
             select: {
               personaLabel: true,
               dominantHasab: true,
-              scoreAsyiha: true,
+              scoreQiyadah: true,
               scoreIlmi: true,
               scoreAmali: true,
-              scoreWajdan: true,
+              scoreKaram: true,
               createdAt: true,
             },
           },

@@ -2,11 +2,13 @@ import { prisma } from '~/server/utils/prisma'
 import { verifyPassword } from '~/server/utils/auth'
 import { signSchoolToken } from '~/server/utils/schoolAuth'
 import { checkRateLimit } from '~/server/utils/rateLimiter'
+import { verifyRecaptcha } from '~/server/utils/verifyRecaptcha'
 
 export default defineEventHandler(async (event) => {
   checkRateLimit(event, { max: 5, windowMs: 60_000, keyPrefix: 'login-sekolah' })
 
-  const { email, password } = await readBody(event)
+  const { email, password, recaptchaToken } = await readBody(event)
+  await verifyRecaptcha(recaptchaToken, 'sekolah_login')
   if (!email || !password) throw createError({ statusCode: 400, message: 'Email dan password wajib diisi.' })
 
   const user = await prisma.schoolUser.findUnique({

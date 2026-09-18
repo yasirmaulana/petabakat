@@ -207,14 +207,14 @@ model ChildNaturalResponse {
 model SurveyResult {
   id                 Int      @id @default(autoincrement())
   surveyId           Int      @unique @map("survey_id")
-  scoreAsyiha        Int      @map("score_asyiha") @db.SmallInt
+  scoreQiyadah       Int      @map("score_qiyadah") @db.SmallInt
   scoreIlmi          Int      @map("score_ilmi") @db.SmallInt
   scoreAmali         Int      @map("score_amali") @db.SmallInt
-  scoreWajdan        Int      @map("score_wajdan") @db.SmallInt
-  pctAsyiha          Decimal  @map("pct_asyiha") @db.Decimal(5, 2)
+  scoreKaram         Int      @map("score_karam") @db.SmallInt
+  pctQiyadah         Decimal  @map("pct_qiyadah") @db.Decimal(5, 2)
   pctIlmi            Decimal  @map("pct_ilmi") @db.Decimal(5, 2)
   pctAmali           Decimal  @map("pct_amali") @db.Decimal(5, 2)
-  pctWajdan          Decimal  @map("pct_wajdan") @db.Decimal(5, 2)
+  pctKaram           Decimal  @map("pct_karam") @db.Decimal(5, 2)
   dominantHasab      String   @map("dominant_hasab") @db.VarChar(20)
   source             String   @default("ai") @db.VarChar(10)
   personaLabel       String   @map("persona_label") @db.VarChar(100)
@@ -274,7 +274,7 @@ model PdfReport {
 /// Soal untuk penilaian Hasab Keluarga (5 dimensi × 6 opsi = 30 soal)
 model FamilyQuestion {
   id        Int            @id @default(autoincrement())
-  dimension String         @db.VarChar(20) // ilmi | qiyadah | amali | wajdan | tarbiyah
+  dimension String         @db.VarChar(20) // ilmi | qiyadah | amali | karam | tarbiyah
   order     Int            // 1–6 dalam dimensi
   code      String         @unique @db.VarChar(10) // D1_O1 … D5_O6
   text      String
@@ -332,7 +332,7 @@ model FamilyResult {
   scoreIlmi       Decimal          @map("score_ilmi") @db.Decimal(6, 2)
   scoreQiyadah    Decimal          @map("score_qiyadah") @db.Decimal(6, 2)
   scoreAmali      Decimal          @map("score_amali") @db.Decimal(6, 2)
-  scoreWajdan     Decimal          @map("score_wajdan") @db.Decimal(6, 2)
+  scoreKaram      Decimal          @map("score_karam") @db.Decimal(6, 2)
   scoreTarbiyah   Decimal          @map("score_tarbiyah") @db.Decimal(6, 2)
   top3Hasab       String[]         @map("top3_hasab") // ['ilmi','qiyadah','amali']
   fitGapStatus    String           @map("fit_gap_status") @db.VarChar(20) // OPTIMAL | GAP

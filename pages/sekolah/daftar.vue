@@ -74,12 +74,16 @@ const form = reactive({ name: '', npsn: '', city: '', estimatedStudents: '', adm
 const loading = ref(false)
 const submitted = ref(false)
 const error = ref('')
+const { loadScript, executeRecaptcha } = useRecaptcha()
+
+onMounted(loadScript)
 
 async function submit() {
   loading.value = true
   error.value = ''
   try {
-    await $fetch('/api/sekolah/daftar', { method: 'POST', body: form })
+    const recaptchaToken = await executeRecaptcha('sekolah_daftar')
+    await $fetch('/api/sekolah/daftar', { method: 'POST', body: { ...form, recaptchaToken } })
     submitted.value = true
   } catch (err) {
     error.value = err?.data?.message || 'Gagal mengirim pendaftaran.'

@@ -38,12 +38,16 @@ const router = useRouter()
 const form = reactive({ email: '', password: '' })
 const loading = ref(false)
 const error = ref('')
+const { loadScript, executeRecaptcha } = useRecaptcha()
+
+onMounted(loadScript)
 
 async function submit() {
   loading.value = true
   error.value = ''
   try {
-    await $fetch('/api/sekolah/auth/login', { method: 'POST', body: form })
+    const recaptchaToken = await executeRecaptcha('sekolah_login')
+    await $fetch('/api/sekolah/auth/login', { method: 'POST', body: { ...form, recaptchaToken } })
     await router.push('/sekolah/dashboard')
   } catch (err) {
     error.value = err?.data?.message || 'Login gagal.'

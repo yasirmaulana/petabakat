@@ -38,12 +38,16 @@ const router = useRouter()
 const form = reactive({ email: '', password: '' })
 const loading = ref(false)
 const error = ref('')
+const { loadScript, executeRecaptcha } = useRecaptcha()
+
+onMounted(loadScript)
 
 async function submit() {
   loading.value = true
   error.value = ''
   try {
-    await $fetch('/api/mitra/auth/login', { method: 'POST', body: form })
+    const recaptchaToken = await executeRecaptcha('mitra_login')
+    await $fetch('/api/mitra/auth/login', { method: 'POST', body: { ...form, recaptchaToken } })
     await router.push('/mitra/dashboard')
   } catch (err) {
     error.value = err?.data?.message || err?.message || 'Login gagal. Periksa email dan password.'

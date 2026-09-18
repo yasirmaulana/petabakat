@@ -31,13 +31,13 @@ const QUESTIONS = [
   { dimension: 'amali', order: 5, code: 'D3_O5', text: 'Figur ini mengutamakan aksi nyata dan penyelesaian tugas daripada sekadar wacana/teori.' },
   { dimension: 'amali', order: 6, code: 'D3_O6', text: 'Figur ini sangat teratur, rapi, dan menjaga standar kualitas tinggi dalam bekerja.' },
 
-  // ── D4: Hasab Wajdan ────────────────────────────────────────────────────────
-  { dimension: 'wajdan', order: 1, code: 'D4_O1', text: 'Figur ini ringan tangan dan royal dalam memberikan bantuan finansial/materi kepada yang membutuhkan.' },
-  { dimension: 'wajdan', order: 2, code: 'D4_O2', text: 'Figur ini aktif mengabdi di rumah ibadah, pengajian, atau kegiatan sosial kemasyarakatan.' },
-  { dimension: 'wajdan', order: 3, code: 'D4_O3', text: 'Figur ini sering dimintai nasihat dan dipercaya menjadi penengah masalah perselisihan.' },
-  { dimension: 'wajdan', order: 4, code: 'D4_O4', text: 'Figur ini sangat ketat menjaga komitmen janji dan kejujuran rezeki.' },
-  { dimension: 'wajdan', order: 5, code: 'D4_O5', text: 'Figur ini rajin merawat hubungan kekeluargaan dan menjaga keakraban dengan tetangga.' },
-  { dimension: 'wajdan', order: 6, code: 'D4_O6', text: 'Figur ini peka terhadap perasaan orang lain dan selalu siap mendengarkan keluh kesah.' },
+  // ── D4: Hasab Karam ─────────────────────────────────────────────────────────
+  { dimension: 'karam', order: 1, code: 'D4_O1', text: 'Figur ini ringan tangan memberi bantuan materi atau tenaga kepada yang membutuhkan tanpa diminta.' },
+  { dimension: 'karam', order: 2, code: 'D4_O2', text: 'Figur ini aktif terlibat dalam kegiatan sosial, filantropi, atau pengabdian kemasyarakatan.' },
+  { dimension: 'karam', order: 3, code: 'D4_O3', text: 'Figur ini sering menjadi penengah atau penyejuk dalam perselisihan di keluarga maupun lingkungan.' },
+  { dimension: 'karam', order: 4, code: 'D4_O4', text: 'Figur ini dikenal jujur, amanah, dan setia pada janji serta komitmen yang telah diberikan.' },
+  { dimension: 'karam', order: 5, code: 'D4_O5', text: 'Figur ini peka terhadap kesulitan orang lain dan selalu tergerak untuk menolong.' },
+  { dimension: 'karam', order: 6, code: 'D4_O6', text: 'Figur ini rela menanggung kerugian atau beban demi menjaga keutuhan keluarga atau kelompok.' },
 
   // ── D5: Hasab Tarbiyah ──────────────────────────────────────────────────────
   { dimension: 'tarbiyah', order: 1, code: 'D5_O1', text: 'Figur ini terbiasa mengajak anak berdiskusi dan menghargai pendapat/sudut pandang anak.' },

@@ -7,21 +7,21 @@ export function fallbackAnalysis(
   const top2 = orderedHasab.slice(0, 2).sort().join('+')
 
   const personas: Record<string, { label: string; description: string }> = {
-    'amali+ilmi+asyiha': {
+    'amali+ilmi+qiyadah': {
       label: 'The Innovator Leader',
       description: 'Kombinasi eksekusi teknis, daya kritis, dan pengaruh sosial. Anak ini cocok dikembangkan ke arah technopreneur, product leader, atau robotics/AI.',
     },
-    'ilmi+wajdan+asyiha': {
-      label: 'The Visionary Curator',
-      description: 'Kombinasi kecerdasan, estetika, dan empati sosial. Potensi kuat di bidang UI/UX, arsitektur, creative direction, atau kuratorial.',
+    'ilmi+karam+qiyadah': {
+      label: 'The Visionary Servant',
+      description: 'Kombinasi kecerdasan, empati mendalam, dan kepemimpinan. Potensi kuat di bidang pendidikan, konseling, hubungan masyarakat, atau kepemimpinan sosial.',
     },
-    'ilmi+wajdan': {
-      label: 'The Wise Thinker',
-      description: 'Kecerdasan yang dipadukan dengan kedalaman rasa dan spiritual. Berpotensi menjadi psikolog, konselor, penulis, atau cendekiawan.',
+    'ilmi+karam': {
+      label: 'The Compassionate Scholar',
+      description: 'Kecerdasan yang dipadukan dengan empati dan kedermawanan. Berpotensi menjadi konselor, peneliti sosial, pendidik, atau pegiat kemanusiaan.',
     },
-    'amali+wajdan': {
-      label: 'The Ethical Creator',
-      description: 'Keterampilan praktis bertemu dengan rasa dan estetika. Berpotensi menjadi social entrepreneur, artisan, atau desainer produk berdampak sosial.',
+    'amali+karam': {
+      label: 'The Ethical Builder',
+      description: 'Keterampilan praktis bertemu dengan kepekaan sosial. Berpotensi menjadi social entrepreneur, pengelola lembaga sosial, atau pemimpin komunitas.',
     },
   }
 

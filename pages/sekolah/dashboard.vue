@@ -115,7 +115,7 @@
               <option value="qiyadah">Al-Qiyadah</option>
               <option value="ilmi">Al-Ilmi</option>
               <option value="amali">Al-Amali</option>
-              <option value="wajdan">Al-Wajdan</option>
+              <option value="karam">Al-Karam</option>
             </select>
           </div>
           <button class="btn-secondary px-3 py-2 text-xs shrink-0" @click="exportCSV">Export CSV</button>
@@ -263,7 +263,7 @@ const rumpunList = [
   { key: 'qiyadah', label: 'Al-Qiyadah', color: 'bg-blue-400' },
   { key: 'ilmi', label: 'Al-Ilmi', color: 'bg-green-400' },
   { key: 'amali', label: 'Al-Amali', color: 'bg-amber-400' },
-  { key: 'wajdan', label: 'Al-Wajdan', color: 'bg-purple-400' },
+  { key: 'karam', label: 'Al-Karam', color: 'bg-teal-400' },
 ]
 
 // Siswa
@@ -292,10 +292,10 @@ function exportCSV() {
       s.schoolClass.name,
       s.survey.result?.dominantCategory || '',
       s.survey.result?.personaLabel || '',
-      s.survey.result?.pctAsyiha || '',
+      s.survey.result?.pctQiyadah || '',
       s.survey.result?.pctIlmi || '',
       s.survey.result?.pctAmali || '',
-      s.survey.result?.pctWajdan || '',
+      s.survey.result?.pctKaram || '',
       new Date(s.survey.createdAt).toLocaleDateString('id-ID'),
     ]),
   ]

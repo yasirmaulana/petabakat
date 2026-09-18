@@ -52,8 +52,8 @@ export function buildPdfHtml(result: any) {
     <div class="scores">
       <div class="score-box">
         <div class="label">Al-Qiyadah</div>
-        <div class="value">${result.scoreAsyiha}</div>
-        <div class="pct">${result.pctAsyiha}%</div>
+        <div class="value">${result.scoreQiyadah}</div>
+        <div class="pct">${result.pctQiyadah}%</div>
       </div>
       <div class="score-box">
         <div class="label">Ilmi</div>
@@ -67,8 +67,8 @@ export function buildPdfHtml(result: any) {
       </div>
       <div class="score-box">
         <div class="label">Wajdan</div>
-        <div class="value">${result.scoreWajdan}</div>
-        <div class="pct">${result.pctWajdan}%</div>
+        <div class="value">${result.scoreKaram}</div>
+        <div class="pct">${result.pctKaram}%</div>
       </div>
     </div>
     <p>${result.scoreNarrative}</p>

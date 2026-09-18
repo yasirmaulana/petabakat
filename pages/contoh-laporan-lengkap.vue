@@ -240,10 +240,10 @@ const { data: result, pending } = await useFetch(`/api/results/${DEMO_ID}`)
 const showDisclaimer = ref(false)
 
 const scoreItems = [
-  { code: 'asyiha', label: 'Qiyadah', icon: '🤝', scoreKey: 'scoreAsyiha', pctKey: 'pctAsyiha' },
-  { code: 'ilmi',   label: 'Ilmi',   icon: '📚', scoreKey: 'scoreIlmi',   pctKey: 'pctIlmi'   },
-  { code: 'amali',  label: 'Amali',  icon: '🛠️', scoreKey: 'scoreAmali',  pctKey: 'pctAmali'  },
-  { code: 'wajdan', label: 'Wajdan', icon: '🎨', scoreKey: 'scoreWajdan', pctKey: 'pctWajdan' },
+  { code: 'qiyadah', label: 'Al-Qiyadah', icon: '🤝', scoreKey: 'scoreQiyadah', pctKey: 'pctQiyadah' },
+  { code: 'ilmi',    label: 'Ilmi',       icon: '📚', scoreKey: 'scoreIlmi',    pctKey: 'pctIlmi'    },
+  { code: 'amali',   label: 'Amali',      icon: '🛠️', scoreKey: 'scoreAmali',   pctKey: 'pctAmali'   },
+  { code: 'karam',   label: 'Al-Karam',   icon: '🤲', scoreKey: 'scoreKaram',   pctKey: 'pctKaram'   },
 ]
 
 const chartOptions = computed(() => ({
@@ -260,7 +260,7 @@ const chartOptions = computed(() => ({
 const chartSeries = computed(() => [{
   name: 'Skor Hasab',
   data: result.value
-    ? [result.value.scoreAsyiha, result.value.scoreIlmi, result.value.scoreAmali, result.value.scoreWajdan]
+    ? [result.value.scoreQiyadah, result.value.scoreIlmi, result.value.scoreAmali, result.value.scoreKaram]
     : [0, 0, 0, 0],
 }])
 
