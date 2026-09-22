@@ -49,6 +49,11 @@ export default defineEventHandler(async (event) => {
           child: true,
           parent: true,
           responses: true,
+          familyAssessment: {
+            include: {
+              result: true,
+            },
+          },
         },
       },
     },

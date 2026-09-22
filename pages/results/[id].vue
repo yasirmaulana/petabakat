@@ -563,7 +563,7 @@ const showWakafPopup = ref(false)
 const showDisclaimer = ref(false)
 
 // ── Hasab Keluarga / Fit-Gap ──────────────────────────────────────────────────
-const { data: familyData } = useFetch(`/api/family-assessment/${resultId}`, { server: false })
+const { data: familyData } = useFetch(`/api/family-assessment/public/${resultId}`, { server: false })
 const familyResult = computed(() => {
   const d = familyData.value as { exists?: boolean; assessment?: { result: unknown; status: string } } | null
   if (!d?.exists || !d.assessment?.result || d.assessment.status !== 'completed') return null

@@ -28,7 +28,7 @@
           Bukan zodiak, bukan tebakan. PetaMinatBakat memetakan potensi anak berdasarkan
           rekam jejak karakter keluarga besar (<strong class="text-gray-900">Nasab &amp; Hasab</strong>) —
           framework pengasuhan Islami yang menganalisis <strong class="text-gray-900">6 figur keluarga</strong>,
-          menghasilkan persona, skor 4 rumpun, status keselarasan ekosistem keluarga (<strong class="text-gray-900">Fit-Gap</strong>),
+          menghasilkan persona, skor 4 rumpun, status keselarasan hasab keluarga (<strong class="text-gray-900">Fit-Gap</strong>),
           dan rekomendasi bimbingan belajar yang personal.
         </p>
 
