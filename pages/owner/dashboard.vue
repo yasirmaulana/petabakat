@@ -208,6 +208,7 @@
                   <th class="px-4 py-3 font-medium">Nama</th>
                   <th class="px-4 py-3 font-medium">Tipe</th>
                   <th class="px-4 py-3 font-medium">Kode Referral</th>
+                  <th class="px-4 py-3 font-medium">Kredit</th>
                   <th class="px-4 py-3 font-medium">Voucher</th>
                   <th class="px-4 py-3 font-medium">Komisi</th>
                   <th class="px-4 py-3 font-medium">Status</th>
@@ -223,6 +224,13 @@
                   </td>
                   <td class="px-4 py-3 text-xs text-gray-500">{{ m.type }}</td>
                   <td class="px-4 py-3 font-mono text-xs">{{ m.referralCode }}</td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-medium text-gray-900">{{ m.creditBalance }}</span>
+                      <button @click="topupMitra(m.id, m.name)"
+                        class="rounded px-1.5 py-0.5 text-xs bg-brand-50 text-brand-700 hover:bg-brand-100">+</button>
+                    </div>
+                  </td>
                   <td class="px-4 py-3 text-gray-600">{{ m._count.vouchers }}</td>
                   <td class="px-4 py-3 text-gray-600">{{ m._count.commissions }}</td>
                   <td class="px-4 py-3">
@@ -239,7 +247,7 @@
                         class="text-xs text-emerald-600 hover:text-emerald-800">Approve</button>
                       <button v-if="m.status === 'active'" @click="suspendMitra(m.id, 'suspend')"
                         class="text-xs text-red-400 hover:text-red-600">Suspend</button>
-                      <button v-if="m.status === 'suspended'" @click="suspendMitra(m.id, 'unsuspend')"
+                      <button v-if="m.status === 'suspended'" @click="approveMitra(m.id)"
                         class="text-xs text-brand-600 hover:text-brand-800">Aktifkan</button>
                     </div>
                   </td>
@@ -618,13 +626,31 @@ const { data: mitraData, pending: mitraPending, refresh: refreshMitra } = useFet
 )
 
 async function approveMitra(id: number) {
-  await $fetch(`/api/owner/mitra/${id}/approve`, { method: 'POST' })
+  const res = await $fetch<{ ok: boolean; partner: { name: string; email: string }; temporaryPassword: string }>(
+    `/api/owner/mitra/${id}/approve`, { method: 'POST' },
+  )
   refreshMitra()
+  alert(`✅ Mitra ${res.partner.name} diaktifkan.\n\nEmail: ${res.partner.email}\nPassword sementara: ${res.temporaryPassword}\n\nPassword sudah dikirim via WA. Catat jika WA gagal.`)
 }
 
 async function suspendMitra(id: number, action: 'suspend' | 'unsuspend') {
   await $fetch(`/api/owner/mitra/${id}/suspend`, { method: 'POST', body: { action } })
   refreshMitra()
+}
+
+async function topupMitra(id: number, name: string) {
+  const input = window.prompt(`Top-up kredit untuk ${name}\nJumlah kredit (1–1000):`, '10')
+  if (input === null) return
+  const amount = parseInt(input, 10)
+  if (isNaN(amount) || amount < 1 || amount > 1000) {
+    alert('Jumlah tidak valid. Masukkan angka 1–1000.')
+    return
+  }
+  const res = await $fetch<{ ok: boolean; partner: { name: string; creditBalance: number } }>(
+    `/api/owner/mitra/${id}/topup`, { method: 'POST', body: { amount } },
+  )
+  refreshMitra()
+  alert(`✅ Kredit ${res.partner.name} ditambah ${amount}.\nSaldo sekarang: ${res.partner.creditBalance}`)
 }
 
 // ── Sekolah ──

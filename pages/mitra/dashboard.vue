@@ -33,6 +33,70 @@
         </div>
       </div>
 
+      <!-- Panduan: Affiliate -->
+      <div v-if="mitra?.type === 'affiliate'" class="card p-5 space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">🔗</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-gray-900">Link Referral Kamu</p>
+            <p class="mt-0.5 text-sm text-gray-500">Bagikan link ini ke orang tua. Setiap pembelian laporan lewat link kamu, kamu dapat komisi otomatis.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <code class="flex-1 truncate rounded-lg bg-gray-100 px-3 py-2 text-xs font-mono text-gray-800 border border-gray-200">
+                {{ referralLink }}
+              </code>
+              <button @click="copyReferral"
+                class="shrink-0 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                {{ copied ? '✓ Disalin' : 'Salin' }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-gray-100 pt-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">Cara Kerja</p>
+          <div class="grid gap-3 sm:grid-cols-3 text-sm">
+            <div class="flex gap-2.5">
+              <span class="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">1</span>
+              <p class="text-gray-600">Bagikan link referral ke orang tua atau komunitas parenting.</p>
+            </div>
+            <div class="flex gap-2.5">
+              <span class="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">2</span>
+              <p class="text-gray-600">Mereka isi survei & bayar via link kamu. Voucher otomatis terhubung ke kode referralmu.</p>
+            </div>
+            <div class="flex gap-2.5">
+              <span class="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">3</span>
+              <p class="text-gray-600">Komisi masuk ke saldo kamu. Request pencairan kapan saja lewat tab Komisi.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panduan: Institutional -->
+      <div v-if="mitra?.type === 'institutional'" class="card p-5 space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">🎟️</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-gray-900">Cara Pakai Voucher</p>
+            <p class="mt-0.5 text-sm text-gray-500">Kamu punya <strong>{{ stats?.creditBalance ?? 0 }} kredit</strong> tersisa. Setiap kredit = 1 voucher = 1 laporan anak.</p>
+          </div>
+        </div>
+        <div class="border-t border-gray-100 pt-4">
+          <div class="grid gap-3 sm:grid-cols-3 text-sm">
+            <div class="flex gap-2.5">
+              <span class="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">1</span>
+              <p class="text-gray-600">Buka tab <strong>Kode Voucher</strong>, generate kode sesuai jumlah peserta.</p>
+            </div>
+            <div class="flex gap-2.5">
+              <span class="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">2</span>
+              <p class="text-gray-600">Bagikan kode ke orang tua. Mereka masukkan kode di halaman survei.</p>
+            </div>
+            <div class="flex gap-2.5">
+              <span class="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">3</span>
+              <p class="text-gray-600">Laporan muncul di tab <strong>Laporan</strong>. Bisa export CSV untuk rekap.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Tabs -->
       <div class="flex gap-1 border-b border-gray-200">
         <button
@@ -215,6 +279,18 @@ const { data: vouchers, refresh: refreshVouchers } = useFetch('/api/mitra/vouche
 const { data: commissions } = useFetch(
   () => mitra.value?.type === 'affiliate' ? '/api/mitra/commissions' : null
 )
+
+const config = useRuntimeConfig()
+const referralLink = computed(() => {
+  const base = config.public.siteUrl || 'https://petabakat.otomatisin.web.id'
+  return `${base}/survey?ref=${mitra.value?.referralCode ?? ''}`
+})
+const copied = ref(false)
+async function copyReferral() {
+  await navigator.clipboard.writeText(referralLink.value)
+  copied.value = true
+  setTimeout(() => { copied.value = false }, 2000)
+}
 
 const tabs = computed(() => {
   const t = [{ key: 'laporan', label: 'Laporan' }]
