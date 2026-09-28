@@ -36,31 +36,21 @@
       <!-- Panduan: Affiliate -->
       <div v-if="mitra?.type === 'affiliate'" class="card p-5 space-y-4">
         <div class="flex items-start gap-3">
-          <span class="text-2xl">🔗</span>
+          <span class="text-2xl">🎟️</span>
           <div class="flex-1 min-w-0">
-            <p class="font-semibold text-gray-900">Link Referral Kamu</p>
-            <p class="mt-0.5 text-sm text-gray-500">Bagikan link ini ke orang tua. Setiap pembelian laporan lewat link kamu, kamu dapat komisi otomatis.</p>
-            <div class="mt-3 flex items-center gap-2">
-              <code class="flex-1 truncate rounded-lg bg-gray-100 px-3 py-2 text-xs font-mono text-gray-800 border border-gray-200">
-                {{ referralLink }}
-              </code>
-              <button @click="copyReferral"
-                class="shrink-0 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                {{ copied ? '✓ Disalin' : 'Salin' }}
-              </button>
-            </div>
+            <p class="font-semibold text-gray-900">Cara Dapat Komisi</p>
+            <p class="mt-0.5 text-sm text-gray-500">Generate kode voucher di tab <strong>Kode Voucher</strong>, lalu bagikan ke orang tua. Komisi masuk otomatis setelah survei diisi.</p>
           </div>
         </div>
         <div class="border-t border-gray-100 pt-4">
-          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">Cara Kerja</p>
           <div class="grid gap-3 sm:grid-cols-3 text-sm">
             <div class="flex gap-2.5">
               <span class="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">1</span>
-              <p class="text-gray-600">Bagikan link referral ke orang tua atau komunitas parenting.</p>
+              <p class="text-gray-600">Generate kode voucher, lalu bagikan ke orang tua.</p>
             </div>
             <div class="flex gap-2.5">
               <span class="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">2</span>
-              <p class="text-gray-600">Mereka isi survei & bayar via link kamu. Voucher otomatis terhubung ke kode referralmu.</p>
+              <p class="text-gray-600">Orang tua bayar ke admin, admin konfirmasi & aktifkan kode. Baru bisa dipakai isi survei.</p>
             </div>
             <div class="flex gap-2.5">
               <span class="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">3</span>
@@ -141,8 +131,8 @@
         </div>
       </div>
 
-      <!-- Tab: Voucher (hanya Tipe A) -->
-      <div v-if="activeTab === 'voucher' && mitra?.type === 'institutional'" class="space-y-4">
+      <!-- Tab: Voucher -->
+      <div v-if="activeTab === 'voucher'" class="space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="font-semibold text-gray-900">Kode Voucher</h2>
         </div>
@@ -188,7 +178,7 @@
               <tr v-for="v in vouchers" :key="v.id">
                 <td class="px-4 py-3 font-mono text-xs font-medium text-gray-900">{{ v.code }}</td>
                 <td class="px-4 py-3">
-                  <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="v.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">{{ v.status }}</span>
+                  <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="v.status === 'active' ? 'bg-green-100 text-green-700' : v.status === 'pending_payment' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'">{{ v.status }}</span>
                 </td>
                 <td class="px-4 py-3 text-gray-500">{{ v.usedCount }} / {{ v.quota }}</td>
                 <td class="px-4 py-3 text-gray-400 text-xs">{{ v.expiresAt ? new Date(v.expiresAt).toLocaleDateString('id-ID') : '—' }}</td>
@@ -280,21 +270,9 @@ const { data: commissions } = useFetch(
   () => mitra.value?.type === 'affiliate' ? '/api/mitra/commissions' : null
 )
 
-const config = useRuntimeConfig()
-const referralLink = computed(() => {
-  const base = config.public.siteUrl || 'https://petabakat.otomatisin.web.id'
-  return `${base}/survey?ref=${mitra.value?.referralCode ?? ''}`
-})
-const copied = ref(false)
-async function copyReferral() {
-  await navigator.clipboard.writeText(referralLink.value)
-  copied.value = true
-  setTimeout(() => { copied.value = false }, 2000)
-}
 
 const tabs = computed(() => {
-  const t = [{ key: 'laporan', label: 'Laporan' }]
-  if (mitra.value?.type === 'institutional') t.push({ key: 'voucher', label: 'Kode Voucher' })
+  const t = [{ key: 'laporan', label: 'Laporan' }, { key: 'voucher', label: 'Kode Voucher' }]
   if (mitra.value?.type === 'affiliate') t.push({ key: 'komisi', label: 'Komisi' })
   return t
 })

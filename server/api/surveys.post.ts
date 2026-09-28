@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
   const { survey, scores, percentages, orderedHasab } = await prisma.$transaction(async (tx) => {
     // Validate and consume voucher atomically
     let voucherId: number | null = null
+    let voucherPartnerId: number | null = null
     if (body.voucherId) {
       const voucher = await tx.voucher.findUnique({ where: { id: body.voucherId } })
       if (!voucher || voucher.status !== 'active') {
@@ -31,6 +32,7 @@ export default defineEventHandler(async (event) => {
         data: { usedCount: { increment: 1 } },
       })
       voucherId = voucher.id
+      voucherPartnerId = voucher.partnerId
     }
 
     const parent = await tx.parent.upsert({
@@ -71,6 +73,15 @@ export default defineEventHandler(async (event) => {
       },
     })
 
+    if (voucherPartnerId) {
+      const partner = await tx.partner.findUnique({ where: { id: voucherPartnerId }, select: { type: true, commissionRate: true } })
+      if (partner?.type === 'affiliate') {
+        await tx.commission.create({
+          data: { partnerId: voucherPartnerId, surveyId: survey.id, amount: partner.commissionRate, status: 'pending' },
+        })
+      }
+    }
+
     return { survey, scores, percentages, orderedHasab }
   }, {
     isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
@@ -78,12 +89,10 @@ export default defineEventHandler(async (event) => {
     timeout: 15000,
   })
 
-  // Link survey ke dashboard sekolah jika kode valid dan consent diberikan
-  if (body.schoolId && body.schoolConsent) {
-    // Cari kelas default (kelas pertama di sekolah, atau buat placeholder)
+  // Link survey ke dashboard sekolah jika kode valid, consent diberikan, dan kelas dipilih
+  if (body.schoolId && body.schoolConsent && body.schoolClassId) {
     const schoolClass = await prisma.schoolClass.findFirst({
-      where: { schoolId: body.schoolId },
-      orderBy: { grade: 'asc' },
+      where: { id: body.schoolClassId, schoolId: body.schoolId },
     })
     if (schoolClass) {
       await prisma.surveyStudent.create({

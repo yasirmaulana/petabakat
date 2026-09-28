@@ -190,6 +190,13 @@
               Kode sekolah valid — {{ validatedSchoolName }}
             </p>
             <p v-if="schoolStatus === 'invalid'" class="text-sm text-red-600">{{ schoolError }}</p>
+            <div v-if="schoolStatus === 'valid' && schoolClasses.length" class="space-y-1">
+              <label class="label-text">Kelas</label>
+              <select v-model="form.schoolClassId" class="input-field">
+                <option :value="null" disabled>Pilih kelas anak</option>
+                <option v-for="c in schoolClasses" :key="c.id" :value="c.id">{{ c.name }}</option>
+              </select>
+            </div>
             <label v-if="schoolStatus === 'valid'" class="flex items-start gap-3 cursor-pointer rounded-xl border border-green-200 bg-green-50 p-3">
               <input v-model="form.schoolConsent" type="checkbox" class="mt-0.5 h-4 w-4 accent-black shrink-0" />
               <span class="text-xs text-green-800">Saya setuju data hasil survei anak saya dibagikan ke <strong>{{ validatedSchoolName }}</strong> untuk keperluan pendidikan.</span>
@@ -230,7 +237,8 @@
 
             <div class="rounded-xl border border-amber-100 bg-amber-50 p-4">
               <p class="text-sm font-medium text-amber-800">Belum punya voucher?</p>
-              <p class="mt-1 text-xs text-amber-700">Voucher didapatkan setelah melakukan pembayaran Rp 99.000 melalui WhatsApp admin.</p>
+              <p class="mt-1 text-xs text-amber-700">Kalau kamu daftar lewat sekolah/mitra/komunitas, tanyakan kode vouchernya ke mereka.</p>
+              <p class="mt-1 text-xs text-amber-700">Kalau belum ada, voucher bisa didapat setelah pembayaran Rp 99.000 melalui WhatsApp admin.</p>
               <a
                 href="https://wa.me/6281586245143?text=Halo%2C%20saya%20ingin%20mendapatkan%20voucher%20PetaMinatBakat"
                 target="_blank"
@@ -704,6 +712,7 @@ const form = reactive({
   parentEmail: '',
   schoolCode: '',
   schoolConsent: false,
+  schoolClassId: null,
   voucherCode: '',
   // Survey
   nasabAnswers: {},
@@ -724,13 +733,16 @@ const schoolError = ref('')
 const schoolValidating = ref(false)
 const validatedSchoolName = ref('')
 const validatedSchoolId = ref(null)
+const schoolClasses = ref([])
 
 function resetSchool() {
   schoolStatus.value = ''
   schoolError.value = ''
   validatedSchoolName.value = ''
   validatedSchoolId.value = null
+  schoolClasses.value = []
   form.schoolConsent = false
+  form.schoolClassId = null
 }
 
 async function validateSchool() {
@@ -744,10 +756,13 @@ async function validateSchool() {
     schoolStatus.value = 'valid'
     validatedSchoolName.value = res.schoolName
     validatedSchoolId.value = res.schoolId
+    schoolClasses.value = res.classes || []
+    form.schoolClassId = null
   } catch (err) {
     schoolStatus.value = 'invalid'
     schoolError.value = err?.data?.message || 'Kode sekolah tidak ditemukan.'
     validatedSchoolId.value = null
+    schoolClasses.value = []
   } finally {
     schoolValidating.value = false
   }
@@ -904,6 +919,7 @@ async function submitSurvey() {
       schoolId: validatedSchoolId.value,
       schoolCode: form.schoolCode.trim().toUpperCase() || null,
       schoolConsent: form.schoolConsent,
+      schoolClassId: validatedSchoolId.value ? form.schoolClassId : null,
       childName: form.childName,
       childBirthDate: form.childBirthDate,
       childGender: form.childGender,

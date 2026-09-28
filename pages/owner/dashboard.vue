@@ -158,13 +158,16 @@
                   <td class="px-4 py-3 text-gray-500">{{ v.partner?.name ?? '—' }}</td>
                   <td class="px-4 py-3">
                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold"
-                      :class="v.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'">
+                      :class="v.status === 'active' ? 'bg-emerald-100 text-emerald-700' : v.status === 'pending_payment' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'">
                       {{ v.status }}
                     </span>
                   </td>
                   <td class="px-4 py-3 text-xs text-gray-400">{{ v.expiresAt ? fmtDate(v.expiresAt) : '∞' }}</td>
                   <td class="px-4 py-3">
-                    <button v-if="v.status === 'active'"
+                    <button v-if="v.status === 'pending_payment'"
+                      @click="activateVoucher(v.id)"
+                      class="text-xs text-emerald-500 hover:text-emerald-700">Aktifkan</button>
+                    <button v-else-if="v.status === 'active'"
                       @click="deactivateVoucher(v.id)"
                       class="text-xs text-red-400 hover:text-red-600">Nonaktifkan</button>
                   </td>
@@ -576,6 +579,11 @@ const { data: voucherData, pending: voucherPending, refresh: refreshVouchers } =
 
 async function deactivateVoucher(id: number) {
   await $fetch(`/api/owner/vouchers/${id}/deactivate`, { method: 'POST' })
+  refreshVouchers()
+}
+
+async function activateVoucher(id: number) {
+  await $fetch(`/api/owner/vouchers/${id}/activate`, { method: 'POST' })
   refreshVouchers()
 }
 

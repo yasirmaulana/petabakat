@@ -120,14 +120,16 @@
           <!-- Header persona -->
           <div class="bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-5">
             <p class="text-xs font-semibold uppercase tracking-widest text-brand-100">Persona Potensi Anak</p>
-            <h3 class="mt-1 text-2xl font-bold text-white">Curious Creator</h3>
-            <p class="mt-1 text-sm text-brand-100">Elsha Navya · 11 tahun · Perempuan</p>
+            <h3 class="mt-1 text-2xl font-bold text-white">The Hands-On Trailblazer</h3>
+            <div class="mt-2 flex flex-wrap gap-1.5">
+              <span v-for="k in elshaKarakter" :key="k" class="rounded-full bg-white/15 px-2.5 py-0.5 text-xs text-white">{{ k }}</span>
+            </div>
           </div>
 
           <div class="px-6 py-5">
             <!-- Deskripsi singkat -->
             <p class="text-sm leading-relaxed text-gray-700">
-              Elsha Navya adalah anak dengan keseimbangan potensi yang langka — pikiran ilmiahnya tajam, jiwanya peka terhadap keindahan, tangannya senang berkarya, dan hatinya terbuka untuk orang-orang di sekitarnya.
+              Elsha adalah anak usia 11 tahun dengan jiwa eksekutor sejati — ia tidak puas hanya mendengar cerita, ia ingin membangun, mencoba, dan membuktikan sendiri. Di sisi lain, kemampuannya bercerita dan meyakinkan teman menandakan benih kepemimpinan yang sudah mulai matang.
             </p>
 
             <!-- Skor 4 rumpun -->
@@ -157,7 +159,9 @@
                   <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-400 text-xs font-bold text-black">
                     {{ String.fromCharCode(65 + i) }}
                   </span>
-                  <p class="text-xs leading-relaxed text-gray-700">{{ les }}</p>
+                  <div class="text-xs leading-relaxed text-gray-700">
+                    <span class="font-semibold">{{ les.nama }}</span> — {{ les.deskripsi }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -202,7 +206,7 @@
           <div class="rounded-2xl border border-amber-200 bg-white p-5">
             <div class="mb-3 text-2xl">🎯</div>
             <h3 class="text-sm font-semibold text-gray-900">Bridging Action</h3>
-            <p class="mt-1 text-xs leading-relaxed text-gray-500">AI merekomendasikan tindakan konkret per figur: siapa yang bisa menjadi mentor, kegiatan apa yang perlu difasilitasi.</p>
+            <p class="mt-1 text-xs leading-relaxed text-gray-500">Sistem merekomendasikan tindakan konkret per figur: siapa yang bisa menjadi mentor, kegiatan apa yang perlu difasilitasi.</p>
           </div>
         </div>
         <div class="mt-6 rounded-2xl border border-amber-200 bg-white px-6 py-4">
@@ -374,10 +378,10 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: 'Kenali potensi anak dari rekam jejak karakter keluarga besar menggunakan framework Nasab & Hasab. Analisis 6 figur keluarga, laporan Fit-Gap ekosistem, persona AI, micro-dosing mingguan & rekomendasi les personal. Rp 99.000.',
+      content: 'Kenali potensi anak dari rekam jejak karakter keluarga besar menggunakan framework Nasab & Hasab. Analisis 6 figur keluarga, laporan Fit-Gap ekosistem, persona, micro-dosing mingguan & rekomendasi les personal. Rp 99.000.',
     },
     { property: 'og:title', content: 'PetaMinatBakat — Analisis Potensi Anak + Ekosistem 6 Figur Keluarga' },
-    { property: 'og:description', content: 'Bukan cuma anak yang dianalisis — ekosistem keluarganya pun dianalisis. Framework Nasab & Hasab menghasilkan laporan Fit-Gap, persona AI, dan rekomendasi pengasuhan yang personal.' },
+    { property: 'og:description', content: 'Bukan cuma anak yang dianalisis — ekosistem keluarganya pun dianalisis. Framework Nasab & Hasab menghasilkan laporan Fit-Gap, persona, dan rekomendasi pengasuhan yang personal.' },
   ],
 })
 
@@ -427,17 +431,19 @@ const testimonials = [
   },
 ]
 
+const elshaKarakter = ['Eksekutor', 'Pemimpin alami', 'Kritis']
+
 const elshaSkor = [
-  { code: 'ilmi',    icon: '📚', label: 'Al-Ilmi',    pct: 26.51, dominant: true  },
-  { code: 'karam',   icon: '🤲', label: 'Al-Karam',   pct: 26.51, dominant: false },
-  { code: 'amali',   icon: '🛠️', label: 'Al-Amali',   pct: 24.10, dominant: false },
-  { code: 'qiyadah', icon: '🤝', label: 'Al-Qiyadah', pct: 22.89, dominant: false },
+  { code: 'amali',   icon: '🛠️', label: 'Al-Amali',   pct: 40.12, dominant: true  },
+  { code: 'qiyadah', icon: '🤝', label: 'Al-Qiyadah', pct: 29.94, dominant: false },
+  { code: 'ilmi',    icon: '📚', label: 'Al-Ilmi',    pct: 29.94, dominant: false },
+  { code: 'karam',   icon: '🤲', label: 'Al-Karam',   pct: 0,     dominant: false },
 ]
 
 const elshaLes = [
-  'Kelas Science Club / Kelompok Ilmiah Remaja (KIR) di sekolah atau komunitas',
-  'Workshop Komik dan Ilustrasi (Akademi Komik Indonesia atau kelas komik lokal)',
-  'Program Pramuka Penggalang atau komunitas pecinta alam remaja',
+  { nama: 'Kelas Robotik/Maker Space', deskripsi: 'Menyalurkan hasrat membangun sesuatu dengan tangan sekaligus melatih problem solving.' },
+  { nama: 'Ekstrakurikuler Pramuka / Klub Eksplorasi Alam', deskripsi: 'Sejalan dengan kecintaan pada kamping dan eksplorasi, memperkuat jiwa Amali lewat kegiatan luar ruang.' },
+  { nama: 'Kelas Prakarya & Memasak Anak', deskripsi: 'Ruang konkret untuk kreativitas tangan sekaligus melatih kesabaran dalam eksekusi karya.' },
 ]
 
 const categories = [
@@ -482,7 +488,7 @@ const faqs = [
   },
   {
     q: 'Apakah bridging action bisa saya terapkan sendiri?',
-    a: 'Ya. AI menghasilkan 2–4 tindakan konkret yang ditujukan ke figur spesifik (Ayah, Ibu, atau keluarga besar) lengkap dengan frekuensi dan alasan singkat. Tindakan ini dirancang praktis — bisa langsung diterapkan tanpa perlu pelatihan khusus.',
+    a: 'Ya. Sistem menghasilkan 2–4 tindakan konkret yang ditujukan ke figur spesifik (Ayah, Ibu, atau keluarga besar) lengkap dengan frekuensi dan alasan singkat. Tindakan ini dirancang praktis — bisa langsung diterapkan tanpa perlu pelatihan khusus.',
   },
 ]
 

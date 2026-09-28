@@ -15,6 +15,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Kode voucher tidak ditemukan.' })
   }
 
+  if (voucher.status === 'pending_payment') {
+    throw createError({ statusCode: 400, message: 'Voucher belum aktif — menunggu konfirmasi pembayaran dari admin.' })
+  }
   if (voucher.status !== 'active') {
     throw createError({ statusCode: 400, message: 'Voucher sudah tidak aktif.' })
   }

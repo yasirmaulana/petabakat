@@ -107,6 +107,45 @@
             </div>
           </div>
         </div>
+
+        <!-- Dimensi Tarbiyah — khusus Hasab Keluarga, di luar 4 rumpun minat anak -->
+        <div class="card mb-5 overflow-hidden border-2 border-rose-100">
+          <div class="flex items-center gap-3 border-b border-gray-100 px-5 py-4" :class="tarbiyahDimension.bg">
+            <span class="text-2xl">{{ tarbiyahDimension.icon }}</span>
+            <div>
+              <p class="font-bold text-gray-900">{{ tarbiyahDimension.name }}</p>
+              <p class="text-xs text-gray-500">{{ tarbiyahDimension.tagline }}</p>
+            </div>
+          </div>
+
+          <div class="px-5 py-4 space-y-4">
+            <div>
+              <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Konstruk Ilmiah</p>
+              <p class="text-sm text-gray-700 leading-relaxed">{{ tarbiyahDimension.construct }}</p>
+            </div>
+
+            <div>
+              <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Mekanisme Transmisi Antar Generasi</p>
+              <p class="text-sm text-gray-700 leading-relaxed">{{ tarbiyahDimension.mechanism }}</p>
+            </div>
+
+            <div>
+              <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Referensi Ilmiah</p>
+              <ul class="space-y-2">
+                <li
+                  v-for="(ref, j) in tarbiyahDimension.refs"
+                  :key="j"
+                  class="rounded-lg bg-gray-50 px-4 py-3 text-xs text-gray-600 leading-relaxed"
+                >
+                  <span class="font-medium text-gray-800">{{ ref.authors }} ({{ ref.year }})</span>
+                  — {{ ref.title }}.
+                  <em>{{ ref.journal }}</em><span v-if="ref.detail">, {{ ref.detail }}</span>.
+                  <span v-if="ref.note" class="block mt-1 text-gray-400 italic">{{ ref.note }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Referensi Payung Transmisi Lintas Generasi -->
@@ -193,8 +232,8 @@ const rumpunData = [
     tagline: 'Pola kepemimpinan, komunikasi, dan pengaruh keluarga besar',
     icon: '🤝',
     bg: 'bg-blue-50',
-    construct: 'Kompetensi sosial-emosional, social learning (pemodelan perilaku orang tua), kepemimpinan awal (emergent leadership), dan teori ikatan (attachment). Keluarga yang menunjukkan pola kepemimpinan aktif, musyawarah, dan komunikasi terbuka menciptakan lingkungan di mana anak belajar meniru perilaku tersebut sejak dini.',
-    mechanism: 'Melalui observational learning (Bandura, 1977): anak mengamati dan menginternalisasi cara orang tua dan keluarga besar memimpin, berkomunikasi, dan menyelesaikan konflik. Attachment aman (secure attachment) juga berkorelasi positif dengan kemampuan sosial anak di lingkungan luar keluarga.',
+    construct: 'Kompetensi sosial-emosional, social learning (pemodelan perilaku orang tua), keberanian moral (moral courage) dan advokasi, integritas/kredibilitas, serta teori ikatan (attachment). Keluarga yang menunjukkan pola kepemimpinan aktif, musyawarah, ketegasan sikap membela yang benar, dan menjadi tempat berlindung (jiwaar) bagi kerabat menciptakan lingkungan di mana anak belajar meniru perilaku tersebut sejak dini.',
+    mechanism: 'Melalui observational learning (Bandura, 1977): anak mengamati dan menginternalisasi cara orang tua dan keluarga besar memimpin, mengambil sikap, membela yang tertindas, dan menyelesaikan konflik. Attachment aman (secure attachment) juga berkorelasi positif dengan kemampuan sosial dan kepercayaan diri anak untuk bersikap tegas di lingkungan luar keluarga.',
     refs: [
       { authors: 'Bandura, A.', year: 1977, title: 'Social Learning Theory', journal: 'Prentice-Hall', detail: null, note: 'Dasar teoretis transmisi perilaku sosial dari orang tua ke anak via observasi dan imitasi.' },
       { authors: 'Eisenberg, N., Fabes, R. A., & Spinrad, T. L.', year: 2006, title: 'Prosocial Development', journal: 'Handbook of Child Psychology', detail: 'Vol. 3, 6th ed., pp. 646–718. Wiley', note: 'Perilaku prososial, empati, dan kepemimpinan sosial berkembang melalui lingkungan keluarga yang responsif.' },
@@ -215,16 +254,16 @@ const rumpunData = [
     ],
   },
   {
-    name: 'Hasab Al-Amali — Bisnis & Teknis',
-    tagline: 'Etos kerja, keterampilan tangan, dan jiwa wirausaha keluarga',
+    name: 'Hasab Al-Amali — Eksekusi & Karya Nyata',
+    tagline: 'Daya bangun, wakaf/amal jariah, dan visi jangka panjang keluarga',
     icon: '🛠️',
     bg: 'bg-orange-50',
-    construct: 'Achievement motivation (McClelland), entrepreneurial trait transmission, dan keterampilan vokasional yang diwariskan. Keluarga dengan tradisi wirausaha, etos kerja keras, dan orientasi solusi praktis menciptakan pola pikir eksekusi dan kemandirian yang terinternalisasi anak sejak dini.',
-    mechanism: 'Melalui pemodelan langsung (observing parent working), socialization of work values (nilai kerja yang diajarkan secara eksplisit), dan opportunity exposure (anak yang tumbuh di lingkungan usaha keluarga lebih terpapar pada pola pikir kewirausahaan). Self-efficacy terkait kerja juga terbentuk dari reinforcement dalam keluarga.',
+    construct: 'Generativity (Erikson), goal-setting & execution capability, serta builder mindset yang diwariskan lewat peninggalan fisik (wakaf, infrastruktur, institusi) yang manfaatnya bertahan lintas generasi. Keluarga dengan rekam jejak merealisasikan ide menjadi karya nyata menciptakan pola pikir eksekusi dan visi jangka panjang yang terinternalisasi anak sejak dini.',
+    mechanism: 'Melalui pemodelan langsung (anak melihat karya nyata leluhur yang bertahan lama), goal-setting theory (Locke & Latham): tujuan konkret dan spesifik mendorong performa eksekusi. Self-efficacy terkait kemampuan membangun/menyelesaikan sesuatu juga terbentuk dari reinforcement dan mastery experience dalam keluarga.',
     refs: [
-      { authors: 'McClelland, D. C.', year: 1961, title: 'The Achieving Society', journal: 'Van Nostrand', detail: null, note: 'Achievement motivation sebagai konstruk yang terbentuk dalam lingkungan sosial dan keluarga, bukan hanya bawaan.' },
-      { authors: 'Schmitt-Rodermund, E.', year: 2004, title: 'Pathways to successful entrepreneurship: Parenting, personality, early entrepreneurial competence, and interests', journal: 'Journal of Vocational Behavior', detail: '65(3), 498–518', note: 'Orang tua wirausahawan mengembangkan entrepreneurial competence anak secara signifikan melalui parenting style dan role modeling.' },
-      { authors: 'Bandura, A.', year: 1997, title: 'Self-Efficacy: The Exercise of Control', journal: 'Freeman', detail: null, note: 'Self-efficacy dalam bidang teknis/kerja terbentuk dari mastery experiences dan vicarious learning — keduanya dimediasi oleh keluarga.' },
+      { authors: 'Erikson, E. H.', year: 1963, title: 'Childhood and Society', journal: 'Norton', detail: null, note: 'Generativity — dorongan meninggalkan sesuatu yang bermanfaat bagi generasi berikutnya — sebagai nilai yang ditransmisikan lintas generasi keluarga.' },
+      { authors: 'Locke, E. A., & Latham, G. P.', year: 2002, title: 'Building a practically useful theory of goal setting and task motivation', journal: 'American Psychologist', detail: '57(9), 705–717', note: 'Tujuan yang jelas dan menantang meningkatkan daya eksekusi — pola ini dipelajari anak dari cara keluarga menuntaskan proyek/karya.' },
+      { authors: 'Bandura, A.', year: 1997, title: 'Self-Efficacy: The Exercise of Control', journal: 'Freeman', detail: null, note: 'Self-efficacy dalam merealisasikan karya terbentuk dari mastery experiences dan vicarious learning — keduanya dimediasi oleh keluarga.' },
     ],
   },
   {
@@ -232,15 +271,28 @@ const rumpunData = [
     tagline: 'Filantropi, kepekaan terhadap sesama, dan kerelaan berkorban dalam keluarga',
     icon: '🤲',
     bg: 'bg-teal-50',
-    construct: 'Prosocial behavior (Eisenberg), empati afektif dan kognitif (Davis, 1983), altruisme, serta orientasi nilai filantropis. Keluarga yang terbiasa memberi, aktif dalam pengabdian sosial, dan peka terhadap kesulitan orang lain membentuk disposisi kedermawanan dan kepekaan sosial yang terinternalisasi anak sejak dini.',
-    mechanism: 'Transmisi nilai prosocial terjadi melalui modeling langsung (orang tua berderma dan menolong), induction parenting (menjelaskan dampak tindakan terhadap orang lain), dan warm family climate yang mempertebal empati. Identitas dermawan terbentuk saat anak berulang kali menyaksikan dan dilibatkan dalam tindakan memberi di lingkungan keluarga.',
+    construct: 'Prosocial behavior (Eisenberg), empati afektif dan kognitif (Davis, 1983), altruisme, orientasi nilai filantropis, serta kesediaan menanggung risiko finansial demi kemaslahatan bersama (menanggung utang/kerugian kerabat, bukan sekadar donasi rutin). Keluarga yang terbiasa memberi, aktif dalam pengabdian sosial, dan berani mengorbankan sumber daya demi menyelamatkan orang lain membentuk disposisi kedermawanan dan kecerdasan manajemen risiko sosial yang terinternalisasi anak sejak dini.',
+    mechanism: 'Transmisi nilai prosocial terjadi melalui modeling langsung (orang tua berderma dan menolong), induction parenting (menjelaskan dampak tindakan terhadap orang lain), dan warm family climate yang mempertebal empati. Identitas dermawan terbentuk saat anak berulang kali menyaksikan dan dilibatkan dalam tindakan memberi maupun pengorbanan finansial di lingkungan keluarga.',
     refs: [
       { authors: 'Eisenberg, N., & Fabes, R. A.', year: 1998, title: 'Prosocial Development', journal: 'Handbook of Child Psychology, Vol. 3: Social, Emotional, and Personality Development', detail: '5th ed., pp. 701–778. Wiley', note: 'Perilaku prososial anak dipengaruhi kuat oleh modeling orang tua, induction, dan iklim emosional keluarga.' },
       { authors: 'Davis, M. H.', year: 1983, title: 'Measuring individual differences in empathy: Evidence for a multidimensional approach', journal: 'Journal of Personality and Social Psychology', detail: '44(1), 113–126', note: 'Empati terdiri dari komponen afektif dan kognitif; keduanya berkembang dalam konteks hubungan keluarga yang hangat.' },
       { authors: 'Bekkers, R., & Wiepking, P.', year: 2011, title: 'A Literature Review of Empirical Studies of Philanthropy: Eight Mechanisms That Drive Charitable Giving', journal: 'Nonprofit and Voluntary Sector Quarterly', detail: '40(5), 924–973', note: 'Sosialisasi keluarga adalah salah satu penentu terkuat orientasi filantropis dan kebiasaan memberi sepanjang hidup seseorang.' },
+      { authors: 'Van Lange, P. A. M., & Joireman, J.', year: 2008, title: 'How we can promote behavior that serves all of us in the future', journal: 'Social Issues and Policy Review', detail: '2(1), 127–157', note: 'Kesediaan menanggung risiko/kerugian pribadi demi kemaslahatan kelompok (risk-taking altruism) adalah bentuk lanjutan dari prosocial value orientation yang ditransmisikan lintas generasi.' },
     ],
   },
 ]
+
+const tarbiyahDimension = {
+  name: 'Hasab Keluarga — Dimensi Tarbiyah (Kualitas Pengasuhan)',
+  tagline: 'Dimensi ke-5 khusus pada assessment Hasab Keluarga, di luar 4 rumpun minat anak',
+  icon: '🌱',
+  bg: 'bg-rose-50',
+  construct: 'Parenting style & warmth-control (Baumrind, 1991), responsiveness pengasuhan, serta konsistensi keteladanan. Berbeda dari 4 rumpun Hasab (Qiyadah, Ilmi, Amali, Karam) yang memetakan potensi/bakat yang diwariskan (what), Tarbiyah mengukur cara keluarga mengasuh (how) — sehingga sengaja dikecualikan dari perhitungan Fit-Gap.',
+  mechanism: 'Kualitas pengasuhan (kehangatan, konsistensi, keteladanan) memoderasi seberapa optimal potensi bawaan/warisan keluarga di 4 rumpun lain benar-benar teraktualisasi pada anak. Ditampilkan sebagai card terpisah pada laporan hasil sebagai indikator pengasuhan, bukan sebagai kandidat top-3 kekuatan Hasab.',
+  refs: [
+    { authors: 'Baumrind, D.', year: 1991, title: 'The influence of parenting style on adolescent competence and substance use', journal: 'Journal of Early Adolescence', detail: '11(1), 56–95', note: 'Gaya pengasuhan (authoritative/authoritarian/permissive) memprediksi kompetensi anak secara konsisten, independen dari bakat yang diwariskan.' },
+  ],
+}
 
 const generalRefs = [
   { authors: 'Bronfenbrenner, U.', year: 1979, title: 'The Ecology of Human Development', journal: 'Harvard University Press', detail: null, note: 'Keluarga adalah microsystem paling berpengaruh dalam perkembangan anak — semua dimensi potensi berkembang pertama kali di sini.' },

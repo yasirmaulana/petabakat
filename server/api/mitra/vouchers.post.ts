@@ -10,10 +10,6 @@ function generateCode(prefix: string): string {
 export default defineEventHandler(async (event) => {
   const { partnerId, type } = await requireMitraAuth(event)
 
-  if (type !== 'institutional') {
-    throw createError({ statusCode: 403, message: 'Hanya mitra institusi yang bisa generate voucher.' })
-  }
-
   const body = await readBody(event)
   const count = Number(body.count) || 1
   const expiresAt = body.expiresAt ? new Date(body.expiresAt) : null
@@ -24,7 +20,10 @@ export default defineEventHandler(async (event) => {
 
   const partner = await prisma.partner.findUnique({ where: { id: partnerId }, select: { creditBalance: true, referralCode: true } })
   if (!partner) throw createError({ statusCode: 404, message: 'Mitra tidak ditemukan.' })
-  if (partner.creditBalance < count) {
+
+  // Institusi: voucher langsung aktif, dipotong dari kredit prabayar.
+  // Affiliate: voucher dibuat berstatus pending_payment — baru aktif setelah admin konfirmasi pembayaran orang tua.
+  if (type === 'institutional' && partner.creditBalance < count) {
     throw createError({ statusCode: 400, message: `Kredit tidak cukup. Sisa: ${partner.creditBalance}, diminta: ${count}.` })
   }
 
@@ -41,16 +40,23 @@ export default defineEventHandler(async (event) => {
     codes.push(code)
   }
 
-  const [, result] = await prisma.$transaction([
-    prisma.partner.update({
-      where: { id: partnerId },
-      data: { creditBalance: { decrement: count } },
-    }),
-    prisma.voucher.createMany({
-      data: codes.map(code => ({ code, quota: 1, partnerId, expiresAt })),
-      skipDuplicates: true,
-    }),
-  ])
+  const writes = type === 'institutional'
+    ? [
+        prisma.partner.update({ where: { id: partnerId }, data: { creditBalance: { decrement: count } } }),
+        prisma.voucher.createMany({
+          data: codes.map(code => ({ code, quota: 1, partnerId, expiresAt, status: 'active' })),
+          skipDuplicates: true,
+        }),
+      ]
+    : [
+        prisma.voucher.createMany({
+          data: codes.map(code => ({ code, quota: 1, partnerId, expiresAt, status: 'pending_payment' })),
+          skipDuplicates: true,
+        }),
+      ]
 
-  return { created: result.count, codes }
+  const result = await prisma.$transaction(writes)
+  const createdCount = type === 'institutional' ? result[1].count : result[0].count
+
+  return { created: createdCount, codes, status: type === 'institutional' ? 'active' : 'pending_payment' }
 })
