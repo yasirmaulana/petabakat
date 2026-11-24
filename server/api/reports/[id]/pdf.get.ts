@@ -1,7 +1,6 @@
 import { prisma } from '~/server/utils/prisma'
 import { buildPdfBuffer } from '~/server/utils/pdfBuilder'
-import { verifyHistoryToken, getMitraTokenFromEvent, verifyMitraToken } from '~/server/utils/auth'
-import { getSchoolTokenFromEvent, verifySchoolToken } from '~/server/utils/schoolAuth'
+import { requireSurveyView } from '~/server/utils/surveyAccess'
 
 export default defineEventHandler(async (event) => {
   const publicId = getRouterParam(event, 'id')
@@ -14,6 +13,8 @@ export default defineEventHandler(async (event) => {
           child: true,
           parent: true,
           responses: true,
+          voucher: { select: { partnerId: true } },
+          schoolStudent: { select: { consentGiven: true, schoolClass: { select: { schoolId: true } } } },
         },
       },
     },
@@ -23,26 +24,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Result not found' })
   }
 
-  // Auth check
-  let allowed = false
-  const raw = getCookie(event, 'history_session')
-  if (raw) {
-    try {
-      const phone = await verifyHistoryToken(raw)
-      if (phone === result.survey.parent.phone) allowed = true
-    } catch {}
-  }
-  if (!allowed) {
-    const mt = getMitraTokenFromEvent(event)
-    if (mt) { try { await verifyMitraToken(mt); allowed = true } catch {} }
-  }
-  if (!allowed) {
-    const st = getSchoolTokenFromEvent(event)
-    if (st) { try { await verifySchoolToken(st); allowed = true } catch {} }
-  }
-  if (!allowed) {
-    throw createError({ statusCode: 403, message: 'Akses ditolak. Silakan login terlebih dahulu.' })
-  }
+  await requireSurveyView(event, result.survey)
 
   const pdfBuffer = buildPdfBuffer(result)
 

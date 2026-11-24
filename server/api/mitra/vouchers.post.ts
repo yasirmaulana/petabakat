@@ -40,23 +40,22 @@ export default defineEventHandler(async (event) => {
     codes.push(code)
   }
 
-  const writes = type === 'institutional'
-    ? [
-        prisma.partner.update({ where: { id: partnerId }, data: { creditBalance: { decrement: count } } }),
-        prisma.voucher.createMany({
-          data: codes.map(code => ({ code, quota: 1, partnerId, expiresAt, status: 'active' })),
-          skipDuplicates: true,
-        }),
-      ]
-    : [
-        prisma.voucher.createMany({
-          data: codes.map(code => ({ code, quota: 1, partnerId, expiresAt, status: 'pending_payment' })),
-          skipDuplicates: true,
-        }),
-      ]
+  const status = type === 'institutional' ? 'active' : 'pending_payment'
+  const createdCount = await prisma.$transaction(async (tx) => {
+    if (type === 'institutional') {
+      // Potong kredit hanya jika saldo masih cukup — atomik, mencegah saldo minus saat request bersamaan
+      const debited = await tx.partner.updateMany({
+        where: { id: partnerId, creditBalance: { gte: count } },
+        data: { creditBalance: { decrement: count } },
+      })
+      if (debited.count === 0) throw createError({ statusCode: 400, message: 'Kredit tidak cukup.' })
+    }
+    // Tanpa skipDuplicates: bila ada kode bentrok, seluruh transaksi (termasuk potong kredit) dibatalkan
+    const created = await tx.voucher.createMany({
+      data: codes.map(code => ({ code, quota: 1, partnerId, expiresAt, status })),
+    })
+    return created.count
+  })
 
-  const result = await prisma.$transaction(writes)
-  const createdCount = type === 'institutional' ? result[1].count : result[0].count
-
-  return { created: createdCount, codes, status: type === 'institutional' ? 'active' : 'pending_payment' }
+  return { created: createdCount, codes, status }
 })

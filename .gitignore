@@ -26,3 +26,8 @@ logs
 /generated/prisma
 .vercel
 .env*.local
+
+# Database dumps (berisi data pribadi)
+backups/
+
+.omc/

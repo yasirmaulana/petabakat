@@ -1,16 +1,9 @@
 import { prisma } from '~/server/utils/prisma'
-import { verifyHistoryToken } from '~/server/utils/auth'
+import { requireSurveyOwner } from '~/server/utils/surveyAccess'
 
 const ROLES = ['kakek_ayah', 'nenek_ayah', 'kakek_ibu', 'nenek_ibu', 'ayah', 'ibu'] as const
 
 export default defineEventHandler(async (event) => {
-  // Harus login sebagai orang tua
-  const rawToken = getCookie(event, 'history_session')
-  if (!rawToken) throw createError({ statusCode: 401, message: 'Silakan login terlebih dahulu.' })
-  const phone = await verifyHistoryToken(rawToken).catch(() => {
-    throw createError({ statusCode: 401, message: 'Session expired.' })
-  })
-
   const surveyPublicId = getRouterParam(event, 'surveyId')
 
   // Verifikasi survey milik pengguna dan sudah selesai
@@ -19,7 +12,7 @@ export default defineEventHandler(async (event) => {
     include: { parent: true, familyAssessment: true },
   })
   if (!survey) throw createError({ statusCode: 404, message: 'Survey tidak ditemukan.' })
-  if (survey.parent.phone !== phone) throw createError({ statusCode: 403, message: 'Akses ditolak.' })
+  await requireSurveyOwner(event, survey)
 
   // Cegah duplikasi
   if (survey.familyAssessment) {

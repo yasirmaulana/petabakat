@@ -1,13 +1,7 @@
 import { prisma } from '~/server/utils/prisma'
-import { verifyHistoryToken } from '~/server/utils/auth'
+import { requireSurveyOwner } from '~/server/utils/surveyAccess'
 
 export default defineEventHandler(async (event) => {
-  const rawToken = getCookie(event, 'history_session')
-  if (!rawToken) throw createError({ statusCode: 401, message: 'Silakan login terlebih dahulu.' })
-  const phone = await verifyHistoryToken(rawToken).catch(() => {
-    throw createError({ statusCode: 401, message: 'Session expired.' })
-  })
-
   const surveyPublicId = getRouterParam(event, 'surveyId')
 
   const survey = await prisma.survey.findUnique({
@@ -31,7 +25,7 @@ export default defineEventHandler(async (event) => {
   })
 
   if (!survey) throw createError({ statusCode: 404, message: 'Survey tidak ditemukan.' })
-  if (survey.parent.phone !== phone) throw createError({ statusCode: 403, message: 'Akses ditolak.' })
+  await requireSurveyOwner(event, survey)
 
   if (!survey.familyAssessment) {
     return { exists: false }

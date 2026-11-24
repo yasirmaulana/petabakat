@@ -82,6 +82,13 @@
         </div>
       </div>
 
+      <!-- Akses ditolak (mis. link dibuka di perangkat lain tanpa sesi) -->
+      <div v-else-if="accessDenied" class="mx-auto flex max-w-md flex-col items-center gap-4 py-24 text-center">
+        <p class="text-sm font-medium text-gray-900">Masuk untuk melihat hasil ini</p>
+        <p class="text-sm text-gray-500">Demi menjaga privasi anak, hasil hanya bisa dibuka oleh orang tua. Masuk dengan kode OTP yang dikirim ke nomor WhatsApp yang digunakan saat survey.</p>
+        <NuxtLink to="/history" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">Masuk dengan OTP</NuxtLink>
+      </div>
+
       <template v-else-if="result && result.status === 'completed'">
 
         <!-- 1. Persona Banner -->
@@ -557,13 +564,18 @@
 const route = useRoute()
 const resultId = route.params.id
 
-const { data: result, pending, refresh } = await useFetch(`/api/results/${resultId}`)
+const { data: result, pending, refresh, error } = await useFetch(`/api/results/${resultId}`)
+const accessDenied = computed(() => error.value?.statusCode === 401 || error.value?.statusCode === 403)
 const waSending = ref(false)
 const showWakafPopup = ref(false)
 const showDisclaimer = ref(false)
 
 // ── Hasab Keluarga / Fit-Gap ──────────────────────────────────────────────────
-const { data: familyData } = await useFetch(`/api/family-assessment/public/${resultId}`)
+// Data keluarga sudah ikut dalam respons /api/results (dengan pengecekan akses yang sama)
+const familyData = computed(() => {
+  const fa = (result.value as { survey?: { familyAssessment?: unknown } } | null)?.survey?.familyAssessment
+  return fa ? { exists: true, assessment: fa } : { exists: false }
+})
 const familyResult = computed(() => {
   const d = familyData.value as { exists?: boolean; assessment?: { result: unknown; status: string } } | null
   if (!d?.exists || !d.assessment?.result || d.assessment.status !== 'completed') return null

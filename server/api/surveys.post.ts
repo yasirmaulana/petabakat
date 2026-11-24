@@ -1,7 +1,8 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '~/server/utils/prisma'
 import { calculateNaturalResponseScores, calculatePercentages } from '~/server/utils/hasabCalculator'
-import { signHistoryToken } from '~/server/utils/auth'
+import { signSurveyToken, verifySurveyToken } from '~/server/utils/auth'
+import { parseSurveyInput } from '~/server/utils/surveyInput'
 import { checkRateLimit } from '~/server/utils/rateLimiter'
 import { verifyRecaptcha } from '~/server/utils/verifyRecaptcha'
 
@@ -9,48 +10,57 @@ export default defineEventHandler(async (event) => {
   // ponytail: per-IP limit 5 submissions per minute. Tune after real traffic analysis.
   checkRateLimit(event, { max: 5, windowMs: 60_000, keyPrefix: 'survey-submit' })
 
-  const body = await readBody(event)
-  await verifyRecaptcha(body.recaptchaToken, 'survey_submit')
+  const rawBody = await readBody(event)
+  await verifyRecaptcha(rawBody?.recaptchaToken, 'survey_submit')
+  const body = parseSurveyInput(rawBody)
 
   const { survey, scores, percentages, orderedHasab } = await prisma.$transaction(async (tx) => {
-    // Validate and consume voucher atomically
-    let voucherId: number | null = null
-    let voucherPartnerId: number | null = null
-    if (body.voucherId) {
-      const voucher = await tx.voucher.findUnique({ where: { id: body.voucherId } })
-      if (!voucher || voucher.status !== 'active') {
-        throw createError({ statusCode: 400, message: 'Voucher tidak valid atau sudah tidak aktif.' })
-      }
-      if (voucher.expiresAt && voucher.expiresAt < new Date()) {
-        throw createError({ statusCode: 400, message: 'Voucher sudah kadaluarsa.' })
-      }
-      if (voucher.usedCount >= voucher.quota) {
-        throw createError({ statusCode: 400, message: 'Kuota voucher sudah habis.' })
-      }
-      await tx.voucher.update({
-        where: { id: voucher.id },
-        data: { usedCount: { increment: 1 } },
+    // Voucher wajib (sama dengan validasi di form survey), dicari berdasarkan KODE dan dipakai secara atomik
+    const voucher = await tx.voucher.findUnique({ where: { code: body.voucherCode } })
+    if (!voucher || voucher.status !== 'active') {
+      throw createError({ statusCode: 400, message: 'Voucher tidak valid atau sudah tidak aktif.' })
+    }
+    if (voucher.expiresAt && voucher.expiresAt < new Date()) {
+      throw createError({ statusCode: 400, message: 'Voucher sudah kadaluarsa.' })
+    }
+    const used = await tx.voucher.updateMany({
+      where: { id: voucher.id, status: 'active', usedCount: { lt: voucher.quota } },
+      data: { usedCount: { increment: 1 } },
+    })
+    if (used.count === 0) throw createError({ statusCode: 400, message: 'Kuota voucher sudah habis.' })
+    const voucherId = voucher.id
+    const voucherPartnerId = voucher.partnerId
+
+    // Sekolah: dicari berdasarkan KODE dan divalidasi ulang di server (langganan & kapasitas)
+    let schoolId: number | null = null
+    if (body.schoolId && body.schoolCode) {
+      const school = await tx.school.findUnique({
+        where: { code: body.schoolCode },
+        select: { id: true, billingStatus: true, studentCap: true, _count: { select: { surveys: true } } },
       })
-      voucherId = voucher.id
-      voucherPartnerId = voucher.partnerId
+      if (!school || school.id !== body.schoolId) throw createError({ statusCode: 400, message: 'Kode sekolah tidak valid.' })
+      if (school.billingStatus === 'expired') throw createError({ statusCode: 400, message: 'Langganan sekolah sudah habis.' })
+      if (school._count.surveys >= school.studentCap) throw createError({ statusCode: 400, message: 'Kapasitas siswa sekolah sudah penuh.' })
+      schoolId = school.id
     }
 
     const parent = await tx.parent.upsert({
       where: { phone: body.parentPhone },
-      update: { name: body.parentName, ...(body.parentEmail ? { email: body.parentEmail } : {}) },
-      create: { name: body.parentName, phone: body.parentPhone, email: body.parentEmail || null },
+      // Nomor belum diverifikasi — jangan menimpa data orang tua yang sudah ada
+      update: {},
+      create: { name: body.parentName, phone: body.parentPhone, email: body.parentEmail },
     })
 
     const child = await tx.child.create({
       data: {
         parentId: parent.id,
         name: body.childName,
-        birthDate: new Date(body.childBirthDate),
+        birthDate: body.childBirthDate,
         gender: body.childGender,
       },
     })
 
-    const scores = calculateNaturalResponseScores(body.naturalResponses ?? [])
+    const scores = calculateNaturalResponseScores(body.naturalResponses)
     const percentages = calculatePercentages(scores)
     const orderedHasab = Object.entries(scores)
       .sort((a, b) => b[1] - a[1])
@@ -61,8 +71,8 @@ export default defineEventHandler(async (event) => {
         childId: child.id,
         parentId: parent.id,
         voucherId,
-        schoolId: body.schoolId || null,
-        schoolCode: body.schoolCode || null,
+        schoolId,
+        schoolCode: schoolId ? body.schoolCode : null,
         status: 'processing',
         completedAt: new Date(),
         responses: {
@@ -82,24 +92,20 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // Hubungkan ke kelas sekolah (consent wajib) — di dalam transaksi agar konsisten dengan cek kapasitas
+    if (schoolId && body.schoolConsent && body.schoolClassId) {
+      const schoolClass = await tx.schoolClass.findFirst({ where: { id: body.schoolClassId, schoolId } })
+      if (schoolClass) {
+        await tx.surveyStudent.create({ data: { surveyId: survey.id, schoolClassId: schoolClass.id, consentGiven: true } })
+      }
+    }
+
     return { survey, scores, percentages, orderedHasab }
   }, {
     isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
     maxWait: 5000,
     timeout: 15000,
   })
-
-  // Link survey ke dashboard sekolah jika kode valid, consent diberikan, dan kelas dipilih
-  if (body.schoolId && body.schoolConsent && body.schoolClassId) {
-    const schoolClass = await prisma.schoolClass.findFirst({
-      where: { id: body.schoolClassId, schoolId: body.schoolId },
-    })
-    if (schoolClass) {
-      await prisma.surveyStudent.create({
-        data: { surveyId: survey.id, schoolClassId: schoolClass.id, consentGiven: true },
-      }).catch(() => { /* ignore duplicate */ })
-    }
-  }
 
   // Simpan skor ke SurveyResult tanpa AI — konten AI (parentNotes, microdosingPlan, dll)
   // akan diisi oleh enrichSurveyResultWithFamily setelah family assessment selesai.
@@ -125,10 +131,12 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  // Set history_session otomatis agar user langsung bisa akses family assessment
-  // tanpa perlu OTP lagi — nomor WA sudah terverifikasi saat pembelian voucher
-  const sessionToken = await signHistoryToken(body.parentPhone)
-  setCookie(event, 'history_session', sessionToken, {
+  // Sesi khusus survey ini saja, agar user langsung lanjut ke family assessment & hasil.
+  // Bukan history_session: nomor WA belum diverifikasi, jadi tidak boleh membuka survey lain milik nomor itu.
+  const previous = getCookie(event, 'survey_session')
+  const previousIds = previous ? await verifySurveyToken(previous).catch(() => []) : []
+  const sessionToken = await signSurveyToken([...previousIds, survey.publicId])
+  setCookie(event, 'survey_session', sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

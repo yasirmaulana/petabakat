@@ -262,8 +262,8 @@ const { data: assessmentData, pending: assessmentPending } = useFetch(
   {
     server: false,
     onResponseError({ response }) {
-      if (response.status === 401) {
-        assessmentFetchError.value = 'Sesi tidak ditemukan. Silakan ulangi pengisian survey dari awal.'
+      if (response.status === 401 || response.status === 403) {
+        assessmentFetchError.value = 'Sesi tidak ditemukan. Silakan masuk lewat menu Riwayat (OTP) untuk melanjutkan.'
       } else {
         assessmentFetchError.value = `Gagal memuat data (${response.status}). Coba muat ulang halaman.`
       }

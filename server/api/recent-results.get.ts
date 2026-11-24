@@ -18,7 +18,8 @@ export default defineEventHandler(async () => {
   return results
     .filter((r) => r.survey?.child?.name && r.personaLabel)
     .map((r) => ({
-      childName: r.survey.child.name,
+      // Hanya nama depan — endpoint ini publik (social proof di beranda)
+      childName: r.survey.child.name.trim().split(/\s+/)[0],
       personaLabel: r.personaLabel,
     }))
 })

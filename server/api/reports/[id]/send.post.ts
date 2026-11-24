@@ -1,15 +1,9 @@
 import { prisma } from '~/server/utils/prisma'
-import { verifyHistoryToken } from '~/server/utils/auth'
+import { requireSurveyOwner } from '~/server/utils/surveyAccess'
+
+const SEND_COOLDOWN_MS = 10 * 60_000
 
 export default defineEventHandler(async (event) => {
-  // Auth: harus login sebagai pemilik survei
-  const raw = getCookie(event, 'history_session')
-  if (!raw) throw createError({ statusCode: 401, message: 'Login diperlukan.' })
-
-  let callerPhone: string
-  try { callerPhone = await verifyHistoryToken(raw) }
-  catch { throw createError({ statusCode: 401, message: 'Sesi tidak valid.' }) }
-
   const publicId = getRouterParam(event, 'id')
 
   const result = await prisma.surveyResult.findFirst({
@@ -28,8 +22,16 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Result not found' })
   }
 
-  if (result.survey.parent.phone !== callerPhone) {
-    throw createError({ statusCode: 403, message: 'Akses ditolak.' })
+  await requireSurveyOwner(event, result.survey)
+
+  // Cooldown per survey (berbasis DB) — mencegah endpoint ini dipakai untuk spam WA
+  const lastSent = await prisma.pdfReport.findFirst({
+    where: { surveyId: result.survey.id, sentAt: { not: null } },
+    orderBy: { sentAt: 'desc' },
+    select: { sentAt: true },
+  })
+  if (lastSent?.sentAt && Date.now() - lastSent.sentAt.getTime() < SEND_COOLDOWN_MS) {
+    throw createError({ statusCode: 429, message: 'Laporan baru saja dikirim. Coba lagi dalam 10 menit.' })
   }
 
   const config = useRuntimeConfig()

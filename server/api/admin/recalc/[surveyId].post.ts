@@ -1,8 +1,10 @@
 import { prisma } from '~/server/utils/prisma'
+import { requireAdmin } from '~/server/utils/adminAuth'
 import { calculateFamilyScores, calculateFitGap } from '~/server/utils/hasabFamilyCalculator'
 
 // Admin-only: hitung ulang family scores dengan normalisasi terbaru
 export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const publicId = getRouterParam(event, 'surveyId')
 
   const survey = await prisma.survey.findUnique({

@@ -22,7 +22,7 @@
       <div class="mb-8">
         <h1 class="text-2xl font-bold text-gray-950">Riwayat Hasil Survey</h1>
         <p class="mt-1 text-sm text-gray-500">
-          {{ step === 'phone' ? 'Masukkan nomor WhatsApp yang digunakan saat survey.' : step === 'otp' ? 'Masukkan kode OTP yang dikirim ke WhatsApp Anda.' : '' }}
+          {{ step === 'phone' ? 'Masukkan nomor WhatsApp yang digunakan saat survey.' : step === 'otp' ? 'Jika nomor terdaftar, kode OTP sudah dikirim ke WhatsApp Anda. Masukkan kodenya di bawah.' : '' }}
         </p>
       </div>
 

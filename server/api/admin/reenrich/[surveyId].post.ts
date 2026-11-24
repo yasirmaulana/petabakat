@@ -1,10 +1,12 @@
 import { prisma } from '~/server/utils/prisma'
+import { requireAdmin } from '~/server/utils/adminAuth'
 import { analyzeWithAi } from '~/server/utils/aiAnalyzer'
 import { fallbackAnalysis } from '~/server/utils/fallbackAnalysis'
 import { Prisma } from '@prisma/client'
 
 // Admin-only: re-run AI enrichment untuk survey yang source-nya 'fallback'
 export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const publicId = getRouterParam(event, 'surveyId')
 
   const existing = await prisma.surveyResult.findFirst({
